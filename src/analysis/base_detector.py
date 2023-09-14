@@ -7,7 +7,7 @@ class BaseDetector:
     def __init__(self, config):
         self.config = config
 
-    def detect(self, cluster):
+    def detect(self, _):
         raise NotImplementedError("Subclasses should implement this!")
 
     def send_alert(self, alert_details):
