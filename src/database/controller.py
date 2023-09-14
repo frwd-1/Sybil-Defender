@@ -1,13 +1,22 @@
-from sqlalchemy import create_engine, Column, String, Integer, DateTime, and_
+from sqlalchemy import create_engine, Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from sqlalchemy.orm import sessionmaker, declarative_base
 from datetime import datetime
 
 # Database Configuration
-DATABASE_URL = "sqlite+aiosqlite:///./database/main.db"  # Adjust as necessary
+DATABASE_URL = "sqlite+aiosqlite:///./database/main.db"
 
-engine = create_engine(DATABASE_URL, pool_size=10)
-async_engine = create_async_engine(DATABASE_URL, echo=False, future=True)
+# Synchronous Engine (Adjust as necessary)
+engine = create_engine(DATABASE_URL)
+
+# Asynchronous Engine
+async_engine = create_async_engine(DATABASE_URL, echo=False)
+
+# Creating an async session factory bound to the async engine
+AsyncSessionLocal = sessionmaker(
+    bind=async_engine, class_=AsyncSession, expire_on_commit=False
+)
 
 Base = declarative_base()
 
@@ -27,4 +36,5 @@ class Transaction(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 
+# Create tables synchronously (keep in mind, for production you might want a separate script or mechanism for migrations)
 Base.metadata.create_all(engine)

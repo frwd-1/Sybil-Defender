@@ -2,10 +2,12 @@ import logging
 from networkx import Graph
 from sklearn.cluster import DBSCAN  # For DBSCAN
 from datetime import datetime, timedelta
-from database.controller import engine, EOA, Transaction
+from src.database.controller import async_engine, EOA, Transaction
 from community import best_partition  # For the Louvain method
 from heuristics.advanced_heuristics import sybil_heuristics
 from analysis.cluster_analysis import analyze_suspicious_clusters
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import sessionmaker
 
 # Logger setup
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
@@ -15,8 +17,10 @@ LOG_ENABLED = True  # Global switch to enable or disable logging
 # TODO: create a constants file
 N = 100
 
+AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
 
-def analyze_transaction(transaction_event):
+
+async def handle_transaction(transaction_event):
     global transaction_counter
 
     tx_hash = transaction_event.hash
@@ -24,15 +28,15 @@ def analyze_transaction(transaction_event):
     receiver = transaction_event.to
     amount = transaction_event.transaction.value
 
-    with engine.connect() as conn:
-        conn.add(EOA(address=sender))
-        conn.add(EOA(address=receiver))
-        conn.add(
+    async with AsyncSessionLocal() as session:
+        session.add(EOA(address=sender))
+        session.add(EOA(address=receiver))
+        session.add(
             Transaction(
                 tx_hash=tx_hash, sender=sender, receiver=receiver, amount=amount
             )
         )
-        conn.commit()
+        await session.commit()
 
     if LOG_ENABLED:
         logger.info(f"Processed transaction: {tx_hash}")
@@ -41,15 +45,15 @@ def analyze_transaction(transaction_event):
     if transaction_counter >= N:
         if LOG_ENABLED:
             logger.info("Reached threshold, processing clusters...")
-        process_clusters()
+        await process_clusters()
         transaction_counter = 0
 
 
-def process_clusters():
+async def process_clusters():
     G = Graph()
 
-    with engine.connect() as conn:
-        transactions = conn.query(Transaction).all()
+    async with AsyncSessionLocal() as session:
+        transactions = await session.query(Transaction).all()
         for transaction in transactions:
             G.add_edge(
                 transaction.sender, transaction.receiver, weight=transaction.amount
@@ -70,17 +74,17 @@ def process_clusters():
     if LOG_ENABLED:
         logger.info(f"Found {len(findings)} suspicious clusters")
 
-    prune_unrelated_transactions(final_partitions)
+    await prune_unrelated_transactions(final_partitions)
     return findings
 
 
-def prune_unrelated_transactions(partitions):
+async def prune_unrelated_transactions(partitions):
     cluster_transactions = set()
     for (sender, receiver), cluster_id in partitions.items():
         if cluster_id != -1:
-            with engine.connect() as conn:
+            async with AsyncSessionLocal() as session:
                 txs = (
-                    conn.query(Transaction)
+                    await session.query(Transaction)
                     .filter(
                         Transaction.sender == sender, Transaction.receiver == receiver
                     )
@@ -90,16 +94,16 @@ def prune_unrelated_transactions(partitions):
                     cluster_transactions.add(tx.tx_hash)
 
     thirty_days_ago = datetime.utcnow() - timedelta(days=30)
-    with engine.connect() as conn:
+    async with AsyncSessionLocal() as session:
         old_txs = (
-            conn.query(Transaction)
+            await session.query(Transaction)
             .filter(Transaction.timestamp < thirty_days_ago)
             .all()
         )
         for tx in old_txs:
             if tx.tx_hash not in cluster_transactions:
-                conn.delete(tx)
-        conn.commit()
+                await session.delete(tx)
+        await session.commit()
 
     if LOG_ENABLED:
         logger.info("Pruned unrelated transactions")
