@@ -1,13 +1,16 @@
 import logging
 from networkx import Graph
+import asyncio
 from sklearn.cluster import DBSCAN  # For DBSCAN
 from datetime import datetime, timedelta
 from src.database.controller import async_engine, EOA, Transaction
 from community import best_partition  # For the Louvain method
-from heuristics.advanced_heuristics import sybil_heuristics
-from analysis.cluster_analysis import analyze_suspicious_clusters
+from src.heuristics.advanced_heuristics import sybil_heuristics
+from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
+from src.database.controller import create_tables
+import json
 
 # Logger setup
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
@@ -19,9 +22,25 @@ N = 100
 
 AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
 
+transaction_counter = 0
+database_initialized = False
 
-async def handle_transaction(transaction_event):
+
+def handle_transaction(transaction_event):
+    # Initialize the database and tables if they haven't been already
+    global database_initialized
+    if not database_initialized:
+        asyncio.run(create_tables())
+        database_initialized = True
+    else:
+        return asyncio.run(handle_transaction_async(transaction_event))
+    if LOG_ENABLED:
+        logger.info("Database already initialized. Skipping initialization.")
+
+
+async def handle_transaction_async(transaction_event):
     global transaction_counter
+    findings = []
 
     tx_hash = transaction_event.hash
     sender = transaction_event.from_
@@ -45,8 +64,11 @@ async def handle_transaction(transaction_event):
     if transaction_counter >= N:
         if LOG_ENABLED:
             logger.info("Reached threshold, processing clusters...")
-        await process_clusters()
+        findings = await process_clusters()
         transaction_counter = 0
+        return findings
+
+    return []  # Returns an empty list if the threshold hasn't been reached
 
 
 async def process_clusters():
@@ -69,13 +91,14 @@ async def process_clusters():
 
     final_partitions = partitions_louvain or partitions_dbscan
     suspicious_clusters = sybil_heuristics(G, final_partitions)
-    findings = analyze_suspicious_clusters(suspicious_clusters)
+    findings = analyze_suspicious_clusters(suspicious_clusters) or []
 
     if LOG_ENABLED:
         logger.info(f"Found {len(findings)} suspicious clusters")
 
     await prune_unrelated_transactions(final_partitions)
-    return findings
+
+    return json.dumps(findings)
 
 
 async def prune_unrelated_transactions(partitions):

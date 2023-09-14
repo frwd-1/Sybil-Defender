@@ -1,22 +1,18 @@
 from sqlalchemy import create_engine, Column, String, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
+import logging
 
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+LOG_ENABLED = True  # Global switch to enable or disable logging
 # Database Configuration
-DATABASE_URL = "sqlite+aiosqlite:///./database/main.db"
+DATABASE_URL = "sqlite+aiosqlite:///./src/database/main.db"
+# Adjust as necessary
 
-# Synchronous Engine (Adjust as necessary)
 engine = create_engine(DATABASE_URL)
-
-# Asynchronous Engine
-async_engine = create_async_engine(DATABASE_URL, echo=False)
-
-# Creating an async session factory bound to the async engine
-AsyncSessionLocal = sessionmaker(
-    bind=async_engine, class_=AsyncSession, expire_on_commit=False
-)
+async_engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
 Base = declarative_base()
 
@@ -36,5 +32,9 @@ class Transaction(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 
-# Create tables synchronously (keep in mind, for production you might want a separate script or mechanism for migrations)
-Base.metadata.create_all(engine)
+async def create_tables():
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    if LOG_ENABLED:
+        logger.info("Database initialized")
