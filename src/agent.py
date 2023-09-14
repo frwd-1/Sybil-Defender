@@ -1,9 +1,12 @@
 from networkx import Graph
-from community import best_partition  # For the Louvain method
 from sklearn.cluster import DBSCAN  # For DBSCAN
 from datetime import datetime, timedelta
-
-from controller import engine, EOA, Transaction
+from database.controller import engine, EOA, Transaction
+from community import best_partition  # For the Louvain method
+from heuristics.advanced_heuristics import (
+    sybil_heuristics,
+)
+from analysis.cluster_analysis import analyze_suspicious_clusters
 
 
 def analyze_transaction(transaction_event):
@@ -23,6 +26,7 @@ def analyze_transaction(transaction_event):
         conn.commit()
 
 
+# TODO: call this process transactions
 def process_clusters():
     G = Graph()
 
@@ -33,13 +37,10 @@ def process_clusters():
                 transaction.sender, transaction.receiver, weight=transaction.amount
             )
 
-    # Apply Louvain
     partitions_louvain = best_partition(G)
 
     # Apply DBSCAN
-    edge_list = [
-        (transaction.sender, transaction.receiver) for transaction in transactions
-    ]
+    edge_list = [(sender, receiver) for sender, receiver in G.edges()]
     db = DBSCAN(eps=0.5, min_samples=5).fit(edge_list)
     labels = db.labels_
     partitions_dbscan = {
@@ -48,11 +49,15 @@ def process_clusters():
 
     final_partitions = partitions_louvain or partitions_dbscan
 
-    # Print clusters
-    for node, cluster_id in final_partitions.items():
-        print(f"Node {node} belongs to cluster {cluster_id}")
+    # Apply Sybil Heuristics
+    suspicious_clusters = sybil_heuristics(G, final_partitions)
+
+    # Apply Typology Analysis
+    findings = analyze_suspicious_clusters(suspicious_clusters)
 
     prune_unrelated_transactions(final_partitions)
+
+    return findings
 
 
 def prune_unrelated_transactions(partitions):
