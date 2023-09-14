@@ -1,15 +1,24 @@
+import logging
 from networkx import Graph
 from sklearn.cluster import DBSCAN  # For DBSCAN
 from datetime import datetime, timedelta
 from database.controller import engine, EOA, Transaction
 from community import best_partition  # For the Louvain method
-from heuristics.advanced_heuristics import (
-    sybil_heuristics,
-)
+from heuristics.advanced_heuristics import sybil_heuristics
 from analysis.cluster_analysis import analyze_suspicious_clusters
+
+# Logger setup
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+LOG_ENABLED = True  # Global switch to enable or disable logging
+
+# TODO: create a constants file
+N = 100
 
 
 def analyze_transaction(transaction_event):
+    global transaction_counter
+
     tx_hash = transaction_event.hash
     sender = transaction_event.from_
     receiver = transaction_event.to
@@ -25,8 +34,17 @@ def analyze_transaction(transaction_event):
         )
         conn.commit()
 
+    if LOG_ENABLED:
+        logger.info(f"Processed transaction: {tx_hash}")
 
-# TODO: call this process transactions
+    transaction_counter += 1
+    if transaction_counter >= N:
+        if LOG_ENABLED:
+            logger.info("Reached threshold, processing clusters...")
+        process_clusters()
+        transaction_counter = 0
+
+
 def process_clusters():
     G = Graph()
 
@@ -38,8 +56,6 @@ def process_clusters():
             )
 
     partitions_louvain = best_partition(G)
-
-    # Apply DBSCAN
     edge_list = [(sender, receiver) for sender, receiver in G.edges()]
     db = DBSCAN(eps=0.5, min_samples=5).fit(edge_list)
     labels = db.labels_
@@ -48,22 +64,20 @@ def process_clusters():
     }
 
     final_partitions = partitions_louvain or partitions_dbscan
-
-    # Apply Sybil Heuristics
     suspicious_clusters = sybil_heuristics(G, final_partitions)
-
-    # Apply Typology Analysis
     findings = analyze_suspicious_clusters(suspicious_clusters)
 
-    prune_unrelated_transactions(final_partitions)
+    if LOG_ENABLED:
+        logger.info(f"Found {len(findings)} suspicious clusters")
 
+    prune_unrelated_transactions(final_partitions)
     return findings
 
 
 def prune_unrelated_transactions(partitions):
     cluster_transactions = set()
     for (sender, receiver), cluster_id in partitions.items():
-        if cluster_id != -1:  # For DBSCAN, -1 indicates noise, not part of any cluster
+        if cluster_id != -1:
             with engine.connect() as conn:
                 txs = (
                     conn.query(Transaction)
@@ -86,3 +100,6 @@ def prune_unrelated_transactions(partitions):
             if tx.tx_hash not in cluster_transactions:
                 conn.delete(tx)
         conn.commit()
+
+    if LOG_ENABLED:
+        logger.info("Pruned unrelated transactions")
