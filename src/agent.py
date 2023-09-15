@@ -10,6 +10,7 @@ from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from src.database.controller import create_tables
+from sqlalchemy.future import select
 import json
 
 # Logger setup
@@ -28,14 +29,16 @@ database_initialized = False
 
 def handle_transaction(transaction_event):
     # Initialize the database and tables if they haven't been already
+    print("running handle transaction")
     global database_initialized
     if not database_initialized:
+        print("database not yet created")
         asyncio.run(create_tables())
+        print("database created")
         database_initialized = True
+        return asyncio.run(handle_transaction_async(transaction_event))
     else:
         return asyncio.run(handle_transaction_async(transaction_event))
-    if LOG_ENABLED:
-        logger.info("Database already initialized. Skipping initialization.")
 
 
 async def handle_transaction_async(transaction_event):
@@ -46,22 +49,27 @@ async def handle_transaction_async(transaction_event):
     sender = transaction_event.from_
     receiver = transaction_event.to
     amount = transaction_event.transaction.value
-
+    print("transaction parameters set")
     async with AsyncSessionLocal() as session:
         session.add(EOA(address=sender))
+        print("added sender to EOA table")
         session.add(EOA(address=receiver))
+        print("added receiver to EOA table")
         session.add(
             Transaction(
                 tx_hash=tx_hash, sender=sender, receiver=receiver, amount=amount
-            )
+            ),
+            print("added Transaction to transaction table"),
         )
         await session.commit()
+        print("data committed to table")
 
     if LOG_ENABLED:
         logger.info(f"Processed transaction: {tx_hash}")
 
     transaction_counter += 1
     if transaction_counter >= N:
+        print("processing clusters")
         if LOG_ENABLED:
             logger.info("Reached threshold, processing clusters...")
         findings = await process_clusters()
@@ -73,23 +81,35 @@ async def handle_transaction_async(transaction_event):
 
 async def process_clusters():
     G = Graph()
+    print("graph created")
 
     async with AsyncSessionLocal() as session:
-        transactions = await session.query(Transaction).all()
+        print("querying transactions")
+        result = await session.execute(select(Transaction))
+        transactions = result.scalars().all()
+
         for transaction in transactions:
             G.add_edge(
                 transaction.sender, transaction.receiver, weight=transaction.amount
             )
+        print("edges added to graph")
 
     partitions_louvain = best_partition(G)
+    print("louvain partition created")
+
     edge_list = [(sender, receiver) for sender, receiver in G.edges()]
+    print("edge list for DBSCAN created")
     db = DBSCAN(eps=0.5, min_samples=5).fit(edge_list)
+    print("database cleaned")
     labels = db.labels_
+    print("lables created")
     partitions_dbscan = {
         edge: cluster_id for edge, cluster_id in zip(edge_list, labels)
     }
+    print("dbscan partitions created")
 
     final_partitions = partitions_louvain or partitions_dbscan
+    print("final partitions created")
     suspicious_clusters = sybil_heuristics(G, final_partitions)
     findings = analyze_suspicious_clusters(suspicious_clusters) or []
 
@@ -98,7 +118,7 @@ async def process_clusters():
 
     await prune_unrelated_transactions(final_partitions)
 
-    return json.dumps(findings)
+    return findings
 
 
 async def prune_unrelated_transactions(partitions):

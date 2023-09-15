@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
 import logging
+import uuid
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -20,7 +21,11 @@ Base = declarative_base()
 # Define tables
 class EOA(Base):
     __tablename__ = "eoas"
-    address = Column(String, primary_key=True)
+
+    # Change default to a callable function that generates a new UUID
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+
+    address = Column(String, unique=False)  # Address
 
 
 class Transaction(Base):
@@ -33,7 +38,9 @@ class Transaction(Base):
 
 
 async def create_tables():
+    print("creating tables")
     async with async_engine.begin() as conn:
+        print("connection started")
         await conn.run_sync(Base.metadata.create_all)
 
     if LOG_ENABLED:
