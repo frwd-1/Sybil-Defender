@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from src.database.controller import create_tables
 from sqlalchemy.future import select
-import json
+import numpy as np
 
 # Logger setup
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
@@ -88,7 +88,20 @@ async def process_clusters():
         result = await session.execute(select(Transaction))
         transactions = result.scalars().all()
 
+        EOAs = list(
+            set(
+                [tx.sender for tx in transactions]
+                + [tx.receiver for tx in transactions]
+            )
+        )
+        n = len(EOAs)
+        matrix = np.zeros((n, n))
+
         for transaction in transactions:
+            sender_idx = EOAs.index(transaction.sender)
+            receiver_idx = EOAs.index(transaction.receiver)
+            matrix[sender_idx][receiver_idx] += transaction.amount
+
             G.add_edge(
                 transaction.sender, transaction.receiver, weight=transaction.amount
             )
@@ -97,20 +110,19 @@ async def process_clusters():
     partitions_louvain = best_partition(G)
     print("louvain partition created")
 
-    edge_list = [(sender, receiver) for sender, receiver in G.edges()]
-    print("edge list for DBSCAN created")
-    db = DBSCAN(eps=0.5, min_samples=5).fit(edge_list)
-    print("database cleaned")
+    db = DBSCAN(eps=0.5, min_samples=5).fit(matrix)
     labels = db.labels_
-    print("lables created")
-    partitions_dbscan = {
-        edge: cluster_id for edge, cluster_id in zip(edge_list, labels)
-    }
+
+    partitions_dbscan = {EOAs[i]: cluster_id for i, cluster_id in enumerate(labels)}
     print("dbscan partitions created")
 
+    # TODO: need to integrate the two partition results more meaningfully here:
     final_partitions = partitions_louvain or partitions_dbscan
     print("final partitions created")
+
+    print("running heuristics")
     suspicious_clusters = sybil_heuristics(G, final_partitions)
+    print("analyzing suspicious clusters")
     findings = analyze_suspicious_clusters(suspicious_clusters) or []
 
     if LOG_ENABLED:

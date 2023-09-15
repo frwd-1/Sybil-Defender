@@ -27,6 +27,7 @@ system = SybilDetectionSystem([detector_v1, detector_v2])
 def analyze_suspicious_clusters(suspicious_clusters):
     all_findings = []
     for cluster in suspicious_clusters:
+        print("for cluster in suspicious clusters, analyzing cluster")
         findings = system.analyze_cluster(cluster)
         all_findings.extend(findings)
     return all_findings

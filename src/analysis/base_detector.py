@@ -78,6 +78,8 @@ class AirdropFarmDetectorV2(BaseDetector):
 
     def is_airdrop_farming_v2(self, cluster):
         # Placeholder: Detect if more than half the transactions involve any of the configured patterns
+        print(type(cluster), cluster)
+
         pattern_count = sum(
             1
             for transaction in cluster
