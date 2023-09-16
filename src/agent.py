@@ -28,17 +28,15 @@ database_initialized = False
 
 
 def handle_transaction(transaction_event):
-    # Initialize the database and tables if they haven't been already
-    print("running handle transaction")
     global database_initialized
+
     if not database_initialized:
-        print("database not yet created")
-        asyncio.run(create_tables())
-        print("database created")
+        asyncio.get_event_loop().run_until_complete(create_tables())
         database_initialized = True
-        return asyncio.run(handle_transaction_async(transaction_event))
-    else:
-        return asyncio.run(handle_transaction_async(transaction_event))
+
+    return asyncio.get_event_loop().run_until_complete(
+        handle_transaction_async(transaction_event)
+    )
 
 
 async def handle_transaction_async(transaction_event):

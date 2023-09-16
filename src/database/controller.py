@@ -1,18 +1,22 @@
-from sqlalchemy import create_engine, Column, String, Integer, DateTime
+from sqlalchemy import create_engine, Column, String, BigInteger, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
 import logging
 import uuid
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 LOG_ENABLED = True  # Global switch to enable or disable logging
 # Database Configuration
-DATABASE_URL = "sqlite+aiosqlite:///./src/database/main.db"
+DATABASE_URL = os.environ.get("POSTGRESQL_DATABASE_URL")
 # Adjust as necessary
 
-engine = create_engine(DATABASE_URL)
+# engine = create_engine(DATABASE_URL)
 async_engine = create_async_engine(DATABASE_URL, echo=False, future=True)
 
 Base = declarative_base()
@@ -33,7 +37,7 @@ class Transaction(Base):
     tx_hash = Column(String, primary_key=True)
     sender = Column(String)
     receiver = Column(String)
-    amount = Column(Integer)
+    amount = Column(BigInteger)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 
