@@ -2,6 +2,7 @@ import logging
 from networkx import Graph
 import asyncio
 import forta_agent
+from decimal import Decimal
 from sklearn.cluster import DBSCAN  # For DBSCAN
 from datetime import datetime, timedelta
 from src.database.controller import async_engine, EOA, Transaction
@@ -45,7 +46,8 @@ async def handle_transaction_async(transaction_event: forta_agent.transaction_ev
     global transaction_counter
     findings = []
 
-    if not apply_initial_heuristics(transaction_event):
+    print("applying initial heuristics")
+    if not await apply_initial_heuristics(transaction_event):
         return []
 
     tx_hash = transaction_event.hash
@@ -103,10 +105,12 @@ async def process_clusters():
         for transaction in transactions:
             sender_idx = EOAs.index(transaction.sender)
             receiver_idx = EOAs.index(transaction.receiver)
-            matrix[sender_idx][receiver_idx] += float(transaction.amount)
+            matrix[sender_idx][receiver_idx] += int(transaction.amount)
 
             G.add_edge(
-                transaction.sender, transaction.receiver, weight=transaction.amount
+                transaction.sender,
+                transaction.receiver,
+                weight=int(transaction.amount),
             )
         print("edges added to graph")
 
@@ -122,17 +126,19 @@ async def process_clusters():
     # TODO: need to integrate the two partition results more meaningfully here:
     final_partitions = partitions_louvain or partitions_dbscan
     print("final partitions created")
+    print(G)
+    print(final_partitions)
 
     print("running heuristics")
-    suspicious_clusters = sybil_heuristics(G, final_partitions)
+    refinedGraph, refined_final_partitions = sybil_heuristics(G, final_partitions)
     print("analyzing suspicious clusters")
-    findings = analyze_suspicious_clusters(suspicious_clusters) or []
+    findings = analyze_suspicious_clusters(refinedGraph, refined_final_partitions) or []
 
     if LOG_ENABLED:
         logger.info(f"Found {len(findings)} suspicious clusters")
 
-    await prune_unrelated_transactions(final_partitions)
-
+    # await prune_unrelated_transactions(final_partitions)
+    print("COMPLETE")
     return findings
 
 

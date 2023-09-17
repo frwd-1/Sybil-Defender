@@ -24,10 +24,23 @@ detector_v2 = AirdropFarmDetectorV2(config_v2)
 system = SybilDetectionSystem([detector_v1, detector_v2])
 
 
-def analyze_suspicious_clusters(suspicious_clusters):
+def analyze_suspicious_clusters(G, final_partitions):
     all_findings = []
-    for cluster in suspicious_clusters:
-        print("for cluster in suspicious clusters, analyzing cluster")
-        findings = system.analyze_cluster(cluster)
+
+    for cluster_id in set(final_partitions.values()):
+        print(f"Analyzing cluster {cluster_id}")
+
+        cluster_nodes = [
+            node for node, id in final_partitions.items() if id == cluster_id
+        ]
+
+        cluster_transactions = [
+            G.nodes[node]["transaction"]
+            for node in cluster_nodes
+            if "transaction" in G.nodes[node]
+        ]
+
+        findings = system.analyze_cluster(cluster_transactions)
         all_findings.extend(findings)
+
     return all_findings

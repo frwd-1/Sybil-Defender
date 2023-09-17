@@ -12,7 +12,6 @@ def sybil_heuristics(G, partitions):
         new_partitions[cluster_id].append(node)
 
     print("checking nodes in partitions")
-    # print(new_partitions)
 
     for cluster_id, nodes in new_partitions.items():
         print("checking intra transactions")
@@ -51,9 +50,27 @@ def sybil_heuristics(G, partitions):
                 print("account age threshold met, adding to cluster")
                 suspicious_clusters.append(cluster_id)
                 break  # One suspicious node is enough to flag the cluster, move to the next cluster
-    print("heuristic checks finished, returning suspicious clusters")
-    print(suspicious_clusters)
-    return suspicious_clusters
+
+    print("heuristic checks finished")
+
+    # Once suspicious clusters are identified, we prune G and partitions
+    nodes_to_retain = set()
+
+    # Collect nodes associated with suspicious clusters
+    for cluster_id in suspicious_clusters:
+        nodes_to_retain.update(new_partitions[cluster_id])
+
+    # Remove nodes from G that are not part of suspicious clusters
+    for node in list(G.nodes()):  # Convert to list to avoid runtime modification errors
+        if node not in nodes_to_retain:
+            G.remove_node(node)
+
+    # Remove nodes from partitions that are not part of suspicious clusters
+    partitions = {
+        node: cluster for node, cluster in partitions.items() if node in nodes_to_retain
+    }
+
+    return G, partitions
 
 
 def transaction_diversity_heuristic(node, G):
