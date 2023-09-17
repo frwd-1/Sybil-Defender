@@ -52,6 +52,7 @@ def sybil_heuristics(G, partitions):
                 suspicious_clusters.append(cluster_id)
                 break  # One suspicious node is enough to flag the cluster, move to the next cluster
     print("heuristic checks finished, returning suspicious clusters")
+    print(suspicious_clusters)
     return suspicious_clusters
 
 

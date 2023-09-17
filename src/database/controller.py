@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, String, BigInteger, DateTime
+from sqlalchemy import Numeric, Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
@@ -37,7 +37,7 @@ class Transaction(Base):
     tx_hash = Column(String, primary_key=True)
     sender = Column(String)
     receiver = Column(String)
-    amount = Column(BigInteger)
+    amount = Column(Numeric)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 

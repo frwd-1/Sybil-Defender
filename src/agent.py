@@ -1,12 +1,14 @@
 import logging
 from networkx import Graph
 import asyncio
+import forta_agent
 from sklearn.cluster import DBSCAN  # For DBSCAN
 from datetime import datetime, timedelta
 from src.database.controller import async_engine, EOA, Transaction
 from community import best_partition  # For the Louvain method
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.analysis.cluster_analysis import analyze_suspicious_clusters
+from src.heuristics.initial_heuristics import apply_initial_heuristics
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from src.database.controller import create_tables
@@ -27,7 +29,7 @@ transaction_counter = 0
 database_initialized = False
 
 
-def handle_transaction(transaction_event):
+def handle_transaction(transaction_event: forta_agent.transaction_event):
     global database_initialized
 
     if not database_initialized:
@@ -39,9 +41,12 @@ def handle_transaction(transaction_event):
     )
 
 
-async def handle_transaction_async(transaction_event):
+async def handle_transaction_async(transaction_event: forta_agent.transaction_event):
     global transaction_counter
     findings = []
+
+    if not apply_initial_heuristics(transaction_event):
+        return []
 
     tx_hash = transaction_event.hash
     sender = transaction_event.from_
@@ -98,7 +103,7 @@ async def process_clusters():
         for transaction in transactions:
             sender_idx = EOAs.index(transaction.sender)
             receiver_idx = EOAs.index(transaction.receiver)
-            matrix[sender_idx][receiver_idx] += transaction.amount
+            matrix[sender_idx][receiver_idx] += float(transaction.amount)
 
             G.add_edge(
                 transaction.sender, transaction.receiver, weight=transaction.amount

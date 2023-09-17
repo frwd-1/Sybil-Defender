@@ -96,6 +96,7 @@ class SybilDetectionSystem:
 
     def analyze_cluster(self, cluster):
         findings = []
+        print("checking detectors")
         for detector in self.detectors:
             findings.extend(detector.detect(cluster))
         return findings
