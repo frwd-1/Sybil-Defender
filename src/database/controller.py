@@ -1,35 +1,31 @@
-from sqlalchemy import Numeric, Column, String, DateTime
+from sqlalchemy import Integer, Numeric, Column, String, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
 import logging
-import uuid
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
+# Set logging
 logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
-LOG_ENABLED = True  # Global switch to enable or disable logging
-# Database Configuration
+logger.setLevel(
+    logging.INFO
+    if os.environ.get("LOG_ENABLED", "False").lower() == "true"
+    else logging.WARNING
+)
+
 DATABASE_URL = os.environ.get("POSTGRESQL_DATABASE_URL")
-# Adjust as necessary
-
-# engine = create_engine(DATABASE_URL)
 async_engine = create_async_engine(DATABASE_URL, echo=False, future=True)
-
 Base = declarative_base()
 
 
-# Define tables
 class EOA(Base):
     __tablename__ = "eoas"
-
-    # Change default to a callable function that generates a new UUID
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-
-    address = Column(String, unique=False)  # Address
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    address = Column(String, unique=False)
 
 
 class Transaction(Base):
@@ -41,11 +37,23 @@ class Transaction(Base):
     timestamp = Column(DateTime, default=datetime.utcnow)
 
 
-async def create_tables():
-    print("creating tables")
-    async with async_engine.begin() as conn:
-        print("connection started")
-        await conn.run_sync(Base.metadata.create_all)
+class SuspiciousCluster(Base):
+    __tablename__ = "suspicious_clusters"
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cluster_id = Column(Integer, nullable=False)
+    address = Column(String, nullable=False)
 
-    if LOG_ENABLED:
-        logger.info("Database initialized")
+    def __init__(self, cluster_id, address):
+        self.cluster_id = cluster_id
+        self.address = address
+
+    def __repr__(self):
+        return (
+            f"<SuspiciousCluster(cluster_id={self.cluster_id}, address={self.address})>"
+        )
+
+
+async def create_tables():
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    logger.info("Database initialized")

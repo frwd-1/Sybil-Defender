@@ -1,7 +1,8 @@
 from datetime import timedelta
+from src.database.controller import SuspiciousCluster
 
 
-def sybil_heuristics(G, partitions):
+async def sybil_heuristics(G, partitions, session):
     suspicious_clusters = []
 
     # Convert partitions to the new structure
@@ -69,8 +70,22 @@ def sybil_heuristics(G, partitions):
     partitions = {
         node: cluster for node, cluster in partitions.items() if node in nodes_to_retain
     }
+    await store_suspicious_clusters(suspicious_clusters, new_partitions, session)
 
     return G, partitions
+
+
+async def store_suspicious_clusters(suspicious_clusters, new_partitions, session):
+    # create an async session
+
+    async with session.begin():
+        for cluster_id in suspicious_clusters:
+            for node in new_partitions[cluster_id]:
+                new_entry = SuspiciousCluster(cluster_id, node)
+                session.add(new_entry)
+
+        # commit changes
+        await session.commit()
 
 
 def transaction_diversity_heuristic(node, G):

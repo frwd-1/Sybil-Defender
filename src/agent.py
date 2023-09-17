@@ -130,7 +130,9 @@ async def process_clusters():
     print(final_partitions)
 
     print("running heuristics")
-    refinedGraph, refined_final_partitions = sybil_heuristics(G, final_partitions)
+    refinedGraph, refined_final_partitions = await sybil_heuristics(
+        G, final_partitions, session
+    )
     print("analyzing suspicious clusters")
     findings = analyze_suspicious_clusters(refinedGraph, refined_final_partitions) or []
 
