@@ -1,28 +1,19 @@
-import logging
-from networkx import Graph
 import asyncio
 import forta_agent
-from decimal import Decimal
-from sklearn.cluster import DBSCAN  # For DBSCAN
-from datetime import datetime, timedelta
-from src.database.controller import async_engine, EOA, Transaction
-from community import best_partition  # For the Louvain method
+import numpy as np
+from src.utils import shed_oldest_transactions
+from src.constants import N
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
+from src.database.controller import create_tables, async_engine, EOA, Transaction
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
-from src.database.controller import create_tables
 from sqlalchemy.future import select
-import numpy as np
+from networkx import Graph
+from sklearn.cluster import DBSCAN  # For DBSCAN clustering
+from community import best_partition  # For the Louvain method
 
-# Logger setup
-logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-LOG_ENABLED = True  # Global switch to enable or disable logging
-
-# TODO: create a constants file
-N = 100
 
 AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
 
@@ -32,8 +23,9 @@ database_initialized = False
 
 def handle_transaction(transaction_event: forta_agent.transaction_event):
     global database_initialized
-
+    # TODO: refactor this initialization, doesn't have to initialize each time
     if not database_initialized:
+        print("creating tables")
         asyncio.get_event_loop().run_until_complete(create_tables())
         database_initialized = True
 
@@ -69,15 +61,13 @@ async def handle_transaction_async(transaction_event: forta_agent.transaction_ev
         await session.commit()
         print("data committed to table")
 
-    if LOG_ENABLED:
-        logger.info(f"Processed transaction: {tx_hash}")
-
     transaction_counter += 1
+    print("transaction counter is", transaction_counter)
     if transaction_counter >= N:
         print("processing clusters")
-        if LOG_ENABLED:
-            logger.info("Reached threshold, processing clusters...")
+
         findings = await process_clusters()
+        await shed_oldest_transactions()
         transaction_counter = 0
         return findings
 
@@ -92,7 +82,7 @@ async def process_clusters():
         print("querying transactions")
         result = await session.execute(select(Transaction))
         transactions = result.scalars().all()
-
+        print(transactions)
         EOAs = list(
             set(
                 [tx.sender for tx in transactions]
@@ -101,6 +91,9 @@ async def process_clusters():
         )
         n = len(EOAs)
         matrix = np.zeros((n, n))
+
+        # TODO: REMOVE INPUT
+        input("Press Enter to continue...")
 
         for transaction in transactions:
             sender_idx = EOAs.index(transaction.sender)
@@ -136,40 +129,9 @@ async def process_clusters():
     print("analyzing suspicious clusters")
     findings = analyze_suspicious_clusters(refinedGraph, refined_final_partitions) or []
 
-    if LOG_ENABLED:
-        logger.info(f"Found {len(findings)} suspicious clusters")
-
     # await prune_unrelated_transactions(final_partitions)
     print("COMPLETE")
     return findings
 
 
-async def prune_unrelated_transactions(partitions):
-    cluster_transactions = set()
-    for (sender, receiver), cluster_id in partitions.items():
-        if cluster_id != -1:
-            async with AsyncSessionLocal() as session:
-                txs = (
-                    await session.query(Transaction)
-                    .filter(
-                        Transaction.sender == sender, Transaction.receiver == receiver
-                    )
-                    .all()
-                )
-                for tx in txs:
-                    cluster_transactions.add(tx.tx_hash)
-
-    thirty_days_ago = datetime.utcnow() - timedelta(days=30)
-    async with AsyncSessionLocal() as session:
-        old_txs = (
-            await session.query(Transaction)
-            .filter(Transaction.timestamp < thirty_days_ago)
-            .all()
-        )
-        for tx in old_txs:
-            if tx.tx_hash not in cluster_transactions:
-                await session.delete(tx)
-        await session.commit()
-
-    if LOG_ENABLED:
-        logger.info("Pruned unrelated transactions")
+# TODO: implement active monitoring of identified sybil clusters aside from sliding window

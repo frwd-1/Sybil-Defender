@@ -2,20 +2,11 @@ from sqlalchemy import Integer, Numeric, Column, String, DateTime, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
-import logging
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Set logging
-logging.basicConfig(format="%(asctime)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
-logger.setLevel(
-    logging.INFO
-    if os.environ.get("LOG_ENABLED", "False").lower() == "true"
-    else logging.WARNING
-)
 
 DATABASE_URL = os.environ.get("POSTGRESQL_DATABASE_URL")
 async_engine = create_async_engine(DATABASE_URL, echo=False, future=True)
@@ -56,4 +47,4 @@ class SuspiciousCluster(Base):
 async def create_tables():
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database initialized")
+    print("database initialized")
