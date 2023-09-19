@@ -1,5 +1,5 @@
 import asyncio
-from forta_agent import transaction_event, TransactionEvent
+from forta_agent import TransactionEvent
 import numpy as np
 from src.utils import shed_oldest_transactions
 from src.constants import N
