@@ -1,5 +1,5 @@
 import asyncio
-import forta_agent
+from forta_agent import transaction_event, TransactionEvent
 import numpy as np
 from src.utils import shed_oldest_transactions
 from src.constants import N
@@ -21,7 +21,7 @@ transaction_counter = 0
 database_initialized = False
 
 
-def handle_transaction(transaction_event: forta_agent.transaction_event):
+def handle_transaction(transaction_event: TransactionEvent):
     global database_initialized
     # TODO: refactor this initialization, doesn't have to initialize each time
     if not database_initialized:
@@ -34,9 +34,13 @@ def handle_transaction(transaction_event: forta_agent.transaction_event):
     )
 
 
-async def handle_transaction_async(transaction_event: forta_agent.transaction_event):
+async def handle_transaction_async(transaction_event: TransactionEvent):
     global transaction_counter
     findings = []
+
+    if transaction_event.transaction.data != "0x":
+        print("contract interaction, skipping transaction")
+        return []
 
     print("applying initial heuristics")
     if not await apply_initial_heuristics(transaction_event):
@@ -66,7 +70,7 @@ async def handle_transaction_async(transaction_event: forta_agent.transaction_ev
     if transaction_counter >= N:
         print("processing clusters")
 
-        findings = await process_clusters()
+        findings = await process_transactions()
         await shed_oldest_transactions()
         transaction_counter = 0
         return findings
@@ -74,7 +78,7 @@ async def handle_transaction_async(transaction_event: forta_agent.transaction_ev
     return []  # Returns an empty list if the threshold hasn't been reached
 
 
-async def process_clusters():
+async def process_transactions():
     G = Graph()
     print("graph created")
 
@@ -105,7 +109,7 @@ async def process_clusters():
                 transaction.receiver,
                 weight=int(transaction.amount),
             )
-        # visualize(G)
+        visualize(G)
         print("edges added to graph")
 
     partitions_louvain = best_partition(G)

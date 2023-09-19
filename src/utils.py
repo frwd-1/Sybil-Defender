@@ -3,13 +3,14 @@ from sqlalchemy.orm import sessionmaker
 from src.constants import N, WINDOW_SIZE
 from src.database.controller import async_engine, Transaction
 from sqlalchemy.future import select
+from sqlalchemy import func
 
 AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
 
 
 async def shed_oldest_transactions():
     async with AsyncSessionLocal() as session:
-        total_txs = await session.execute(select(Transaction).count())
+        total_txs = await session.execute(select(func.count(Transaction.tx_hash)))
 
         txs_to_prune = total_txs.scalar() - WINDOW_SIZE + N
 
