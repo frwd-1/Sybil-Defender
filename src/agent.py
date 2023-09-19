@@ -13,7 +13,7 @@ from sqlalchemy.future import select
 from networkx import Graph
 from sklearn.cluster import DBSCAN  # For DBSCAN clustering
 from community import best_partition  # For the Louvain method
-
+from netwulf import visualize
 
 AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
 
@@ -93,7 +93,7 @@ async def process_clusters():
         matrix = np.zeros((n, n))
 
         # TODO: REMOVE INPUT
-        input("Press Enter to continue...")
+        # input("Press Enter to continue...")
 
         for transaction in transactions:
             sender_idx = EOAs.index(transaction.sender)
@@ -105,6 +105,7 @@ async def process_clusters():
                 transaction.receiver,
                 weight=int(transaction.amount),
             )
+        # visualize(G)
         print("edges added to graph")
 
     partitions_louvain = best_partition(G)
@@ -135,3 +136,5 @@ async def process_clusters():
 
 
 # TODO: implement active monitoring of identified sybil clusters aside from sliding window
+# TODO: sliding window is designed to detect brand new sybils
+# TODO: separate analysis structure that takes new transactions and analyzes them in terms of whether or not they are part of previously identified sybils
