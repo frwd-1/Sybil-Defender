@@ -1,7 +1,6 @@
 import asyncio
 from forta_agent import TransactionEvent
 import numpy as np
-from datetime import datetime
 from src.utils import shed_oldest_Transfers, shed_oldest_ContractTransactions
 from src.constants import N
 from src.heuristics.advanced_heuristics import sybil_heuristics
@@ -14,6 +13,7 @@ from src.database.controller import (
     Transfer,
     ContractTransaction,
 )
+from collections import defaultdict
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.future import select
@@ -143,28 +143,39 @@ async def process_transactions():
 
     partitions_louvain = best_partition(G1)
     print("louvain partition created")
-    print(partitions_louvain)
+    # print(partitions_louvain)
+
+    grouped_addresses = defaultdict(list)
+    for address, community_id in partitions_louvain.items():
+        grouped_addresses[community_id].append(address)
+    print(grouped_addresses)
 
     final_partitions = dict(partitions_louvain)  # Initialize final_partitions
     print("initialized final partition dictionary")
 
-    for community_id, addresses in partitions_louvain.items():
+    print("iterating through louvain partitions")
+    for community_id, addresses in grouped_addresses.items():
         result2 = await session.execute(
             select(ContractTransaction).where(ContractTransaction.sender.in_(addresses))
         )
+        print("getting contract transactions per louvain")
         contract_transactions = result2.scalars().all()
+        print("setting interations dictionary")
         interactions_dict = {address: [] for address in addresses}
+        print("looking up interactions")
         for interaction in contract_transactions:
             interactions_dict[interaction.sender].append(interaction.data)
 
+        print("running refined cluster checks")
         refined_clusters = await process_community_using_jaccard_dbscan(
             interactions_dict
         )
-
+        print("refined cluster checks complete")
         for address, cluster_id in refined_clusters.items():
             final_partitions[address] = f"{community_id}_{cluster_id}"
 
         # Fix: Moved this inside the loop so all contract transactions are processed
+        print("creating G2")
         for interaction in contract_transactions:
             G2.add_edge(
                 interaction.sender,
@@ -172,11 +183,11 @@ async def process_transactions():
                 weight=int(interaction.amount),
             )
 
-    for address, partition in final_partitions.items():
-        G2.nodes[address]["partition"] = partition
+        # for address, partition in final_partitions.items():
+        #     G2.nodes[address]["partition"] = partition
 
     print("final partitions created")
-    visualize(G2)
+    # visualize(G2)
     print(final_partitions)
 
     print("running heuristics")
