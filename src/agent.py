@@ -1,6 +1,6 @@
 import asyncio
 from forta_agent import TransactionEvent
-import numpy as np
+import decimal
 from src.utils import shed_oldest_Transfers, shed_oldest_ContractTransactions
 from src.constants import N
 from src.heuristics.advanced_heuristics import sybil_heuristics
@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.future import select
 from networkx import Graph
+import networkx as nx
 from community import best_partition  # For the Louvain method
 from netwulf import visualize
 from src.helpers import (
@@ -55,6 +56,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     sender = transaction_event.from_
     receiver = transaction_event.to
     amount = transaction_event.transaction.value
+    gas_price = transaction_event.gas_price
     timestamp = transaction_event.timestamp
     data = transaction_event.transaction.data
 
@@ -86,6 +88,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
                     sender=sender,
                     receiver=receiver,
                     amount=amount,
+                    gas_price=gas_price,
                     timestamp=timestamp,
                 )
             )
@@ -101,8 +104,9 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
         findings = await process_transactions()
         await shed_oldest_Transfers()
-        await shed_oldest_ContractTransactions
+        await shed_oldest_ContractTransactions()
         transaction_counter = 0
+        print("ALL COMPLETE")
         return findings
 
     return []  # Returns an empty list if the threshold hasn't been reached
@@ -110,96 +114,163 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 async def process_transactions():
     G1 = Graph()
-    G2 = Graph()
 
     print("graph created")
 
     async with AsyncSessionLocal() as session:
         print("querying transactions")
         result = await session.execute(select(Transfer))
-        transactions = result.scalars().all()
-        interactions_list = list(
-            set(
-                [tx.sender for tx in transactions]
-                + [tx.receiver for tx in transactions]
-            )
+        transfers = result.scalars().all()
+
+    # Create initial graph with all transfers
+    for transfer in transfers:
+        G1.add_edge(
+            transfer.sender,
+            transfer.receiver,
+            timestamp=transfer.timestamp,
+            gas_price=transfer.gas_price,
+            amount=transfer.amount,
         )
-        n = len(interactions_list)
-        matrix = np.zeros((n, n))
+    # TODO: CHeck loGIC??
+    # Update edge weights based on variance
+    edge_weights = defaultdict(int)
 
-        for transaction in transactions:
-            sender_idx = interactions_list.index(transaction.sender)
-            receiver_idx = interactions_list.index(transaction.receiver)
-            matrix[sender_idx][receiver_idx] += int(transaction.amount)
+    for transfer in transfers:
+        edge = (transfer.sender, transfer.receiver)
+        edge_weights[edge] += 1
 
-            G1.add_edge(
-                transaction.sender,
-                transaction.receiver,
-                weight=int(transaction.amount),
-            )
+    processed_edges = set()
 
-        # visualize(G1)
-        print("edges added to graph")
+    for node in G1.nodes():
+        for primary_edge in G1.edges(node, data=True):
+            if (node, primary_edge[1]) in processed_edges or (
+                primary_edge[1],
+                node,
+            ) in processed_edges:
+                continue
 
+            target = primary_edge[1]
+            variances = []
+
+            for adj_edge in G1.edges(target, data=True):
+                gas_price_var = abs(
+                    primary_edge[2]["gas_price"] - adj_edge[2]["gas_price"]
+                )
+                amount_var = abs(primary_edge[2]["amount"] - adj_edge[2]["amount"])
+                timestamp_var = abs(
+                    primary_edge[2]["timestamp"] - adj_edge[2]["timestamp"]
+                )
+
+                variances.append(gas_price_var + amount_var + timestamp_var)
+
+            # Take mean variance for primary edge
+            mean_variance = sum(variances) / len(variances) if variances else 0
+
+            # Adjust the weight
+            initial_weight = edge_weights[(node, target)]
+            adjusted_weight = (1 / (mean_variance + 1)) * initial_weight
+
+            # Update the edge in the graph
+            G1.add_edge(node, target, weight=adjusted_weight)
+            processed_edges.add((node, target))
+
+    print("edges added to graph")
+
+    # need to convert data from decimal to float for louvain
+    for _, data in G1.nodes(data=True):
+        for key, value in data.items():
+            if isinstance(value, decimal.Decimal):
+                data[key] = float(value)
+
+    for _, _, data in G1.edges(data=True):
+        for key, value in data.items():
+            if isinstance(value, decimal.Decimal):
+                data[key] = float(value)
+
+    # Run louvain detection
     partitions_louvain = best_partition(G1)
     print("louvain partition created")
-    # print(partitions_louvain)
 
-    grouped_addresses = defaultdict(list)
-    for address, community_id in partitions_louvain.items():
-        grouped_addresses[community_id].append(address)
-    print(grouped_addresses)
+    # Assign each node its community
+    for node, community in partitions_louvain.items():
+        G1.nodes[node]["community"] = community
 
-    final_partitions = dict(partitions_louvain)  # Initialize final_partitions
-    print("initialized final partition dictionary")
+    # create graph file
+    nx.write_graphml(G1, "G1_graph_output.graphml")
+    print("graph output created")
 
-    print("iterating through louvain partitions")
+    # final_partitions = dict(partitions_louvain)  # Initialize final_partitions
+    # print("initialized final partition dictionary")
+
+    # set communities to a dictionary
+    grouped_addresses = defaultdict(set)
+    for node, data in G1.nodes(data=True):
+        community_id = data["community"]
+        grouped_addresses[community_id].add(node)
+
+    print("iterating through communities")
+    final_graph = nx.Graph()
+
+    print("iterating through communities")
     for community_id, addresses in grouped_addresses.items():
-        result2 = await session.execute(
-            select(ContractTransaction).where(ContractTransaction.sender.in_(addresses))
-        )
-        print("getting contract transactions per louvain")
-        contract_transactions = result2.scalars().all()
-        print("setting interations dictionary")
+        # TODO: revisit the efficiency of this, may not want to open / close so many sessions. use asyncio
+        async with AsyncSessionLocal() as session:
+            result2 = await session.execute(
+                select(ContractTransaction).where(
+                    ContractTransaction.sender.in_(addresses)
+                )
+            )
+            contract_transactions = result2.scalars().all()
+
+        # Prepare data for refined clustering
         interactions_dict = {address: [] for address in addresses}
-        print("looking up interactions")
         for interaction in contract_transactions:
             interactions_dict[interaction.sender].append(interaction.data)
 
-        print("running refined cluster checks")
         refined_clusters = await process_community_using_jaccard_dbscan(
             interactions_dict
         )
-        print("refined cluster checks complete")
-        for address, cluster_id in refined_clusters.items():
-            final_partitions[address] = f"{community_id}_{cluster_id}"
 
-        # Fix: Moved this inside the loop so all contract transactions are processed
-        print("creating G2")
-        for interaction in contract_transactions:
-            G2.add_edge(
-                interaction.sender,
-                interaction.contract_address,
-                weight=int(interaction.amount),
-            )
+        # If refined clusters are found within the community, add the community to the final_graph
+        if refined_clusters:
+            # Adding nodes and edges related to this community from G1 to the final_graph
+            for node in addresses:
+                final_graph.add_node(node, **G1.nodes[node])
+                for neighbor in G1[node]:
+                    if (
+                        node,
+                        neighbor,
+                    ) not in final_graph.edges:  # Avoiding duplicate edges
+                        final_graph.add_edge(node, neighbor, **G1[node][neighbor])
 
-        # for address, partition in final_partitions.items():
-        #     G2.nodes[address]["partition"] = partition
+            # Add the contract interactions as edges in the final_graph
+            for interaction in contract_transactions:
+                if interaction.sender in final_graph.nodes:
+                    final_graph.add_edge(
+                        interaction.sender,
+                        interaction.contract_address,
+                        weight=int(interaction.amount),
+                    )
+            # Add refined cluster info to nodes in the final_graph
+            for address, cluster_id in refined_clusters.items():
+                if address in final_graph.nodes:
+                    final_graph.nodes[address][
+                        "refined_cluster"
+                    ] = f"{community_id}_{cluster_id}"
 
-    print("final partitions created")
-    # visualize(G2)
-    print(final_partitions)
+    nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
 
-    print("running heuristics")
-    refinedGraph, refined_partitions = await sybil_heuristics(
-        G2, final_partitions, session
-    )
-    print("analyzing suspicious clusters")
-    findings = analyze_suspicious_clusters(refinedGraph, refined_partitions) or []
+    # print("running heuristics")
+    # refinedGraph, refined_partitions = await sybil_heuristics(
+    #     G2, final_partitions, session
+    # )
+    # print("analyzing suspicious clusters")
+    # findings = analyze_suspicious_clusters(refinedGraph, refined_partitions) or []
 
-    # await prune_unrelated_transactions(final_partitions)
-    print("COMPLETE")
-    return findings
+    # print("COMPLETE")
+    # return findings
+
+    return []
 
 
 # TODO: implement active monitoring of identified sybil clusters aside from sliding window

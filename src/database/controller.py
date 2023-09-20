@@ -26,6 +26,7 @@ class Transfer(Base):
     sender = Column(String)
     receiver = Column(String)
     amount = Column(Numeric)
+    gas_price = Column(Numeric)
     timestamp = Column(Integer)
 
 
