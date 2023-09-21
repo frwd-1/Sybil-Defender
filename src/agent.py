@@ -1,8 +1,13 @@
 import asyncio
+import matplotlib.pyplot as plt
 from forta_agent import TransactionEvent
 import decimal
-from src.utils import shed_oldest_Transfers, shed_oldest_ContractTransactions
-from src.constants import N
+from src.utils import (
+    shed_oldest_Transfers,
+    shed_oldest_ContractTransactions,
+    extract_function_calls,
+)
+from src.constants import N, COMMUNITY_SIZE
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
@@ -14,6 +19,8 @@ from src.database.models import (
 )
 from collections import defaultdict
 from sqlalchemy.future import select
+
+# TODO: remove redundant imports
 from networkx import Graph
 import networkx as nx
 from community import best_partition  # For the Louvain method
@@ -21,11 +28,13 @@ from src.helpers import (
     process_community_using_jaccard_dbscan,
 )
 from src.database.controller import get_async_session
+import numpy as np
 
 transaction_counter = 0
 database_initialized = False
 
 
+# TODO: make final graph a global variable, window graph should merge into final graph
 def handle_transaction(transaction_event: TransactionEvent):
     global database_initialized
     # TODO: refactor this initialization, doesn't have to initialize each time
@@ -107,6 +116,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     return []  # Returns an empty list if the threshold hasn't been reached
 
 
+# TODO: initialize the existing graph with incoming_graph_data
 async def process_transactions():
     G1 = Graph()
 
@@ -128,6 +138,7 @@ async def process_transactions():
         )
     # TODO: CHeck loGIC??
     # Update edge weights based on variance
+    # TODO: place edge weight logic in heuristic module
     edge_weights = defaultdict(int)
 
     for transfer in transfers:
@@ -190,9 +201,31 @@ async def process_transactions():
     for node, community in partitions_louvain.items():
         G1.nodes[node]["community"] = community
 
-    # create graph file
-    nx.write_graphml(G1, "G1_graph_output.graphml")
-    print("graph output created")
+    to_remove = [
+        node
+        for node, community in partitions_louvain.items()
+        if list(partitions_louvain.values()).count(community) < COMMUNITY_SIZE
+    ]
+    G1.remove_nodes_from(to_remove)
+
+    colors = [
+        plt.cm.jet(
+            np.linspace(0, 1, len(set(partitions_louvain.values())))[
+                G1.nodes[node]["community"]
+            ]
+        )
+        for node in G1.nodes()
+    ]
+
+    # Draw the graph
+    nx.draw_spring(G1, with_labels=True, node_color=colors, cmap=plt.cm.jet)
+
+    plt.title("Louvain Community Detection")
+    plt.show()
+
+    # # create graph file
+    # nx.write_graphml(G1, "G1_graph_output.graphml")
+    # print("graph output created")
 
     # final_partitions = dict(partitions_louvain)  # Initialize final_partitions
     # print("initialized final partition dictionary")
@@ -217,10 +250,11 @@ async def process_transactions():
             )
             contract_transactions = result2.scalars().all()
 
-        # Prepare data for refined clustering
+        # organizes transaction data by the sender's address, such that each address in addresses has a list of data associated with it
         interactions_dict = {address: [] for address in addresses}
         for interaction in contract_transactions:
-            interactions_dict[interaction.sender].append(interaction.data)
+            function_calls = extract_function_calls(interaction.data)
+            interactions_dict[interaction.sender].extend(function_calls)
 
         refined_clusters = await process_community_using_jaccard_dbscan(
             interactions_dict

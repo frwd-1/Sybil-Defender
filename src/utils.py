@@ -3,6 +3,7 @@ from src.database.models import Transfer, ContractTransaction
 from sqlalchemy.future import select
 from sqlalchemy import func
 from src.database.controller import get_async_session
+import re
 
 
 async def shed_oldest_Transfers():
@@ -39,3 +40,10 @@ async def shed_oldest_ContractTransactions():
             for ctx in old_ctxs:
                 await session.delete(ctx)
             await session.commit()
+
+
+def extract_function_calls(data):
+    """Extract potential function calls from a string."""
+    # Regular expression pattern to find function calls
+    pattern = r"\b\w+\([^)]*\)"
+    return re.findall(pattern, data)

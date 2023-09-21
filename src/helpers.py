@@ -30,7 +30,7 @@ async def sequence_similarity(seq1, seq2):
     return await jaccard_similarity(pairs1, pairs2)
 
 
-# New Function
+# Analysis Function
 async def process_community_using_jaccard_dbscan(interactions_dict):
     print("Starting processing using Jaccard and DBSCAN")
     addresses = list(interactions_dict.keys())
