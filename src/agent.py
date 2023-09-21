@@ -6,26 +6,21 @@ from src.constants import N
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
-from src.database.controller import (
+from src.database.models import (
     create_tables,
-    async_engine,
     Interactions,
     Transfer,
     ContractTransaction,
 )
 from collections import defaultdict
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.future import select
 from networkx import Graph
 import networkx as nx
 from community import best_partition  # For the Louvain method
-from netwulf import visualize
 from src.helpers import (
     process_community_using_jaccard_dbscan,
 )
-
-AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
+from src.database.controller import get_async_session
 
 transaction_counter = 0
 database_initialized = False
@@ -62,7 +57,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
     print("transaction parameters set")
 
-    async with AsyncSessionLocal() as session:
+    async with get_async_session() as session:
         # Add sender and receiver to Interactions table (repetitive part extracted)
         session.add(Interactions(address=sender))
         print("added sender to Interactions table")
@@ -117,7 +112,7 @@ async def process_transactions():
 
     print("graph created")
 
-    async with AsyncSessionLocal() as session:
+    async with get_async_session() as session:
         print("querying transactions")
         result = await session.execute(select(Transfer))
         transfers = result.scalars().all()
@@ -214,7 +209,7 @@ async def process_transactions():
     print("iterating through communities")
     for community_id, addresses in grouped_addresses.items():
         # TODO: revisit the efficiency of this, may not want to open / close so many sessions. use asyncio
-        async with AsyncSessionLocal() as session:
+        async with get_async_session() as session:
             result2 = await session.execute(
                 select(ContractTransaction).where(
                     ContractTransaction.sender.in_(addresses)
@@ -260,17 +255,14 @@ async def process_transactions():
 
     nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
 
-    # print("running heuristics")
-    # refinedGraph, refined_partitions = await sybil_heuristics(
-    #     G2, final_partitions, session
-    # )
-    # print("analyzing suspicious clusters")
-    # findings = analyze_suspicious_clusters(refinedGraph, refined_partitions) or []
+    print("running heuristics")
+    refinedGraph = await sybil_heuristics(final_graph)
+    print("analyzing suspicious clusters")
+    print(refinedGraph)
+    findings = analyze_suspicious_clusters(refinedGraph) or []
 
-    # print("COMPLETE")
-    # return findings
-
-    return []
+    print("COMPLETE")
+    return findings
 
 
 # TODO: implement active monitoring of identified sybil clusters aside from sliding window

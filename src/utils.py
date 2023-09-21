@@ -1,15 +1,12 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import sessionmaker
 from src.constants import N, WINDOW_SIZE
-from src.database.controller import async_engine, Transfer, ContractTransaction
+from src.database.models import Transfer, ContractTransaction
 from sqlalchemy.future import select
 from sqlalchemy import func
-
-AsyncSessionLocal = sessionmaker(bind=async_engine, class_=AsyncSession)
+from src.database.controller import get_async_session
 
 
 async def shed_oldest_Transfers():
-    async with AsyncSessionLocal() as session:
+    async with get_async_session() as session:
         total_txs = await session.execute(select(func.count(Transfer.tx_hash)))
 
         txs_to_prune = total_txs.scalar() - WINDOW_SIZE + N
@@ -25,7 +22,7 @@ async def shed_oldest_Transfers():
 
 
 async def shed_oldest_ContractTransactions():
-    async with AsyncSessionLocal() as session:
+    async with get_async_session() as session:
         total_ctxs = await session.execute(
             select(func.count(ContractTransaction.tx_hash))
         )
