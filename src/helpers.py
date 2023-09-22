@@ -2,6 +2,22 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 
 
+async def average_jaccard_similarity(transactions_dict):
+    addresses = list(transactions_dict.keys())
+    total_similarity = 0
+    total_pairs = 0
+
+    for i in range(len(addresses)):
+        for j in range(i + 1, len(addresses)):
+            similarity = await sequence_similarity(
+                transactions_dict[addresses[i]], transactions_dict[addresses[j]]
+            )
+            total_similarity += similarity
+            total_pairs += 1
+
+    return total_similarity / total_pairs if total_pairs > 0 else 0
+
+
 # Helper Functions
 async def extract_activity_pairs(sequence):
     print(f"Extracting activity pairs from sequence: {sequence}")
@@ -9,7 +25,9 @@ async def extract_activity_pairs(sequence):
     n = len(sequence)
     for i in range(n):
         for j in range(i + 1, n):
-            pairs.add((sequence[i], sequence[j]))
+            activity_i = (sequence[i]["function_name"], sequence[i]["params"])
+            activity_j = (sequence[j]["function_name"], sequence[j]["params"])
+            pairs.add((activity_i, activity_j))
     print(f"Extracted pairs: {pairs}")
     return pairs
 
@@ -28,47 +46,3 @@ async def sequence_similarity(seq1, seq2):
     pairs1 = await extract_activity_pairs(seq1)
     pairs2 = await extract_activity_pairs(seq2)
     return await jaccard_similarity(pairs1, pairs2)
-
-
-# Analysis Function
-async def process_community_using_jaccard_dbscan(interactions_dict):
-    print("Starting processing using Jaccard and DBSCAN")
-    addresses = list(interactions_dict.keys())
-    n = len(addresses)
-    print(f"Number of addresses: {n}")
-
-    similarity_matrix = np.zeros((n, n))
-
-    for i in range(n):
-        for j in range(i + 1, n):  # Avoiding redundant calculations
-            similarity = await sequence_similarity(
-                interactions_dict[addresses[i]], interactions_dict[addresses[j]]
-            )
-            similarity_matrix[i][j] = similarity_matrix[j][i] = similarity
-
-    print("Finished calculating similarity matrix")
-
-    db = DBSCAN(metric="precomputed", eps=0.5, min_samples=2)
-    labels = db.fit_predict(1 - similarity_matrix)
-    print(f"DBSCAN labels: {labels}")
-
-    refined_clusters = {addresses[i]: cluster_id for i, cluster_id in enumerate(labels)}
-    print(f"Refined clusters: {refined_clusters}")
-
-    return refined_clusters
-
-
-async def average_jaccard_similarity(transactions_dict):
-    addresses = list(transactions_dict.keys())
-    total_similarity = 0
-    total_pairs = 0
-
-    for i in range(len(addresses)):
-        for j in range(i + 1, len(addresses)):
-            similarity = await sequence_similarity(
-                transactions_dict[addresses[i]], transactions_dict[addresses[j]]
-            )
-            total_similarity += similarity
-            total_pairs += 1
-
-    return total_similarity / total_pairs if total_pairs > 0 else 0

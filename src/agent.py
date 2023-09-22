@@ -9,7 +9,7 @@ from src.utils import (
 )
 from src.constants import N, COMMUNITY_SIZE, SIMILARITY_THRESHOLD
 from src.heuristics.advanced_heuristics import sybil_heuristics
-from src.analysis.cluster_analysis import analyze_suspicious_clusters
+from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.database.models import (
     create_tables,
@@ -24,11 +24,11 @@ from sqlalchemy.future import select
 from networkx import Graph
 import networkx as nx
 from community import best_partition  # For the Louvain method
-from src.helpers import (
-    average_jaccard_similarity,
-)
+from src.helpers import jaccard_similarity, extract_activity_pairs
 from src.database.controller import get_async_session
 import numpy as np
+import pdb
+
 
 transaction_counter = 0
 database_initialized = False
@@ -208,27 +208,7 @@ async def process_transactions():
     ]
     G1.remove_nodes_from(to_remove)
 
-    # colors = [
-    #     plt.cm.jet(
-    #         np.linspace(0, 1, len(set(partitions_louvain.values())))[
-    #             G1.nodes[node]["community"]
-    #         ]
-    #     )
-    #     for node in G1.nodes()
-    # ]
-
-    # Draw the graph
-    # nx.draw_spring(G1, with_labels=True, node_color=colors, cmap=plt.cm.jet)
-
-    # plt.title("Louvain Community Detection")
-    # plt.show()
-
-    # # create graph file
     nx.write_graphml(G1, "G1_graph_output.graphml")
-    # print("graph output created")
-
-    # final_partitions = dict(partitions_louvain)  # Initialize final_partitions
-    # print("initialized final partition dictionary")
 
     # set communities to a dictionary
     grouped_addresses = defaultdict(set)
@@ -241,26 +221,109 @@ async def process_transactions():
     final_graph = nx.Graph()
     communities_to_remove = set()
 
-    print("iterating through communities")
+    print("analyzing jaccard similarity of communities")
     async with get_async_session() as session:
         for community_id, addresses in grouped_addresses.items():
+            print(f"Processing community {community_id} with addresses: {addresses}")
+
             result2 = await session.execute(
                 select(ContractTransaction).where(
                     ContractTransaction.sender.in_(addresses)
                 )
             )
+            # TODO: continue / iterate the loop if most EOAs haven't interacted with contracts
             contract_transactions = result2.scalars().all()
+            print(
+                f"Retrieved {len(contract_transactions)} contract transactions for community {community_id}"
+            )
 
             # Organizes transaction data by the sender's address
-            transactions_dict = {address: [] for address in addresses}
-            for transaction in contract_transactions:
-                function_calls = extract_function_calls(transaction.data)
-                transactions_dict[transaction.sender].extend(function_calls)
+            # Constructing the transactions dictionary
+            contract_activity_dict = defaultdict(lambda: defaultdict(list))
+            print("Building contract activity dictionary...")
 
-            # Check Jaccard similarity for the community's contract transactions
-            avg_similarity = await average_jaccard_similarity(transactions_dict)
+            for transaction in contract_transactions:
+                print("checking function calls")
+                print(transaction.data)
+                function_calls = extract_function_calls(transaction.data)
+                for call in function_calls:
+                    function_name = call.split("(")[0]
+                    print("function name is...")
+                    print(function_name)
+                    params = call.split("(")[1].replace(")", "")
+                    activity = {"function_name": function_name, "params": params}
+                    contract_activity_dict[transaction.sender][
+                        transaction.contract_address
+                    ].append(activity)
+
+            print("Finished building contract activity dictionary")
+            for sender, contracts in contract_activity_dict.items():
+                print(f"Sender: {sender}")
+
+                # Iterating through contracts associated with the sender
+                for contract_address, activities in contracts.items():
+                    print(f"\tContract Address: {contract_address}")
+
+                    # Iterating through activities for the contract
+                    for activity in activities:
+                        print(
+                            f"\t\tFunction: {activity['function_name']}, Parameters: {activity['params']}"
+                        )
+
+            breakpoint()
+
+            # For each contract, count the number of EOAs that interacted with it
+            contract_interaction_counts = defaultdict(int)
+            print("Computing contract interaction counts...")
+
+            for contracts, details in contract_activity_dict.items():
+                for contract in details.keys():
+                    contract_interaction_counts[contract] += 1
+
+            print(f"Contract interaction counts: {contract_interaction_counts}")
+
+            total_similarity = 0
+            total_weights = 0
+
+            print("Computing similarities between addresses...")
+            for addr1 in addresses:
+                for addr2 in addresses:
+                    if addr1 == addr2:
+                        continue
+
+                    common_contracts = set(contract_activity_dict[addr1].keys()) & set(
+                        contract_activity_dict[addr2].keys()
+                    )
+                    print(
+                        f"Common contracts between {addr1} and {addr2}: {common_contracts}"
+                    )
+
+                    for contract in common_contracts:
+                        pairs1 = await extract_activity_pairs(
+                            contract_activity_dict[addr1][contract]
+                        )
+                        pairs2 = await extract_activity_pairs(
+                            contract_activity_dict[addr2][contract]
+                        )
+                        similarity = await jaccard_similarity(pairs1, pairs2)
+
+                        # Weight the similarity by the number of EOAs that interacted with the contract
+                        weight = contract_interaction_counts[contract]
+                        print(
+                            f"Weight for contract {contract}: {weight}, similarity: {similarity}"
+                        )
+
+                        total_similarity += similarity * weight
+                        total_weights += weight
+
+            # Compute the weighted average similarity
+            avg_similarity = (
+                total_similarity / total_weights if total_weights > 0 else 0
+            )
+            print(f"Average similarity for community {community_id}: {avg_similarity}")
 
             if avg_similarity >= SIMILARITY_THRESHOLD:
+                print(f"Retaining community {community_id} in final graph")
                 for node in addresses:
                     final_graph.add_node(node, **G1.nodes[node])
                     for neighbor in G1[node]:
@@ -275,6 +338,9 @@ async def process_transactions():
                             weight=int(transaction.amount),
                         )
             else:
+                print(
+                    f"Marking community {community_id} for removal due to low similarity"
+                )
                 communities_to_remove.add(community_id)
 
     # Remove communities with low similarity
@@ -283,10 +349,11 @@ async def process_transactions():
         for node, data in final_graph.nodes(data=True)
         if data["community"] in communities_to_remove
     ]
+    print(f"Removing {len(nodes_to_remove)} nodes from final graph")
     final_graph.remove_nodes_from(nodes_to_remove)
 
     nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
-
+    breakpoint()
     print("running heuristics")
     refinedGraph = await sybil_heuristics(final_graph)
     print("analyzing suspicious clusters")

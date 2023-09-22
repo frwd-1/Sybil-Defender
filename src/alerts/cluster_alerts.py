@@ -1,5 +1,5 @@
 # analysis.py
-from src.analysis.base_detector import (
+from src.alerts.base_detector import (
     AirdropFarmDetectorV1,
     AirdropFarmDetectorV2,
     SybilDetectionSystem,
