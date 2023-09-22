@@ -208,20 +208,20 @@ async def process_transactions():
     ]
     G1.remove_nodes_from(to_remove)
 
-    colors = [
-        plt.cm.jet(
-            np.linspace(0, 1, len(set(partitions_louvain.values())))[
-                G1.nodes[node]["community"]
-            ]
-        )
-        for node in G1.nodes()
-    ]
+    # colors = [
+    #     plt.cm.jet(
+    #         np.linspace(0, 1, len(set(partitions_louvain.values())))[
+    #             G1.nodes[node]["community"]
+    #         ]
+    #     )
+    #     for node in G1.nodes()
+    # ]
 
     # Draw the graph
-    nx.draw_spring(G1, with_labels=True, node_color=colors, cmap=plt.cm.jet)
+    # nx.draw_spring(G1, with_labels=True, node_color=colors, cmap=plt.cm.jet)
 
-    plt.title("Louvain Community Detection")
-    plt.show()
+    # plt.title("Louvain Community Detection")
+    # plt.show()
 
     # # create graph file
     # nx.write_graphml(G1, "G1_graph_output.graphml")
@@ -236,13 +236,13 @@ async def process_transactions():
         community_id = data["community"]
         grouped_addresses[community_id].add(node)
 
-    print("iterating through communities")
+    print(grouped_addresses)
+
     final_graph = nx.Graph()
 
     print("iterating through communities")
-    for community_id, addresses in grouped_addresses.items():
-        # TODO: revisit the efficiency of this, may not want to open / close so many sessions. use asyncio
-        async with get_async_session() as session:
+    async with get_async_session() as session:
+        for community_id, addresses in grouped_addresses.items():
             result2 = await session.execute(
                 select(ContractTransaction).where(
                     ContractTransaction.sender.in_(addresses)
@@ -250,42 +250,36 @@ async def process_transactions():
             )
             contract_transactions = result2.scalars().all()
 
-        # organizes transaction data by the sender's address, such that each address in addresses has a list of data associated with it
-        interactions_dict = {address: [] for address in addresses}
-        for interaction in contract_transactions:
-            function_calls = extract_function_calls(interaction.data)
-            interactions_dict[interaction.sender].extend(function_calls)
-
-        refined_clusters = await process_community_using_jaccard_dbscan(
-            interactions_dict
-        )
-
-        # If refined clusters are found within the community, add the community to the final_graph
-        if refined_clusters:
-            # Adding nodes and edges related to this community from G1 to the final_graph
-            for node in addresses:
-                final_graph.add_node(node, **G1.nodes[node])
-                for neighbor in G1[node]:
-                    if (
-                        node,
-                        neighbor,
-                    ) not in final_graph.edges:  # Avoiding duplicate edges
-                        final_graph.add_edge(node, neighbor, **G1[node][neighbor])
-
-            # Add the contract interactions as edges in the final_graph
+            # organizes transaction data by the sender's address
+            interactions_dict = {address: [] for address in addresses}
             for interaction in contract_transactions:
-                if interaction.sender in final_graph.nodes:
-                    final_graph.add_edge(
-                        interaction.sender,
-                        interaction.contract_address,
-                        weight=int(interaction.amount),
-                    )
-            # Add refined cluster info to nodes in the final_graph
-            for address, cluster_id in refined_clusters.items():
-                if address in final_graph.nodes:
-                    final_graph.nodes[address][
-                        "refined_cluster"
-                    ] = f"{community_id}_{cluster_id}"
+                function_calls = extract_function_calls(interaction.data)
+                interactions_dict[interaction.sender].extend(function_calls)
+
+            refined_clusters = await process_community_using_jaccard_dbscan(
+                interactions_dict
+            )
+
+            # If refined clusters are found within the community, add the community to the final_graph
+            if refined_clusters:
+                for node in addresses:
+                    final_graph.add_node(node, **G1.nodes[node])
+                    for neighbor in G1[node]:
+                        if (node, neighbor) not in final_graph.edges:
+                            final_graph.add_edge(node, neighbor, **G1[node][neighbor])
+
+                for interaction in contract_transactions:
+                    if interaction.sender in final_graph.nodes:
+                        final_graph.add_edge(
+                            interaction.sender,
+                            interaction.contract_address,
+                            weight=int(interaction.amount),
+                        )
+                for address, cluster_id in refined_clusters.items():
+                    if address in final_graph.nodes:
+                        final_graph.nodes[address][
+                            "refined_cluster"
+                        ] = f"{community_id}_{cluster_id}"
 
     nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
 
