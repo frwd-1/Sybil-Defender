@@ -56,3 +56,19 @@ async def process_community_using_jaccard_dbscan(interactions_dict):
     print(f"Refined clusters: {refined_clusters}")
 
     return refined_clusters
+
+
+async def average_jaccard_similarity(transactions_dict):
+    addresses = list(transactions_dict.keys())
+    total_similarity = 0
+    total_pairs = 0
+
+    for i in range(len(addresses)):
+        for j in range(i + 1, len(addresses)):
+            similarity = await sequence_similarity(
+                transactions_dict[addresses[i]], transactions_dict[addresses[j]]
+            )
+            total_similarity += similarity
+            total_pairs += 1
+
+    return total_similarity / total_pairs if total_pairs > 0 else 0

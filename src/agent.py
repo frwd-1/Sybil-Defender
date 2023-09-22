@@ -7,13 +7,13 @@ from src.utils import (
     shed_oldest_ContractTransactions,
     extract_function_calls,
 )
-from src.constants import N, COMMUNITY_SIZE
+from src.constants import N, COMMUNITY_SIZE, SIMILARITY_THRESHOLD
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.database.models import (
     create_tables,
-    transactions,
+    Interactions,
     Transfer,
     ContractTransaction,
 )
@@ -25,7 +25,7 @@ from networkx import Graph
 import networkx as nx
 from community import best_partition  # For the Louvain method
 from src.helpers import (
-    process_community_using_jaccard_dbscan,
+    average_jaccard_similarity,
 )
 from src.database.controller import get_async_session
 import numpy as np
@@ -68,9 +68,9 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
     async with get_async_session() as session:
         # Add sender and receiver to transactions table (repetitive part extracted)
-        session.add(transactions(address=sender))
+        session.add(Interactions(address=sender))
         print("added sender to transactions table")
-        session.add(transactions(address=receiver))
+        session.add(Interactions(address=receiver))
         print("added receiver to transactions table")
 
         if transaction_event.transaction.data != "0x":
@@ -224,7 +224,7 @@ async def process_transactions():
     # plt.show()
 
     # # create graph file
-    # nx.write_graphml(G1, "G1_graph_output.graphml")
+    nx.write_graphml(G1, "G1_graph_output.graphml")
     # print("graph output created")
 
     # final_partitions = dict(partitions_louvain)  # Initialize final_partitions
@@ -239,6 +239,7 @@ async def process_transactions():
     print(grouped_addresses)
 
     final_graph = nx.Graph()
+    communities_to_remove = set()
 
     print("iterating through communities")
     async with get_async_session() as session:
@@ -250,18 +251,16 @@ async def process_transactions():
             )
             contract_transactions = result2.scalars().all()
 
-            # organizes transaction data by the sender's address
+            # Organizes transaction data by the sender's address
             transactions_dict = {address: [] for address in addresses}
             for transaction in contract_transactions:
                 function_calls = extract_function_calls(transaction.data)
                 transactions_dict[transaction.sender].extend(function_calls)
 
-            refined_clusters = await process_community_using_jaccard_dbscan(
-                transactions_dict
-            )
+            # Check Jaccard similarity for the community's contract transactions
+            avg_similarity = await average_jaccard_similarity(transactions_dict)
 
-            # If refined clusters are found within the community, add the community to the final_graph
-            if refined_clusters:
+            if avg_similarity >= SIMILARITY_THRESHOLD:
                 for node in addresses:
                     final_graph.add_node(node, **G1.nodes[node])
                     for neighbor in G1[node]:
@@ -275,11 +274,16 @@ async def process_transactions():
                             transaction.contract_address,
                             weight=int(transaction.amount),
                         )
-                for address, cluster_id in refined_clusters.items():
-                    if address in final_graph.nodes:
-                        final_graph.nodes[address][
-                            "refined_cluster"
-                        ] = f"{community_id}_{cluster_id}"
+            else:
+                communities_to_remove.add(community_id)
+
+    # Remove communities with low similarity
+    nodes_to_remove = [
+        node
+        for node, data in final_graph.nodes(data=True)
+        if data["community"] in communities_to_remove
+    ]
+    final_graph.remove_nodes_from(nodes_to_remove)
 
     nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
 
