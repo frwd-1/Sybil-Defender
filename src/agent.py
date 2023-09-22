@@ -13,7 +13,7 @@ from src.analysis.cluster_analysis import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.database.models import (
     create_tables,
-    Interactions,
+    transactions,
     Transfer,
     ContractTransaction,
 )
@@ -67,11 +67,11 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     print("transaction parameters set")
 
     async with get_async_session() as session:
-        # Add sender and receiver to Interactions table (repetitive part extracted)
-        session.add(Interactions(address=sender))
-        print("added sender to Interactions table")
-        session.add(Interactions(address=receiver))
-        print("added receiver to Interactions table")
+        # Add sender and receiver to transactions table (repetitive part extracted)
+        session.add(transactions(address=sender))
+        print("added sender to transactions table")
+        session.add(transactions(address=receiver))
+        print("added receiver to transactions table")
 
         if transaction_event.transaction.data != "0x":
             session.add(
@@ -251,13 +251,13 @@ async def process_transactions():
             contract_transactions = result2.scalars().all()
 
             # organizes transaction data by the sender's address
-            interactions_dict = {address: [] for address in addresses}
-            for interaction in contract_transactions:
-                function_calls = extract_function_calls(interaction.data)
-                interactions_dict[interaction.sender].extend(function_calls)
+            transactions_dict = {address: [] for address in addresses}
+            for transaction in contract_transactions:
+                function_calls = extract_function_calls(transaction.data)
+                transactions_dict[transaction.sender].extend(function_calls)
 
             refined_clusters = await process_community_using_jaccard_dbscan(
-                interactions_dict
+                transactions_dict
             )
 
             # If refined clusters are found within the community, add the community to the final_graph
@@ -268,12 +268,12 @@ async def process_transactions():
                         if (node, neighbor) not in final_graph.edges:
                             final_graph.add_edge(node, neighbor, **G1[node][neighbor])
 
-                for interaction in contract_transactions:
-                    if interaction.sender in final_graph.nodes:
+                for transaction in contract_transactions:
+                    if transaction.sender in final_graph.nodes:
                         final_graph.add_edge(
-                            interaction.sender,
-                            interaction.contract_address,
-                            weight=int(interaction.amount),
+                            transaction.sender,
+                            transaction.contract_address,
+                            weight=int(transaction.amount),
                         )
                 for address, cluster_id in refined_clusters.items():
                     if address in final_graph.nodes:
