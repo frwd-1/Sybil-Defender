@@ -5,9 +5,9 @@ import decimal
 from src.utils import (
     shed_oldest_Transfers,
     shed_oldest_ContractTransactions,
-    extract_function_calls,
+    extract_method_id,
 )
-from src.constants import N, COMMUNITY_SIZE, SIMILARITY_THRESHOLD
+from src.constants import N, COMMUNITY_SIZE, SIMILARITY_THRESHOLD, INTERACTION_RATIO
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
@@ -121,7 +121,7 @@ async def process_transactions():
     G1 = Graph()
 
     print("graph created")
-
+    # TODO: add error handling
     async with get_async_session() as session:
         print("querying transactions")
         result = await session.execute(select(Transfer))
@@ -174,6 +174,7 @@ async def process_transactions():
 
             # Adjust the weight
             initial_weight = edge_weights[(node, target)]
+
             adjusted_weight = (1 / (mean_variance + 1)) * initial_weight
 
             # Update the edge in the graph
@@ -227,58 +228,65 @@ async def process_transactions():
             print(f"Processing community {community_id} with addresses: {addresses}")
 
             result2 = await session.execute(
-                select(ContractTransaction).where(
-                    ContractTransaction.sender.in_(addresses)
-                )
+                select(ContractTransaction)
+                .where(ContractTransaction.sender.in_(addresses))
+                .order_by(ContractTransaction.timestamp)
             )
+
             # TODO: continue / iterate the loop if most EOAs haven't interacted with contracts
             contract_transactions = result2.scalars().all()
             print(
                 f"Retrieved {len(contract_transactions)} contract transactions for community {community_id}"
             )
+            unique_senders = set(
+                transaction.sender for transaction in contract_transactions
+            )
+            print("unique senders:", len(unique_senders))
+            print("number of addresses:", len(addresses))
+
+            # TODO: add additional filter to check if addresses are interacting with same contract
+            # TODO: add these to heuristics module
+            # Check if less than half of the addresses have a ContractTransaction
+            if len(unique_senders) < len(addresses) * INTERACTION_RATIO:
+                print(
+                    f"Skipping community {community_id} as less than half of its addresses have a ContractTransaction"
+                )
+                continue
 
             # Organizes transaction data by the sender's address
             # Constructing the transactions dictionary
-            contract_activity_dict = defaultdict(lambda: defaultdict(list))
-            print("Building contract activity dictionary...")
+            contract_activity_dict = defaultdict(list)
 
             for transaction in contract_transactions:
                 print("checking function calls")
                 print(transaction.data)
-                function_calls = extract_function_calls(transaction.data)
-                for call in function_calls:
-                    function_name = call.split("(")[0]
-                    print("function name is...")
-                    print(function_name)
-                    params = call.split("(")[1].replace(")", "")
-                    activity = {"function_name": function_name, "params": params}
-                    contract_activity_dict[transaction.sender][
-                        transaction.contract_address
-                    ].append(activity)
+
+                # Extract the method ID
+                print("method id is...")
+                methodId = extract_method_id(transaction.data)
+                print(methodId)
+
+                # Log the contract address
+                print("contract address is")
+                print(transaction.contract_address)
+
+                # Create a tuple (triplet) of the method ID, amount, and contract address
+                activity = (methodId, transaction.amount, transaction.contract_address)
+
+                # Directly append the activity tuple to the list without manual checks because of defaultdict
+                contract_activity_dict[transaction.sender].append(activity)
 
             print("Finished building contract activity dictionary")
-            for sender, contracts in contract_activity_dict.items():
-                print(f"Sender: {sender}")
-
-                # Iterating through contracts associated with the sender
-                for contract_address, activities in contracts.items():
-                    print(f"\tContract Address: {contract_address}")
-
-                    # Iterating through activities for the contract
-                    for activity in activities:
-                        print(
-                            f"\t\tFunction: {activity['function_name']}, Parameters: {activity['params']}"
-                        )
-
-            breakpoint()
 
             # For each contract, count the number of EOAs that interacted with it
-            contract_interaction_counts = defaultdict(int)
-            print("Computing contract interaction counts...")
+            contract_interaction_counts = defaultdict(set)
 
-            for contracts, details in contract_activity_dict.items():
-                for contract in details.keys():
-                    contract_interaction_counts[contract] += 1
+            for sender, activities in contract_activity_dict.items():
+                print(f"Sender: {sender}")
+                print("\tActivities:", activities)
+                for activity in activities:
+                    contract = activity[2]
+                    contract_interaction_counts[contract].add(sender)
 
             print(f"Contract interaction counts: {contract_interaction_counts}")
 
@@ -291,30 +299,24 @@ async def process_transactions():
                     if addr1 == addr2:
                         continue
 
-                    common_contracts = set(contract_activity_dict[addr1].keys()) & set(
-                        contract_activity_dict[addr2].keys()
-                    )
+                    # Directly fetch the activities for both addresses
+                    activities1 = contract_activity_dict[addr1]
+                    activities2 = contract_activity_dict[addr2]
+
+                    pairs1 = await extract_activity_pairs(activities1)
+                    pairs2 = await extract_activity_pairs(activities2)
+
+                    similarity = await jaccard_similarity(pairs1, pairs2)
+
+                    # Weight the similarity. In this case, we might weigh by the combined total activities of both addresses
+                    # (or any other metric you find appropriate since the context of contract interactions is no longer applied).
+                    weight = len(activities1) + len(activities2)
                     print(
-                        f"Common contracts between {addr1} and {addr2}: {common_contracts}"
+                        f"Weight between {addr1} and {addr2}: {weight}, similarity: {similarity}"
                     )
 
-                    for contract in common_contracts:
-                        pairs1 = await extract_activity_pairs(
-                            contract_activity_dict[addr1][contract]
-                        )
-                        pairs2 = await extract_activity_pairs(
-                            contract_activity_dict[addr2][contract]
-                        )
-                        similarity = await jaccard_similarity(pairs1, pairs2)
-
-                        # Weight the similarity by the number of EOAs that interacted with the contract
-                        weight = contract_interaction_counts[contract]
-                        print(
-                            f"Weight for contract {contract}: {weight}, similarity: {similarity}"
-                        )
-
-                        total_similarity += similarity * weight
-                        total_weights += weight
+                    total_similarity += similarity * weight
+                    total_weights += weight
 
             # Compute the weighted average similarity
             avg_similarity = (

@@ -42,8 +42,6 @@ async def shed_oldest_ContractTransactions():
             await session.commit()
 
 
-def extract_function_calls(data):
-    """Extract potential function calls from a string."""
-    # Regular expression pattern to find function calls
-    pattern = r"\b\w+\([^)]*\)"
-    return re.findall(pattern, data)
+def extract_method_id(data):
+    """Extract the method ID from the transaction data."""
+    return data[:10]
