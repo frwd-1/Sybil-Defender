@@ -255,7 +255,7 @@ async def process_transactions():
 
             # Organizes transaction data by the sender's address
             # Constructing the transactions dictionary
-            contract_activity_dict = defaultdict(list)
+            contract_activity_dict = defaultdict(set)
 
             for transaction in contract_transactions:
                 # Extract the method ID
