@@ -258,58 +258,36 @@ async def process_transactions():
             contract_activity_dict = defaultdict(list)
 
             for transaction in contract_transactions:
-                print("checking function calls")
-                print(transaction.data)
-
                 # Extract the method ID
-                print("method id is...")
                 methodId = extract_method_id(transaction.data)
-                print(methodId)
 
-                # Log the contract address
-                print("contract address is")
-                print(transaction.contract_address)
+                # Create a tuple of the method ID and contract address
+                activity = (methodId, transaction.contract_address)
 
-                # Create a tuple (triplet) of the method ID, amount, and contract address
-                activity = (methodId, transaction.amount, transaction.contract_address)
-
-                # Directly append the activity tuple to the list without manual checks because of defaultdict
-                contract_activity_dict[transaction.sender].append(activity)
+                # Store only unique method-contract pairs per sender
+                contract_activity_dict[transaction.sender].add(activity)
 
             print("Finished building contract activity dictionary")
 
             # For each contract, count the number of EOAs that interacted with it
             contract_interaction_counts = defaultdict(set)
-
             for sender, activities in contract_activity_dict.items():
-                print(f"Sender: {sender}")
-                print("\tActivities:", activities)
                 for activity in activities:
-                    contract = activity[2]
+                    contract = activity[1]
                     contract_interaction_counts[contract].add(sender)
-
-            print(f"Contract interaction counts: {contract_interaction_counts}")
 
             total_similarity = 0
             total_weights = 0
-
             print("Computing similarities between addresses...")
             for addr1 in addresses:
                 for addr2 in addresses:
                     if addr1 == addr2:
                         continue
 
-                    # Directly fetch the activities for both addresses
                     activities1 = contract_activity_dict[addr1]
                     activities2 = contract_activity_dict[addr2]
 
-                    pairs1 = await extract_activity_pairs(activities1)
-                    pairs2 = await extract_activity_pairs(activities2)
-
-                    similarity = await jaccard_similarity(pairs1, pairs2)
-
-                    # Weight the similarity. In this case, we might weigh by the combined total activities of both addresses
-                    # (or any other metric you find appropriate since the context of contract interactions is no longer applied).
+                    similarity = await jaccard_similarity(activities1, activities2)
                     weight = len(activities1) + len(activities2)
                     print(
                         f"Weight between {addr1} and {addr2}: {weight}, similarity: {similarity}"
@@ -318,10 +296,10 @@ async def process_transactions():
                     total_similarity += similarity * weight
                     total_weights += weight
 
-            # Compute the weighted average similarity
             avg_similarity = (
                 total_similarity / total_weights if total_weights > 0 else 0
             )
+            print(f"Average similarity for community {community_id}: {avg_similarity}")
             print(f"Average similarity for community {community_id}: {avg_similarity}")
 
             if avg_similarity >= SIMILARITY_THRESHOLD:
@@ -355,7 +333,7 @@ async def process_transactions():
     final_graph.remove_nodes_from(nodes_to_remove)
 
     nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
-    breakpoint()
+    pdb.set_trace()
     print("running heuristics")
     refinedGraph = await sybil_heuristics(final_graph)
     print("analyzing suspicious clusters")

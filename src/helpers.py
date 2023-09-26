@@ -32,26 +32,10 @@ async def extract_activity_pairs(activities):
     return pairs
 
 
-async def jaccard_similarity(pairs1, pairs2):
-    print(f"Calculating Jaccard similarity between {pairs1} and {pairs2}")
-
-    # Helper function to check if two activities are similar
-    def activities_similar(act1, act2):
-        # Check method ID and contract address
-        if act1[0] != act2[0] or act1[2] != act2[2]:
-            return False
-        # Check transaction amount with tolerance
-        return abs(act1[1] - act2[1]) <= AMOUNT_TOLERANCE * act1[1]
-
-    intersection = sum(
-        1
-        for pair in pairs1
-        if any(activities_similar(pair, other_pair) for other_pair in pairs2)
-    )
-    union = len(pairs1) + len(pairs2) - intersection
-
+async def jaccard_similarity(set1, set2):
+    intersection = len(set1.intersection(set2))
+    union = len(set1.union(set2))
     similarity = intersection / union if union != 0 else 0
-    print(f"Jaccard similarity: {similarity}")
     return similarity
 
 
