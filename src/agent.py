@@ -202,12 +202,31 @@ async def process_transactions():
     for node, community in partitions_louvain.items():
         G1.nodes[node]["community"] = community
 
+    # Find nodes that aren't in any community
+    nodes_without_community = set(G1.nodes()) - set(partitions_louvain.keys())
+
+    # removes communities that are smaller than the required COMMUNITY_SIZE
     to_remove = [
         node
         for node, community in partitions_louvain.items()
         if list(partitions_louvain.values()).count(community) < COMMUNITY_SIZE
     ]
+
+    # Add nodes without community to the removal list
+    to_remove.extend(nodes_without_community)
+
     G1.remove_nodes_from(to_remove)
+    # This will store edges that need to be removed
+    edges_to_remove = []
+
+    # Iterate over all edges of the graph
+    for u, v in G1.edges():
+        # If nodes u and v belong to different communities, mark the edge for removal
+        if G1.nodes[u]["community"] != G1.nodes[v]["community"]:
+            edges_to_remove.append((u, v))
+
+    # Remove the marked edges from the graph
+    G1.remove_edges_from(edges_to_remove)
 
     nx.write_graphml(G1, "G1_graph_output.graphml")
 
@@ -219,9 +238,7 @@ async def process_transactions():
 
     print(grouped_addresses)
 
-    final_graph = nx.Graph()
     communities_to_remove = set()
-
     print("analyzing jaccard similarity of communities")
     async with get_async_session() as session:
         for community_id, addresses in grouped_addresses.items():
@@ -251,6 +268,7 @@ async def process_transactions():
                 print(
                     f"Skipping community {community_id} as less than half of its addresses have a ContractTransaction"
                 )
+                communities_to_remove.add(community_id)
                 continue
 
             # Organizes transaction data by the sender's address
@@ -300,22 +318,27 @@ async def process_transactions():
                 total_similarity / total_weights if total_weights > 0 else 0
             )
             print(f"Average similarity for community {community_id}: {avg_similarity}")
-            print(f"Average similarity for community {community_id}: {avg_similarity}")
-
             if avg_similarity >= SIMILARITY_THRESHOLD:
-                print(f"Retaining community {community_id} in final graph")
-                for node in addresses:
-                    final_graph.add_node(node, **G1.nodes[node])
-                    for neighbor in G1[node]:
-                        if (node, neighbor) not in final_graph.edges:
-                            final_graph.add_edge(node, neighbor, **G1[node][neighbor])
+                print(f"Retaining community {community_id} in G1")
 
+                # Add contract transaction edges to the G1
                 for transaction in contract_transactions:
-                    if transaction.sender in final_graph.nodes:
-                        final_graph.add_edge(
+                    if transaction.sender in G1.nodes:
+                        # Ensure the sender node has the correct community label
+                        G1.nodes[transaction.sender]["community"] = community_id
+
+                        # If the contract address isn't already a node in the graph, add it
+                        if transaction.contract_address not in G1.nodes:
+                            G1.add_node(
+                                transaction.contract_address, community=community_id
+                            )
+
+                        # Add the edge between the sender and the contract address
+                        G1.add_edge(
                             transaction.sender,
                             transaction.contract_address,
                             weight=int(transaction.amount),
+                            community=community_id,  # Adding community info to the edge as well
                         )
             else:
                 print(
@@ -323,19 +346,34 @@ async def process_transactions():
                 )
                 communities_to_remove.add(community_id)
 
-    # Remove communities with low similarity
-    nodes_to_remove = [
-        node
-        for node, data in final_graph.nodes(data=True)
-        if data["community"] in communities_to_remove
-    ]
-    print(f"Removing {len(nodes_to_remove)} nodes from final graph")
-    final_graph.remove_nodes_from(nodes_to_remove)
+        # Remove nodes belonging to communities marked for removal
+        nodes_to_remove = [
+            node
+            for node, data in G1.nodes(data=True)
+            if data.get("community") in communities_to_remove
+        ]
+        print(
+            f"Removing {len(communities_to_remove)} communities and {len(nodes_to_remove)} nodes from G1"
+        )
+        G1.remove_nodes_from(nodes_to_remove)
 
-    nx.write_graphml(final_graph, "FINAL_GRAPH_graph_output.graphml")
-    pdb.set_trace()
+    # List of edges that connect nodes from different communities
+    inter_community_edges = [
+        (u, v)
+        for u, v in G1.edges()
+        if G1.nodes[u]["community"] != G1.nodes[v]["community"]
+    ]
+
+    # Remove inter-community edges
+    G1.remove_edges_from(inter_community_edges)
+
+    print(f"Removed {len(inter_community_edges)} inter-community edges from G1.")
+
+    nx.write_graphml(G1, "FINAL_GRAPH_graph_output.graphml")
+    breakpoint()
+
     print("running heuristics")
-    refinedGraph = await sybil_heuristics(final_graph)
+    refinedGraph = await sybil_heuristics(G1)
     print("analyzing suspicious clusters")
     print(refinedGraph)
     findings = analyze_suspicious_clusters(refinedGraph) or []

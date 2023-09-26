@@ -1,5 +1,3 @@
-from src.constants import AMOUNT_TOLERANCE
-
 # from sklearn.cluster import DBSCAN
 # import numpy as np
 
