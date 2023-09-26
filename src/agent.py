@@ -228,7 +228,7 @@ async def process_transactions():
     # Remove the marked edges from the graph
     G1.remove_edges_from(edges_to_remove)
 
-    nx.write_graphml(G1, "G1_graph_output.graphml")
+    nx.write_graphml(G1, "G1_graph_output3.graphml")
 
     # set communities to a dictionary
     grouped_addresses = defaultdict(set)
@@ -369,7 +369,7 @@ async def process_transactions():
 
     print(f"Removed {len(inter_community_edges)} inter-community edges from G1.")
 
-    nx.write_graphml(G1, "FINAL_GRAPH_graph_output.graphml")
+    nx.write_graphml(G1, "FINAL_GRAPH_graph3_output.graphml")
     breakpoint()
 
     print("running heuristics")
