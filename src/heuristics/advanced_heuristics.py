@@ -1,7 +1,7 @@
 from datetime import timedelta
 from src.database.models import SuspiciousCluster
 from collections import defaultdict
-from src.database.controller import get_async_session
+from src.database.db_controller import get_async_session
 
 
 async def sybil_heuristics(G):

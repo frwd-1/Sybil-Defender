@@ -1,0 +1,94 @@
+import asyncio
+from src.utils.constants import N, WINDOW_SIZE
+from src.database.models import Transfer, ContractTransaction
+from sqlalchemy.future import select
+from sqlalchemy import func
+from src.database.db_controller import get_async_session
+import re
+from src.database.models import (
+    Interactions,
+    Transfer,
+    ContractTransaction,
+)
+from src.database.db_controller import create_tables
+
+
+async def add_transaction_to_db(session, transaction_event):
+    sender = transaction_event.from_
+    receiver = transaction_event.to
+    tx_hash = transaction_event.hash
+    amount = transaction_event.transaction.value
+    gas_price = transaction_event.gas_price
+    timestamp = transaction_event.timestamp
+    data = transaction_event.transaction.data
+
+    session.add(Interactions(address=sender))
+    print("added sender to transactions table")
+    session.add(Interactions(address=receiver))
+    print("added receiver to transactions table")
+
+    if data != "0x":
+        session.add(
+            ContractTransaction(
+                tx_hash=tx_hash,
+                sender=sender,
+                contract_address=receiver,
+                amount=amount,
+                timestamp=timestamp,
+                data=data,
+            )
+        )
+        print("added ContractTransaction to ContractTransaction table")
+    else:
+        session.add(
+            Transfer(
+                tx_hash=tx_hash,
+                sender=sender,
+                receiver=receiver,
+                amount=amount,
+                gas_price=gas_price,
+                timestamp=timestamp,
+            )
+        )
+        print("added Transfer to Transfer table")
+
+
+async def shed_oldest_Transfers():
+    async with get_async_session() as session:
+        total_txs = await session.execute(select(func.count(Transfer.tx_hash)))
+
+        txs_to_prune = total_txs.scalar() - WINDOW_SIZE + N
+
+        if txs_to_prune > 0:
+            old_txs = await session.execute(
+                select(Transfer).order_by(Transfer.timestamp).limit(txs_to_prune)
+            )
+            old_txs = old_txs.scalars().all()
+            for tx in old_txs:
+                await session.delete(tx)
+            await session.commit()
+
+
+async def shed_oldest_ContractTransactions():
+    async with get_async_session() as session:
+        total_ctxs = await session.execute(
+            select(func.count(ContractTransaction.tx_hash))
+        )
+
+        ctxs_to_prune = total_ctxs.scalar() - WINDOW_SIZE + N
+
+        if ctxs_to_prune > 0:
+            old_ctxs = await session.execute(
+                select(ContractTransaction)
+                .order_by(ContractTransaction.timestamp)
+                .limit(ctxs_to_prune)
+            )
+            old_ctxs = old_ctxs.scalars().all()
+            for ctx in old_ctxs:
+                await session.delete(ctx)
+            await session.commit()
+
+
+def extract_method_id(data):
+    """Extract the method ID from the transaction data."""
+    return data[:10]

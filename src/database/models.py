@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, Numeric, Column, String
 from sqlalchemy.ext.declarative import declarative_base
 from dotenv import load_dotenv
-from src.database.controller import get_async_session, engine
+
 
 load_dotenv()
 
@@ -48,9 +48,3 @@ class SuspiciousCluster(Base):
         return (
             f"<SuspiciousCluster(cluster_id={self.cluster_id}, address={self.address})>"
         )
-
-
-async def create_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    print("database initialized")

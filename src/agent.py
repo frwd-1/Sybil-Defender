@@ -1,119 +1,72 @@
 import asyncio
-import matplotlib.pyplot as plt
 from forta_agent import TransactionEvent
 import decimal
-from src.utils import (
+from src.database.db_utils import (
     shed_oldest_Transfers,
     shed_oldest_ContractTransactions,
     extract_method_id,
 )
-from src.constants import N, COMMUNITY_SIZE, SIMILARITY_THRESHOLD, INTERACTION_RATIO
+from src.utils.constants import (
+    N,
+    COMMUNITY_SIZE,
+    SIMILARITY_THRESHOLD,
+    INTERACTION_RATIO,
+)
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.database.models import (
-    create_tables,
     Interactions,
     Transfer,
     ContractTransaction,
 )
+from src.utils import globals
+from src.utils.utils import update_transaction_counter
 from collections import defaultdict
 from sqlalchemy.future import select
+from src.database.db_utils import add_transaction_to_db
 
-# TODO: remove redundant imports
 from networkx import Graph
 import networkx as nx
 from community import best_partition  # For the Louvain method
-from src.helpers import jaccard_similarity, extract_activity_pairs
-from src.database.controller import get_async_session
-import numpy as np
-import pdb
-
-
-transaction_counter = 0
-database_initialized = False
+from src.analysis.helpers import jaccard_similarity, extract_activity_pairs
+from src.database.db_controller import get_async_session, initialize_database
 
 
 # TODO: make final graph a global variable, window graph should merge into final graph
 def handle_transaction(transaction_event: TransactionEvent):
-    global database_initialized
-    # TODO: refactor this initialization, doesn't have to initialize each time
-    if not database_initialized:
-        print("creating tables")
-        asyncio.get_event_loop().run_until_complete(create_tables())
-        database_initialized = True
-
+    initialize_database()
     return asyncio.get_event_loop().run_until_complete(
         handle_transaction_async(transaction_event)
     )
 
 
 async def handle_transaction_async(transaction_event: TransactionEvent):
-    global transaction_counter
     findings = []
 
     print("applying initial heuristics")
     if not await apply_initial_heuristics(transaction_event):
         return []
 
-    tx_hash = transaction_event.hash
-    sender = transaction_event.from_
-    receiver = transaction_event.to
-    amount = transaction_event.transaction.value
-    gas_price = transaction_event.gas_price
-    timestamp = transaction_event.timestamp
-    data = transaction_event.transaction.data
-
-    print("transaction parameters set")
-
     async with get_async_session() as session:
-        # Add sender and receiver to transactions table (repetitive part extracted)
-        session.add(Interactions(address=sender))
-        print("added sender to transactions table")
-        session.add(Interactions(address=receiver))
-        print("added receiver to transactions table")
-
-        if transaction_event.transaction.data != "0x":
-            session.add(
-                ContractTransaction(
-                    tx_hash=tx_hash,
-                    sender=sender,
-                    contract_address=receiver,
-                    amount=amount,
-                    timestamp=timestamp,
-                    data=data,
-                )
-            )
-            print("added ContractTransaction to ContractTransaction table")
-        else:
-            session.add(
-                Transfer(
-                    tx_hash=tx_hash,
-                    sender=sender,
-                    receiver=receiver,
-                    amount=amount,
-                    gas_price=gas_price,
-                    timestamp=timestamp,
-                )
-            )
-            print("added Transfer to Transfer table")
-
+        await add_transaction_to_db(session, transaction_event)
         await session.commit()
-        print("data committed to table")
+        print("transaction data committed to table")
 
-        transaction_counter += 1
-        print("transaction counter is", transaction_counter)
-    if transaction_counter >= N:
+        update_transaction_counter()
+
+    print("transaction counter is", globals.transaction_counter)
+    if globals.transaction_counter >= N:
         print("processing clusters")
-
         findings = await process_transactions()
         await shed_oldest_Transfers()
         await shed_oldest_ContractTransactions()
-        transaction_counter = 0
+
+        globals.transaction_counter = 0
         print("ALL COMPLETE")
         return findings
 
-    return []  # Returns an empty list if the threshold hasn't been reached
+    return []
 
 
 # TODO: initialize the existing graph with incoming_graph_data

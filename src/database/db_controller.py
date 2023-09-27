@@ -1,8 +1,11 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
+from src.database.models import Base
+from src.utils import globals
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
 import os
+import asyncio
 
 load_dotenv()
 
@@ -25,3 +28,16 @@ async def get_async_session():
         raise
     finally:
         await session.close()
+
+
+async def initialize_database():
+    if not globals.database_initialized:
+        print("creating tables")
+        asyncio.get_event_loop().run_until_complete(create_tables())
+        globals.database_initialized = True
+
+
+async def create_tables():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    print("database initialized")
