@@ -1,16 +1,17 @@
-import asyncio
 from src.utils.constants import N, WINDOW_SIZE
 from src.database.models import Transfer, ContractTransaction
 from sqlalchemy.future import select
 from sqlalchemy import func
 from src.database.db_controller import get_async_session
-import re
+
 from src.database.models import (
     Interactions,
     Transfer,
     ContractTransaction,
 )
-from src.database.db_controller import create_tables
+
+from sqlalchemy.exc import IntegrityError
+from asyncpg.exceptions import UniqueViolationError
 
 
 async def add_transaction_to_db(session, transaction_event):
@@ -22,35 +23,55 @@ async def add_transaction_to_db(session, transaction_event):
     timestamp = transaction_event.timestamp
     data = transaction_event.transaction.data
 
-    session.add(Interactions(address=sender))
-    print("added sender to transactions table")
-    session.add(Interactions(address=receiver))
-    print("added receiver to transactions table")
+    try:
+        session.add(Interactions(address=sender))
+        print("added sender to transactions table")
+        session.add(Interactions(address=receiver))
+        print("added receiver to transactions table")
+    except IntegrityError as ie:
+        if isinstance(ie.orig, UniqueViolationError):
+            print(f"Duplicate entry for sender or receiver. Skipping.")
+        else:
+            raise  # Re-raise if it's some other integrity error
 
     if data != "0x":
-        session.add(
-            ContractTransaction(
-                tx_hash=tx_hash,
-                sender=sender,
-                contract_address=receiver,
-                amount=amount,
-                timestamp=timestamp,
-                data=data,
+        try:
+            session.add(
+                ContractTransaction(
+                    tx_hash=tx_hash,
+                    sender=sender,
+                    contract_address=receiver,
+                    amount=amount,
+                    timestamp=timestamp,
+                    data=data,
+                )
             )
-        )
-        print("added ContractTransaction to ContractTransaction table")
+            print("added ContractTransaction to ContractTransaction table")
+        except IntegrityError as ie:
+            if isinstance(ie.orig, UniqueViolationError):
+                print(
+                    f"Duplicate entry with tx_hash {tx_hash} for ContractTransaction. Skipping."
+                )
+            else:
+                raise  # Re-raise if it's some other integrity error
     else:
-        session.add(
-            Transfer(
-                tx_hash=tx_hash,
-                sender=sender,
-                receiver=receiver,
-                amount=amount,
-                gas_price=gas_price,
-                timestamp=timestamp,
+        try:
+            session.add(
+                Transfer(
+                    tx_hash=tx_hash,
+                    sender=sender,
+                    receiver=receiver,
+                    amount=amount,
+                    gas_price=gas_price,
+                    timestamp=timestamp,
+                )
             )
-        )
-        print("added Transfer to Transfer table")
+            print("added Transfer to Transfer table")
+        except IntegrityError as ie:
+            if isinstance(ie.orig, UniqueViolationError):
+                print(f"Duplicate entry with tx_hash {tx_hash} for Transfer. Skipping.")
+            else:
+                raise  # Re-raise if it's some other integrity error
 
 
 async def shed_oldest_Transfers():

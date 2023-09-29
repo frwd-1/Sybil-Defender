@@ -5,13 +5,18 @@ import decimal
 
 def add_transactions_to_graph(transfers):
     for transfer in transfers:
-        globals.G1.add_edge(
-            transfer.sender,
-            transfer.receiver,
-            timestamp=transfer.timestamp,
-            gas_price=transfer.gas_price,
-            amount=transfer.amount,
-        )
+        if transfer.sender is not None and transfer.receiver is not None:
+            globals.G1.add_edge(
+                transfer.sender,
+                transfer.receiver,
+                timestamp=transfer.timestamp,
+                gas_price=transfer.gas_price,
+                amount=transfer.amount,
+            )
+        else:
+            print(
+                f"Skipping edge addition for transfer with sender={transfer.sender} and receiver={transfer.receiver}"
+            )
 
 
 def adjust_edge_weights_and_variances(transfers):

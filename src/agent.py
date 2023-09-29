@@ -46,11 +46,15 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
         return []
 
     async with get_async_session() as session:
-        await add_transaction_to_db(session, transaction_event)
-        await session.commit()
-        print("transaction data committed to table")
+        try:
+            await add_transaction_to_db(session, transaction_event)
+            await session.commit()
+            print("transaction data committed to table")
+        except Exception as e:
+            print(f"Error committing transaction to database: {e}")
+            session.rollback()  # Rollback the transaction if there's an error
 
-        update_transaction_counter()
+    update_transaction_counter()
 
     print("transaction counter is", globals.transaction_counter)
     if globals.transaction_counter >= N:
