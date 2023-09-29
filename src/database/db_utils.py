@@ -8,10 +8,13 @@ from src.database.models import (
     Interactions,
     Transfer,
     ContractTransaction,
+    SybilClusters,
 )
 
 from sqlalchemy.exc import IntegrityError
 from asyncpg.exceptions import UniqueViolationError
+
+import datetime
 
 
 async def add_transaction_to_db(session, transaction_event):
@@ -85,8 +88,17 @@ async def shed_oldest_Transfers():
                 select(Transfer).order_by(Transfer.timestamp).limit(txs_to_prune)
             )
             old_txs = old_txs.scalars().all()
+
+            sybil_nodes = await session.execute(select(SybilClusters.address))
+            sybil_addresses = {node.address for node in sybil_nodes.scalars().all()}
+
             for tx in old_txs:
-                await session.delete(tx)
+                if (
+                    tx.sender not in sybil_addresses
+                    and tx.receiver not in sybil_addresses
+                ):
+                    await session.delete(tx)
+
             await session.commit()
 
 
@@ -105,11 +117,65 @@ async def shed_oldest_ContractTransactions():
                 .limit(ctxs_to_prune)
             )
             old_ctxs = old_ctxs.scalars().all()
+
+            sybil_nodes = await session.execute(select(SybilClusters.address))
+            sybil_addresses = {node.address for node in sybil_nodes.scalars().all()}
+
             for ctx in old_ctxs:
-                await session.delete(ctx)
+                if ctx.sender not in sybil_addresses:
+                    await session.delete(ctx)
+
             await session.commit()
 
 
 def extract_method_id(data):
     """Extract the method ID from the transaction data."""
     return data[:10]
+
+
+async def store_graph_clusters(G, session):
+    identified_clusters = extract_clusters_from_graph(G)
+
+    for cluster in identified_clusters:
+        cluster_id = cluster["id"]
+        addresses = cluster[
+            "addresses"
+        ]  # This should be a list of addresses in the cluster
+        # Add other relevant cluster metadata you want to store
+
+        # Check if this cluster already exists in the database
+        existing_cluster = await session.execute(
+            select(SybilClusters).where(SybilClusters.cluster_id == cluster_id)
+        )
+        existing_cluster = existing_cluster.scalars().first()
+
+        if existing_cluster:
+            # if cluster exists, update it. Add new addresses, for example
+            existing_cluster.addresses.extend(addresses)
+            # Update other relevant fields
+            existing_cluster.last_update_timestamp = datetime.datetime.utcnow()
+        else:
+            # if cluster does not exist, create a new record
+            new_cluster = SybilClusters(
+                cluster_id=cluster_id,
+                addresses=addresses,
+                # Add other relevant fields
+                creation_timestamp=datetime.datetime.utcnow(),
+                last_update_timestamp=datetime.datetime.utcnow(),
+            )
+            session.add(new_cluster)
+
+        await session.commit()
+
+
+def extract_clusters_from_graph(G):
+    clusters = dict()
+
+    for node, data in G.nodes(data=True):
+        if "community" in data:  # Ensure that the node has a 'community' attribute
+            community_id = data["community"]
+            if community_id not in clusters:
+                clusters[community_id] = {"id": community_id, "addresses": []}
+            clusters[community_id]["addresses"].append(node)
+
+    return list(clusters.values())

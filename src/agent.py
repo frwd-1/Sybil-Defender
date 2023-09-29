@@ -15,6 +15,7 @@ from src.database.db_utils import (
     add_transaction_to_db,
     shed_oldest_Transfers,
     shed_oldest_ContractTransactions,
+    store_graph_clusters,
 )
 from src.database.models import Transfer
 from src.graph.graph_controller import (
@@ -72,7 +73,6 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 # TODO: initialize the existing graph with incoming_graph_data
 async def process_transactions():
-    print("graph created")
     # TODO: add error handling
     async with get_async_session() as session:
         print("querying transactions")
@@ -140,6 +140,9 @@ async def process_transactions():
     print("analyzing suspicious clusters")
     print(refinedGraph)
     findings = analyze_suspicious_clusters(refinedGraph) or []
+
+    async with get_async_session() as session:
+        await store_graph_clusters(globals.G1, session)
 
     print("COMPLETE")
     return findings

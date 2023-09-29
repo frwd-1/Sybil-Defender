@@ -1,6 +1,8 @@
-from sqlalchemy import Integer, Numeric, Column, String
+from sqlalchemy import Integer, Numeric, Column, String, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 from dotenv import load_dotenv
+import datetime
 
 
 load_dotenv()
@@ -34,11 +36,13 @@ class ContractTransaction(Base):
     data = Column(String)
 
 
-class SuspiciousCluster(Base):
-    __tablename__ = "suspicious_clusters"
+class SybilClusters(Base):
+    __tablename__ = "sybil_clusters"
     id = Column(Integer, primary_key=True, autoincrement=True)
     cluster_id = Column(Integer, nullable=False)
     address = Column(String, nullable=False)
+    creation_timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    last_update_timestamp = Column(DateTime, onupdate=datetime.datetime.utcnow)
 
     def __init__(self, cluster_id, address):
         self.cluster_id = cluster_id
@@ -46,5 +50,6 @@ class SuspiciousCluster(Base):
 
     def __repr__(self):
         return (
-            f"<SuspiciousCluster(cluster_id={self.cluster_id}, address={self.address})>"
+            f"<SybilCluster(cluster_id={self.cluster_id}, address={self.address}, "
+            f"creation_timestamp={self.creation_timestamp}, last_update_timestamp={self.last_update_timestamp})>"
         )

@@ -3,6 +3,7 @@ from collections import defaultdict
 import decimal
 
 
+# TODO: just drop everything thats not a sybil from tables, update final table at the end
 def add_transactions_to_graph(transfers):
     for transfer in transfers:
         if transfer.sender is not None and transfer.receiver is not None:
