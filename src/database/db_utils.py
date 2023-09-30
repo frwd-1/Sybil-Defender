@@ -151,7 +151,7 @@ async def store_graph_clusters(G, session):
 
         if existing_cluster:
             # if cluster exists, update it. Add new addresses, for example
-            existing_cluster.addresses.extend(addresses)
+            existing_cluster.address.extend(addresses)
             # Update other relevant fields
             existing_cluster.last_update_timestamp = datetime.datetime.utcnow()
         else:

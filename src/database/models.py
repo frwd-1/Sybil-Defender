@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Numeric, Column, String, DateTime, ForeignKey
+from sqlalchemy import Integer, Numeric, Column, String, DateTime, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from dotenv import load_dotenv
@@ -39,7 +39,7 @@ class ContractTransaction(Base):
 class SybilClusters(Base):
     __tablename__ = "sybil_clusters"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    cluster_id = Column(Integer, nullable=False)
+    cluster_id = Column(VARCHAR, nullable=False)
     address = Column(String, nullable=False)
     creation_timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     last_update_timestamp = Column(DateTime, onupdate=datetime.datetime.utcnow)

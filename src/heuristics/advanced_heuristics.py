@@ -1,5 +1,5 @@
 from datetime import timedelta
-from src.database.models import SuspiciousCluster
+from src.database.models import SybilClusters
 from collections import defaultdict
 from src.database.db_controller import get_async_session
 
@@ -81,7 +81,7 @@ async def store_suspicious_clusters(suspicious_clusters, new_partitions):
     async with get_async_session() as session:
         for cluster_id in suspicious_clusters:
             for node in new_partitions[cluster_id]:
-                new_entry = SuspiciousCluster(cluster_id, node)
+                new_entry = SybilClusters(cluster_id, node)
                 session.add(new_entry)
 
         await session.commit()

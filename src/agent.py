@@ -1,15 +1,17 @@
+import networkx as nx
+import igraph as ig
+import leidenalg
 import asyncio
 
 from forta_agent import TransactionEvent
 from community import best_partition  # For the Louvain method
-import networkx as nx
 from sqlalchemy.future import select
-
 from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.analysis.community_analyzer import (
     group_addresses_by_community,
     analyze_communities,
 )
+from src.analysis.leiden import run_leiden_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
     add_transaction_to_db,
@@ -88,22 +90,20 @@ async def process_transactions():
     # need to convert data from decimal to float for louvain
     convert_decimal_to_float()
 
-    # Run louvain detection
-    partitions_louvain = best_partition(globals.G1)
-    print("louvain partition created")
+    partitions = run_leiden_algorithm(globals.G1)
 
     # Assign each node its community
-    for node, community in partitions_louvain.items():
+    for node, community in partitions.items():
         globals.G1.nodes[node]["community"] = community
 
     # Find nodes that aren't in any community
-    nodes_without_community = set(globals.G1.nodes()) - set(partitions_louvain.keys())
+    nodes_without_community = set(globals.G1.nodes()) - set(partitions.keys())
 
     # removes communities that are smaller than the required COMMUNITY_SIZE
     to_remove = [
         node
-        for node, community in partitions_louvain.items()
-        if list(partitions_louvain.values()).count(community) < COMMUNITY_SIZE
+        for node, community in partitions.items()
+        if list(partitions.values()).count(community) < COMMUNITY_SIZE
     ]
 
     # Add nodes without community to the removal list
