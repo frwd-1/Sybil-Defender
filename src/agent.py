@@ -11,7 +11,7 @@ from src.analysis.community_analyzer import (
     group_addresses_by_community,
     analyze_communities,
 )
-from src.analysis.leiden import run_leiden_algorithm
+from src.analysis.louvain import run_louvain_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
     add_transaction_to_db,
@@ -90,11 +90,26 @@ async def process_transactions():
     # need to convert data from decimal to float for louvain
     convert_decimal_to_float()
 
-    partitions = run_leiden_algorithm(globals.G1)
+    partitions = run_louvain_algorithm(globals.G1)
 
     # Assign each node its community
     for node, community in partitions.items():
         globals.G1.nodes[node]["community"] = community
+
+    # Debugging: Print SCC and WCC nodes
+    scc_nodes = [
+        node
+        for node, data in globals.G1.nodes(data=True)
+        if "SCC" in data.get("community", "")
+    ]
+    wcc_nodes = [
+        node
+        for node, data in globals.G1.nodes(data=True)
+        if "WCC" in data.get("community", "")
+    ]
+
+    print(f"SCC nodes count after assignment: {len(scc_nodes)}")
+    print(f"WCC nodes count after assignment: {len(wcc_nodes)}")
 
     # Find nodes that aren't in any community
     nodes_without_community = set(globals.G1.nodes()) - set(partitions.keys())
@@ -123,7 +138,7 @@ async def process_transactions():
     globals.G1.remove_edges_from(edges_to_remove)
 
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
-
+    breakpoint()
     # set communities to a dictionary
     grouped_addresses = await group_addresses_by_community()
     print(grouped_addresses)
@@ -154,3 +169,5 @@ async def process_transactions():
 # TODO: each time transactions are analyzed, check to see if they are either part of an existing community in the global, in memory graph, or part of a new community
 # TODO: status for active and inactive communities, alerts for new communities detected
 # TODO: make final graph a global variable, window graph should merge into final graph
+# TODO: if new activity comes in on accounts already identified as sybils, flag it. monitor sybils specifically as new transactions come in
+# TODO: methodology is a progressive narrowing of the aperture
