@@ -1,6 +1,6 @@
 import networkx as nx
 import igraph as ig
-import leidenalg
+import collections
 import asyncio
 
 from forta_agent import TransactionEvent
@@ -92,37 +92,57 @@ async def process_transactions():
 
     partitions = run_louvain_algorithm(globals.G1)
 
-    # Assign each node its community
+    # Filter out small communities
+    filtered_partitions = {}
     for node, community in partitions.items():
+        # Get all nodes assigned to the current community
+        community_nodes = [n for n, c in partitions.items() if c == community]
+
+        # Only keep communities larger than threshold
+        if len(community_nodes) >= COMMUNITY_SIZE:
+            filtered_partitions[node] = community
+
+    # Assign filtered communities back to nodes in the graph
+    for node, community in filtered_partitions.items():
         globals.G1.nodes[node]["community"] = community
 
-    # Debugging: Print SCC and WCC nodes
-    scc_nodes = [
-        node
-        for node, data in globals.G1.nodes(data=True)
-        if "SCC" in data.get("community", "")
-    ]
-    wcc_nodes = [
-        node
-        for node, data in globals.G1.nodes(data=True)
-        if "WCC" in data.get("community", "")
-    ]
+    # # Assign each node its community
 
-    print(f"SCC nodes count after assignment: {len(scc_nodes)}")
-    print(f"WCC nodes count after assignment: {len(wcc_nodes)}")
+    # for node, community in partitions.items():
+    #     globals.G1.nodes[node]["community"] = community
+
+    # Debugging: Print the total number of nodes in SCC communities after assignment
+    # scc_nodes = [
+    #     node
+    #     for node, data in globals.G1.nodes(data=True)
+    #     if "SCC" in data.get("community", "")
+    # ]
+    # print(f"Total Number of Nodes Assigned to SCCs: {len(scc_nodes)}")
+    # wcc_nodes = [
+    #     node
+    #     for node, data in globals.G1.nodes(data=True)
+    #     if "WCC" in data.get("community", "")
+    # ]
+
+    # print(f"SCC nodes count after assignment: {len(scc_nodes)}")
+    # print(f"WCC nodes count after assignment: {len(wcc_nodes)}")
 
     # Find nodes that aren't in any community
     nodes_without_community = set(globals.G1.nodes()) - set(partitions.keys())
 
-    # removes communities that are smaller than the required COMMUNITY_SIZE
-    to_remove = [
-        node
-        for node, community in partitions.items()
-        if list(partitions.values()).count(community) < COMMUNITY_SIZE
-    ]
+    to_remove = set()
+    community_counts = collections.Counter(partitions.values())
+    for community, count in community_counts.items():
+        if count < COMMUNITY_SIZE:
+            # Adding all nodes belonging to this community to to_remove
+            to_remove.update(
+                node
+                for node, assigned_community in partitions.items()
+                if assigned_community == community
+            )
 
     # Add nodes without community to the removal list
-    to_remove.extend(nodes_without_community)
+    to_remove.update(nodes_without_community)
 
     globals.G1.remove_nodes_from(to_remove)
     # This will store edges that need to be removed
