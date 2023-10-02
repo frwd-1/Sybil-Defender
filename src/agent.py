@@ -92,72 +92,49 @@ async def process_transactions():
 
     partitions = run_louvain_algorithm(globals.G1)
 
-    # Filter out small communities
-    filtered_partitions = {}
-    for node, community in partitions.items():
-        # Get all nodes assigned to the current community
-        community_nodes = [n for n, c in partitions.items() if c == community]
-
-        # Only keep communities larger than threshold
-        if len(community_nodes) >= COMMUNITY_SIZE:
-            filtered_partitions[node] = community
-
     # Assign filtered communities back to nodes in the graph
-    for node, community in filtered_partitions.items():
+    for node, community in partitions.items():
         globals.G1.nodes[node]["community"] = community
 
-    # # Assign each node its community
+    # Calculate the size of each community
+    community_sizes = {}
+    for node, data in globals.G1.nodes(data=True):
+        community = data.get("community")
+        if community is not None:
+            community_sizes[community] = community_sizes.get(community, 0) + 1
 
-    # for node, community in partitions.items():
-    #     globals.G1.nodes[node]["community"] = community
+    # Identify and remove nodes that belong to small communities or have no community
+    nodes_to_remove = [
+        node
+        for node, data in globals.G1.nodes(data=True)
+        if data.get("community") is None
+        or community_sizes.get(data.get("community"), 0) < COMMUNITY_SIZE
+    ]
+    globals.G1.remove_nodes_from(nodes_to_remove)
 
-    # Debugging: Print the total number of nodes in SCC communities after assignment
-    # scc_nodes = [
-    #     node
-    #     for node, data in globals.G1.nodes(data=True)
-    #     if "SCC" in data.get("community", "")
-    # ]
-    # print(f"Total Number of Nodes Assigned to SCCs: {len(scc_nodes)}")
-    # wcc_nodes = [
-    #     node
-    #     for node, data in globals.G1.nodes(data=True)
-    #     if "WCC" in data.get("community", "")
-    # ]
-
-    # print(f"SCC nodes count after assignment: {len(scc_nodes)}")
-    # print(f"WCC nodes count after assignment: {len(wcc_nodes)}")
-
-    # Find nodes that aren't in any community
-    nodes_without_community = set(globals.G1.nodes()) - set(partitions.keys())
-
-    to_remove = set()
-    community_counts = collections.Counter(partitions.values())
-    for community, count in community_counts.items():
-        if count < COMMUNITY_SIZE:
-            # Adding all nodes belonging to this community to to_remove
-            to_remove.update(
-                node
-                for node, assigned_community in partitions.items()
-                if assigned_community == community
-            )
-
-    # Add nodes without community to the removal list
-    to_remove.update(nodes_without_community)
-
-    globals.G1.remove_nodes_from(to_remove)
+    # Additional clean-up if necessary
     # This will store edges that need to be removed
     edges_to_remove = []
 
     # Iterate over all edges of the graph
     for u, v in globals.G1.edges():
-        # If nodes u and v belong to different communities, mark the edge for removal
-        if globals.G1.nodes[u]["community"] != globals.G1.nodes[v]["community"]:
+        # If nodes u and v belong to different communities or one of them doesn't have a community, mark the edge for removal
+        u_community = globals.G1.nodes[u].get("community")
+        v_community = globals.G1.nodes[v].get("community")
+        if u_community is None or v_community is None or u_community != v_community:
             edges_to_remove.append((u, v))
 
     # Remove the marked edges from the graph
     globals.G1.remove_edges_from(edges_to_remove)
 
+    # Additional step to remove isolated nodes
+    isolated_nodes = [
+        node for node in globals.G1.nodes() if globals.G1.degree(node) == 0
+    ]
+    globals.G1.remove_nodes_from(isolated_nodes)
+
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
+
     breakpoint()
     # set communities to a dictionary
     grouped_addresses = await group_addresses_by_community()

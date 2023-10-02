@@ -8,3 +8,5 @@ SIMILARITY_THRESHOLD = 0.5
 INTERACTION_RATIO = 0.7
 # threshold to run louvain analysis
 LOUVAIN_THRESHOLD = 100
+# number of neighboring nodes required for inclusion in graph
+NEIGHBOR_THRESHOLD = 3
