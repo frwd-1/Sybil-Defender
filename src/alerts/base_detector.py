@@ -100,3 +100,9 @@ class SybilDetectionSystem:
         for detector in self.detectors:
             findings.extend(detector.detect(cluster))
         return findings
+
+
+# TODO: if there are updates to an existing cluster, generate an alert (ie, nodes added to cluster)
+# TODO: 1. alert framework for cluster with similar transaction activity
+# TODO: 2. alert framework for cluster transferring funds between x or more accounts
+# TODO: alert should include contracts involved, suspected typology

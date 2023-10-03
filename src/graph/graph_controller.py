@@ -1,4 +1,5 @@
 from src.utils import globals
+from src.utils.constants import COMMUNITY_SIZE
 from collections import defaultdict
 import decimal
 
@@ -96,3 +97,44 @@ def remove_inter_community_edges():
     ]
     globals.G1.remove_edges_from(inter_community_edges)
     print(f"Removed {len(inter_community_edges)} inter-community edges from G1.")
+
+
+def process_partitions(partitions):
+    for node, community in partitions.items():
+        globals.G1.nodes[node]["community"] = community
+
+    # Calculate the size of each community
+    community_sizes = {}
+    for node, data in globals.G1.nodes(data=True):
+        community = data.get("community")
+        if community is not None:
+            community_sizes[community] = community_sizes.get(community, 0) + 1
+
+    # Identify and remove nodes that belong to small communities or have no community
+    nodes_to_remove = [
+        node
+        for node, data in globals.G1.nodes(data=True)
+        if data.get("community") is None
+        or community_sizes.get(data.get("community"), 0) < COMMUNITY_SIZE
+    ]
+    globals.G1.remove_nodes_from(nodes_to_remove)
+
+    # This will store edges that need to be removed
+    edges_to_remove = []
+
+    # Iterate over all edges of the graph
+    for u, v in globals.G1.edges():
+        # If nodes u and v belong to different communities or one of them doesn't have a community, mark the edge for removal
+        u_community = globals.G1.nodes[u].get("community")
+        v_community = globals.G1.nodes[v].get("community")
+        if u_community is None or v_community is None or u_community != v_community:
+            edges_to_remove.append((u, v))
+
+    # Remove the marked edges from the graph
+    globals.G1.remove_edges_from(edges_to_remove)
+
+    # Additional step to remove isolated nodes
+    isolated_nodes = [
+        node for node in globals.G1.nodes() if globals.G1.degree(node) == 0
+    ]
+    globals.G1.remove_nodes_from(isolated_nodes)

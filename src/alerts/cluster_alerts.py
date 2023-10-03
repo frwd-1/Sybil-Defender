@@ -31,7 +31,6 @@ def analyze_suspicious_clusters(G):
 
     for cluster_id in set(final_communities.values()):
         print(f"Analyzing cluster {cluster_id}")
-
         cluster_nodes = [
             node for node, id in final_communities.items() if id == cluster_id
         ]

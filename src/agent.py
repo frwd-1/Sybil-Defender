@@ -7,9 +7,9 @@ from forta_agent import TransactionEvent
 from community import best_partition  # For the Louvain method
 from sqlalchemy.future import select
 from src.alerts.cluster_alerts import analyze_suspicious_clusters
-from src.analysis.community_analyzer import (
+from src.analysis.similarity_analysis import (
     group_addresses_by_community,
-    analyze_communities,
+    similarity_analysis,
 )
 from src.analysis.louvain import run_louvain_algorithm
 from src.database.db_controller import get_async_session, initialize_database
@@ -26,6 +26,7 @@ from src.graph.graph_controller import (
     convert_decimal_to_float,
     remove_communities_and_nodes,
     remove_inter_community_edges,
+    process_partitions,
 )
 from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.heuristics.initial_heuristics import apply_initial_heuristics
@@ -62,7 +63,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     print("transaction counter is", globals.transaction_counter)
     if globals.transaction_counter >= N:
         print("processing clusters")
-        findings = await process_transactions()
+        findings.extend(await process_transactions())
         await shed_oldest_Transfers()
         await shed_oldest_ContractTransactions()
 
@@ -76,6 +77,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 # TODO: initialize the existing graph with incoming_graph_data
 async def process_transactions():
     # TODO: add error handling
+    findings = []
     async with get_async_session() as session:
         print("querying transactions")
         result = await session.execute(select(Transfer))
@@ -92,66 +94,28 @@ async def process_transactions():
 
     partitions = run_louvain_algorithm(globals.G1)
 
-    # Assign filtered communities back to nodes in the graph
-    for node, community in partitions.items():
-        globals.G1.nodes[node]["community"] = community
-
-    # Calculate the size of each community
-    community_sizes = {}
-    for node, data in globals.G1.nodes(data=True):
-        community = data.get("community")
-        if community is not None:
-            community_sizes[community] = community_sizes.get(community, 0) + 1
-
-    # Identify and remove nodes that belong to small communities or have no community
-    nodes_to_remove = [
-        node
-        for node, data in globals.G1.nodes(data=True)
-        if data.get("community") is None
-        or community_sizes.get(data.get("community"), 0) < COMMUNITY_SIZE
-    ]
-    globals.G1.remove_nodes_from(nodes_to_remove)
-
-    # Additional clean-up if necessary
-    # This will store edges that need to be removed
-    edges_to_remove = []
-
-    # Iterate over all edges of the graph
-    for u, v in globals.G1.edges():
-        # If nodes u and v belong to different communities or one of them doesn't have a community, mark the edge for removal
-        u_community = globals.G1.nodes[u].get("community")
-        v_community = globals.G1.nodes[v].get("community")
-        if u_community is None or v_community is None or u_community != v_community:
-            edges_to_remove.append((u, v))
-
-    # Remove the marked edges from the graph
-    globals.G1.remove_edges_from(edges_to_remove)
-
-    # Additional step to remove isolated nodes
-    isolated_nodes = [
-        node for node in globals.G1.nodes() if globals.G1.degree(node) == 0
-    ]
-    globals.G1.remove_nodes_from(isolated_nodes)
+    process_partitions(partitions)
 
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
 
-    breakpoint()
     # set communities to a dictionary
     grouped_addresses = await group_addresses_by_community()
     print(grouped_addresses)
 
-    communities_to_remove = await analyze_communities(grouped_addresses)
+    new_findings, communities_to_remove = await similarity_analysis(grouped_addresses)
+    findings.extend(new_findings)
     await remove_communities_and_nodes(communities_to_remove)
     remove_inter_community_edges()
 
     nx.write_graphml(globals.G1, "FINAL_GRAPH_graph3_output.graphml")
-    breakpoint()
 
-    print("running heuristics")
-    refinedGraph = await sybil_heuristics(globals.G1)
+    # TODO: double check advanced heuristics
+    # print("running advanced heuristics")
+    # await sybil_heuristics(globals.G1)
+
     print("analyzing suspicious clusters")
-    print(refinedGraph)
-    findings = analyze_suspicious_clusters(refinedGraph) or []
+    # findings_from_suspicious_clusters = analyze_suspicious_clusters(globals.G1) or []
+    # findings.extend(findings_from_suspicious_clusters)
 
     async with get_async_session() as session:
         await store_graph_clusters(globals.G1, session)

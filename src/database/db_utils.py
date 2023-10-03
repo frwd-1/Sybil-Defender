@@ -141,25 +141,27 @@ async def store_graph_clusters(G, session):
         addresses = cluster[
             "addresses"
         ]  # This should be a list of addresses in the cluster
-        # Add other relevant cluster metadata you want to store
 
         # Check if this cluster already exists in the database
         existing_cluster = await session.execute(
-            select(SybilClusters).where(SybilClusters.cluster_id == cluster_id)
+            select(SybilClusters).where(SybilClusters.cluster_id == str(cluster_id))
         )
+
         existing_cluster = existing_cluster.scalars().first()
 
+        # TODO: add the alert functionality HERE
         if existing_cluster:
-            # if cluster exists, update it. Add new addresses, for example
-            existing_cluster.address.extend(addresses)
-            # Update other relevant fields
-            existing_cluster.last_update_timestamp = datetime.datetime.utcnow()
+            existing_addresses = (
+                existing_cluster.address.split(",") if existing_cluster.address else []
+            )
+            existing_addresses.extend(addresses)
+            existing_cluster.address = ",".join(
+                set(existing_addresses)
+            )  # remove duplicates
         else:
-            # if cluster does not exist, create a new record
             new_cluster = SybilClusters(
                 cluster_id=cluster_id,
-                addresses=addresses,
-                # Add other relevant fields
+                addresses=",".join(addresses),  # convert list to string
                 creation_timestamp=datetime.datetime.utcnow(),
                 last_update_timestamp=datetime.datetime.utcnow(),
             )
