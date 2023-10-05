@@ -1,6 +1,5 @@
 from collections import defaultdict
-from src.analysis.helpers import jaccard_similarity, extract_activity_pairs
-from src.database.db_controller import get_async_session, initialize_database
+from src.database.db_controller import get_async_session
 from src.database.models import SybilClusters
 from src.utils import globals
 from src.utils.constants import INTERACTION_RATIO, SIMILARITY_THRESHOLD
@@ -8,11 +7,10 @@ from sqlalchemy.future import select
 from src.database.models import (
     ContractTransaction,
 )
-from .helpers import (
+from src.analysis.transaction_analysis.helpers import (
     get_unique_senders,
     compute_similarity,
     build_contract_activity_dict,
-    add_contract_transactions_to_graph,
 )
 
 from forta_agent import Finding, FindingSeverity, FindingType, EntityType
@@ -30,7 +28,7 @@ async def group_addresses_by_community():
 async def similarity_analysis():
     grouped_addresses = await group_addresses_by_community()
 
-    communities_to_remove = set()
+    # communities_to_remove = set()
     findings = []
     async with get_async_session() as session:
         for community_id, addresses in grouped_addresses.items():
@@ -44,7 +42,7 @@ async def similarity_analysis():
             unique_senders = await get_unique_senders(contract_transactions)
 
             if len(unique_senders) < len(addresses) * INTERACTION_RATIO:
-                communities_to_remove.add(community_id)
+                # communities_to_remove.add(community_id)
                 continue
 
             contract_activity_dict = await build_contract_activity_dict(
@@ -56,6 +54,9 @@ async def similarity_analysis():
                 # Step 1: Label cluster in graph's metadata
                 for address in addresses:
                     globals.G1.nodes[address]["label"] = "sybil airdrop farmer"
+                    globals.G1.nodes[address][
+                        "typology"
+                    ] = "similar contract interaction pattern"
 
                 # Step 2: Generate Finding
                 interacting_contracts = {
@@ -102,7 +103,4 @@ async def similarity_analysis():
                     session.add(sybil_cluster)
                 await session.commit()
 
-            else:
-                communities_to_remove.add(community_id)
-
-    return findings, communities_to_remove
+    return findings

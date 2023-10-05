@@ -14,8 +14,6 @@ from src.database.models import (
 from sqlalchemy.exc import IntegrityError
 from asyncpg.exceptions import UniqueViolationError
 
-import datetime
-
 
 async def add_transaction_to_db(session, transaction_event):
     sender = transaction_event.from_
@@ -131,53 +129,3 @@ async def shed_oldest_ContractTransactions():
 def extract_method_id(data):
     """Extract the method ID from the transaction data."""
     return data[:10]
-
-
-async def store_graph_clusters(G, session):
-    identified_clusters = extract_clusters_from_graph(G)
-
-    for cluster in identified_clusters:
-        cluster_id = cluster["id"]
-        addresses = cluster[
-            "addresses"
-        ]  # This should be a list of addresses in the cluster
-
-        # Check if this cluster already exists in the database
-        existing_cluster = await session.execute(
-            select(SybilClusters).where(SybilClusters.cluster_id == str(cluster_id))
-        )
-
-        existing_cluster = existing_cluster.scalars().first()
-
-        # TODO: add the alert functionality HERE
-        if existing_cluster:
-            existing_addresses = (
-                existing_cluster.address.split(",") if existing_cluster.address else []
-            )
-            existing_addresses.extend(addresses)
-            existing_cluster.address = ",".join(
-                set(existing_addresses)
-            )  # remove duplicates
-        else:
-            new_cluster = SybilClusters(
-                cluster_id=cluster_id,
-                addresses=",".join(addresses),  # convert list to string
-                creation_timestamp=datetime.datetime.utcnow(),
-                last_update_timestamp=datetime.datetime.utcnow(),
-            )
-            session.add(new_cluster)
-
-        await session.commit()
-
-
-def extract_clusters_from_graph(G):
-    clusters = dict()
-
-    for node, data in G.nodes(data=True):
-        if "community" in data:  # Ensure that the node has a 'community' attribute
-            community_id = data["community"]
-            if community_id not in clusters:
-                clusters[community_id] = {"id": community_id, "addresses": []}
-            clusters[community_id]["addresses"].append(node)
-
-    return list(clusters.values())

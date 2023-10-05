@@ -3,12 +3,12 @@ import asyncio
 
 from forta_agent import TransactionEvent
 from sqlalchemy.future import select
-from src.analysis.similarity_analysis import (
-    group_addresses_by_community,
-    similarity_analysis,
+from src.analysis.community_analysis.base_analyzer import (
+    analyze_suspicious_clusters,
 )
-from src.alerts.cluster_alerts import analyze_suspicious_clusters
-from src.analysis.louvain import run_louvain_algorithm
+
+# from src.alerts.cluster_alerts import analyze_suspicious_clusters
+from src.analysis.transaction_analysis.louvain import run_louvain_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
     add_transaction_to_db,
@@ -21,8 +21,6 @@ from src.graph.graph_controller import (
     add_transactions_to_graph,
     adjust_edge_weights_and_variances,
     convert_decimal_to_float,
-    remove_communities_and_nodes,
-    remove_inter_community_edges,
     process_partitions,
 )
 from src.heuristics.initial_heuristics import apply_initial_heuristics
@@ -32,7 +30,6 @@ from src.utils.utils import update_transaction_counter
 
 
 def handle_transaction(transaction_event: TransactionEvent):
-    # TODO: does db need initialization?
     initialize_database()
     return asyncio.get_event_loop().run_until_complete(
         handle_transaction_async(transaction_event)
@@ -53,7 +50,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
             print("transaction data committed to table")
         except Exception as e:
             print(f"Error committing transaction to database: {e}")
-            session.rollback()  # Rollback the transaction if there's an error
+            session.rollback()
 
     update_transaction_counter()
 
@@ -72,9 +69,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     return []
 
 
-# TODO: initialize the existing graph with incoming_graph_data
 async def process_transactions():
-    # TODO: add error handling
     findings = []
     async with get_async_session() as session:
         print("querying transactions")
@@ -97,28 +92,20 @@ async def process_transactions():
 
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
 
-    # TODO: instead of removing communities here, just add the labels from the similarity analysis that will carry over to the DB
-    new_findings, communities_to_remove = await similarity_analysis()
-    findings.extend(new_findings)
-    await remove_communities_and_nodes(communities_to_remove)
-    remove_inter_community_edges()
-
-    nx.write_graphml(globals.G1, "FINAL_GRAPH_graph3_output.graphml")
-
-    # TODO: double check advanced heuristics
-    # print("running advanced heuristics")
-    # await sybil_heuristics(globals.G1)
-
     print("analyzing suspicious clusters")
-    findings_from_suspicious_clusters = analyze_suspicious_clusters(globals.G1) or []
-    findings.extend(findings_from_suspicious_clusters)
+    await analyze_suspicious_clusters() or []
 
-    async with get_async_session() as session:
-        await store_graph_clusters(globals.G1, session)
+    findings = await store_graph_clusters()
 
     print("COMPLETE")
     return findings
 
+
+# TODO: upgrade to Neo4j?
+
+# TODO: double check advanced heuristics
+# print("running advanced heuristics")
+# await sybil_heuristics(globals.G1)
 
 # TODO: implement active monitoring of identified sybil clusters aside from sliding window
 # TODO: sliding window is designed to detect brand new sybils
@@ -128,3 +115,6 @@ async def process_transactions():
 # TODO: make final graph a global variable, window graph should merge into final graph
 # TODO: if new activity comes in on accounts already identified as sybils, flag it. monitor sybils specifically as new transactions come in
 # TODO: methodology is a progressive narrowing of the aperture
+
+# TODO: add error handling?
+# TODO: does db need initialization?
