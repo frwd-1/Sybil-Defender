@@ -7,6 +7,7 @@ from src.analysis.similarity_analysis import (
     group_addresses_by_community,
     similarity_analysis,
 )
+from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.analysis.louvain import run_louvain_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
@@ -89,17 +90,15 @@ async def process_transactions():
     # need to convert data from decimal to float for louvain
     convert_decimal_to_float()
 
+    # TODO: just write the communities directly to the graph instead of creating a dictionary
     partitions = run_louvain_algorithm(globals.G1)
 
     process_partitions(partitions)
 
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
 
-    # set communities to a dictionary
-    grouped_addresses = await group_addresses_by_community()
-    print(grouped_addresses)
-
-    new_findings, communities_to_remove = await similarity_analysis(grouped_addresses)
+    # TODO: instead of removing communities here, just add the labels from the similarity analysis that will carry over to the DB
+    new_findings, communities_to_remove = await similarity_analysis()
     findings.extend(new_findings)
     await remove_communities_and_nodes(communities_to_remove)
     remove_inter_community_edges()
@@ -111,8 +110,8 @@ async def process_transactions():
     # await sybil_heuristics(globals.G1)
 
     print("analyzing suspicious clusters")
-    # findings_from_suspicious_clusters = analyze_suspicious_clusters(globals.G1) or []
-    # findings.extend(findings_from_suspicious_clusters)
+    findings_from_suspicious_clusters = analyze_suspicious_clusters(globals.G1) or []
+    findings.extend(findings_from_suspicious_clusters)
 
     async with get_async_session() as session:
         await store_graph_clusters(globals.G1, session)

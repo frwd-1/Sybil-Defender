@@ -27,7 +27,9 @@ async def group_addresses_by_community():
     return grouped_addresses
 
 
-async def similarity_analysis(grouped_addresses):
+async def similarity_analysis():
+    grouped_addresses = await group_addresses_by_community()
+
     communities_to_remove = set()
     findings = []
     async with get_async_session() as session:
