@@ -14,7 +14,6 @@ from src.database.db_utils import (
     add_transaction_to_db,
     shed_oldest_Transfers,
     shed_oldest_ContractTransactions,
-    store_graph_clusters,
 )
 from src.database.models import Transfer
 from src.graph.graph_controller import (
@@ -27,6 +26,7 @@ from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
 from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
+from src.database.clustering import write_graph_to_database
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -63,7 +63,6 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
         globals.transaction_counter = 0
         print("ALL COMPLETE")
-        breakpoint()
         return findings
 
     return []
@@ -95,7 +94,7 @@ async def process_transactions():
     print("analyzing suspicious clusters")
     await analyze_suspicious_clusters() or []
 
-    findings = await store_graph_clusters()
+    findings = await write_graph_to_database()
 
     print("COMPLETE")
     return findings

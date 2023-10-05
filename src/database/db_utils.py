@@ -129,3 +129,9 @@ async def shed_oldest_ContractTransactions():
 def extract_method_id(data):
     """Extract the method ID from the transaction data."""
     return data[:10]
+
+
+async def load_all_nodes_from_database(session):
+    result = await session.execute(select(SybilClusters))
+    existing_clusters = result.scalars().all()
+    return {cluster.address: cluster for cluster in existing_clusters}

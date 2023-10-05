@@ -1,25 +1,42 @@
-# analysis.py
-from src.alerts.base_detector import (
-    AirdropFarmDetectorV1,
-    AirdropFarmDetectorV2,
-    SybilDetectionSystem,
-)
+from Crypto.Hash import keccak
+from forta_agent import Finding, FindingSeverity, FindingType, EntityType
 
 
-# Placeholder configurations
-config_v1 = {
-    "threshold": 0.6,  # Arbitrary threshold value
-    "patterns": ["DAI"],  # Example: look for DAI in transaction patterns
-    "metadata": "Version 1 of the detector for airdrop farming",
-}
+def generate_alert_details(community_id, nodes, labels, contracts):
+    alert_details = {
+        "name": "Sybil Airdrop Farmer Detected",
+        "description": f"Cluster {community_id} shows signs of sybil airdrop farming",
+        "alert_id": keccak.new(
+            data=f"sybil_airdrop_farmer_{community_id}".encode(),
+            digest_bits=256,
+        ).hexdigest(),
+        "severity": FindingSeverity.Medium,
+        "type": FindingType.Suspicious,
+        "addresses": list(nodes),
+        "labels": [
+            {
+                "entity_type": EntityType.Address.value,
+                "entity": node,
+                "confidence": 90,
+                "label": label,
+            }
+            for node in nodes
+            for label in labels
+        ]
+        + [
+            {
+                "entity_type": EntityType.Address.value,
+                "entity": contract,
+                "confidence": 90,
+                "label": "interacted_by_sybil",
+            }
+            for contract in contracts
+        ],
+    }
+    return alert_details
 
-config_v2 = {
-    "threshold": 0.7,  # Another arbitrary threshold value
-    "patterns": ["DAI", "USDC"],  # This version looks for DAI and USDC patterns
-    "metadata": "Version 2 of the detector for airdrop farming",
-}
 
-detector_v1 = AirdropFarmDetectorV1(config_v1)
-detector_v2 = AirdropFarmDetectorV2(config_v2)
-
-system = SybilDetectionSystem([detector_v1, detector_v2])
+# TODO: if there are updates to an existing cluster, generate an alert (ie, nodes added to cluster)
+# TODO: 1. alert framework for cluster with similar transaction activity
+# TODO: 2. alert framework for cluster transferring funds between x or more accounts
+# TODO: alert should include contracts involved, suspected typology
