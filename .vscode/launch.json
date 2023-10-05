@@ -1,16 +1,28 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "npm start",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/node_modules/npm/bin/npm-cli.js",
+            "cwd": "${workspaceFolder}",
+            "args": ["run", "start"]
+        },
+        {
+            "name": "Python: Whole Application",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceFolder}/src/agent.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }
+    ],
+    "compounds": [
+        {
+            "name": "npm start + Python Whole Application",
+            "configurations": ["npm start", "Python: Whole Application"]
+        }
     ]
 }
+

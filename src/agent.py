@@ -1,12 +1,8 @@
 import networkx as nx
-import igraph as ig
-import collections
 import asyncio
 
 from forta_agent import TransactionEvent
-from community import best_partition  # For the Louvain method
 from sqlalchemy.future import select
-from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.analysis.similarity_analysis import (
     group_addresses_by_community,
     similarity_analysis,
@@ -28,14 +24,14 @@ from src.graph.graph_controller import (
     remove_inter_community_edges,
     process_partitions,
 )
-from src.heuristics.advanced_heuristics import sybil_heuristics
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
-from src.utils.constants import N, COMMUNITY_SIZE
+from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 
 
 def handle_transaction(transaction_event: TransactionEvent):
+    # TODO: does db need initialization?
     initialize_database()
     return asyncio.get_event_loop().run_until_complete(
         handle_transaction_async(transaction_event)
@@ -69,6 +65,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
         globals.transaction_counter = 0
         print("ALL COMPLETE")
+        breakpoint()
         return findings
 
     return []
