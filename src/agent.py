@@ -1,5 +1,6 @@
 import networkx as nx
 import asyncio
+import debugpy
 
 from forta_agent import TransactionEvent
 from sqlalchemy.future import select
@@ -27,6 +28,8 @@ from src.utils import globals
 from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
+
+debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -70,6 +73,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 async def process_transactions():
     findings = []
+    debugpy.wait_for_client()
     async with get_async_session() as session:
         print("querying transactions")
         result = await session.execute(select(Transfer))
@@ -100,6 +104,7 @@ async def process_transactions():
     return findings
 
 
+# TODO: have database retain the transactions and contract txs only for nodes in Sybil Clusters
 # TODO: upgrade to Neo4j?
 
 # TODO: double check advanced heuristics

@@ -13,9 +13,6 @@ from src.analysis.transaction_analysis.helpers import (
     build_contract_activity_dict,
 )
 
-from forta_agent import Finding, FindingSeverity, FindingType, EntityType
-from Crypto.Hash import keccak
-
 
 async def group_addresses_by_community():
     grouped_addresses = defaultdict(set)

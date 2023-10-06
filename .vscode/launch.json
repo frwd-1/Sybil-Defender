@@ -13,10 +13,20 @@
             "name": "Python: Whole Application",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/agent.py",
+            "program": "${workspaceFolder}",
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Python: Attach",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
         }
+        
     ],
     "compounds": [
         {

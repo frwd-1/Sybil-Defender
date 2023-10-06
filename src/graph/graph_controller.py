@@ -4,7 +4,6 @@ from collections import defaultdict
 import decimal
 
 
-# TODO: just drop everything thats not a sybil from tables, update final table at the end
 def add_transactions_to_graph(transfers):
     for transfer in transfers:
         if transfer.sender is not None and transfer.receiver is not None:
@@ -43,15 +42,19 @@ def adjust_edge_weights_and_variances(transfers):
             variances = []
 
             for adj_edge in globals.G1.edges(target, data=True):
+                # TODO: is float ok here?
                 gas_price_var = abs(
-                    primary_edge[2]["gas_price"] - adj_edge[2]["gas_price"]
+                    float(primary_edge[2]["gas_price"])
+                    - float(adj_edge[2]["gas_price"])
                 )
                 amount_var = abs(primary_edge[2]["amount"] - adj_edge[2]["amount"])
                 timestamp_var = abs(
                     primary_edge[2]["timestamp"] - adj_edge[2]["timestamp"]
                 )
 
-                variances.append(gas_price_var + amount_var + timestamp_var)
+                variances.append(
+                    gas_price_var + float(amount_var) + float(timestamp_var)
+                )
 
             # Take mean variance for primary edge
             mean_variance = sum(variances) / len(variances) if variances else 0
