@@ -27,6 +27,7 @@ async def similarity_analysis():
 
     async with get_async_session() as session:
         for community_id, addresses in grouped_addresses.items():
+            print("processing community:", community_id)
             result2 = await session.execute(
                 select(ContractTransaction)
                 .where(ContractTransaction.sender.in_(addresses))

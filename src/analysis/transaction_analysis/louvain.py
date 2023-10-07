@@ -1,17 +1,18 @@
 import community as community_louvain
 import networkx as nx
+from src.utils import globals
 from src.utils.constants import COMMUNITY_SIZE, LOUVAIN_THRESHOLD
 
 
-def run_louvain_algorithm(G1: nx.DiGraph):
+def run_louvain_algorithm():
     sccs = [
-        G1.subgraph(c).copy()
-        for c in nx.strongly_connected_components(G1)
+        globals.G1.subgraph(c).copy()
+        for c in nx.strongly_connected_components(globals.G1)
         if len(c) > COMMUNITY_SIZE
     ]
     wccs = [
-        G1.subgraph(c).copy()
-        for c in nx.weakly_connected_components(G1)
+        globals.G1.subgraph(c).copy()
+        for c in nx.weakly_connected_components(globals.G1)
         if len(c) > COMMUNITY_SIZE
     ]
 

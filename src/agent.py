@@ -78,7 +78,7 @@ async def process_transactions():
         print("querying transactions")
         result = await session.execute(select(Transfer))
         transfers = result.scalars().all()
-
+        print("transfers queried")
     # Create initial graph with all transfers
     add_transactions_to_graph(transfers)
 
@@ -89,7 +89,7 @@ async def process_transactions():
     convert_decimal_to_float()
 
     # TODO: just write the communities directly to the graph instead of creating a dictionary
-    partitions = run_louvain_algorithm(globals.G1)
+    partitions = run_louvain_algorithm()
 
     process_partitions(partitions)
 
