@@ -106,6 +106,10 @@ async def process_transactions():
     return findings
 
 
+# TODO: 1. don't replace any existing communities with louvain, just see if you have new communities
+# TODO: 2. don't remove nodes / edges, until you are dropping old transactions, then just drop anything not part of a community
+# TODO: 3. run LPA on existing communities to detect new nodes / edges
+
 # TODO: label community centroids?
 # TODO: have database retain the transactions and contract txs only for nodes in Sybil Clusters
 # TODO: upgrade to Neo4j?
