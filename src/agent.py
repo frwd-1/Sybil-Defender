@@ -106,6 +106,7 @@ async def process_transactions():
     return findings
 
 
+# TODO: label community centroids?
 # TODO: have database retain the transactions and contract txs only for nodes in Sybil Clusters
 # TODO: upgrade to Neo4j?
 
@@ -113,14 +114,7 @@ async def process_transactions():
 # print("running advanced heuristics")
 # await sybil_heuristics(globals.G1)
 
-# TODO: implement active monitoring of identified sybil clusters aside from sliding window
-# TODO: sliding window is designed to detect brand new sybils
-# TODO: separate analysis structure that takes new transactions and analyzes them in terms of whether or not they are part of previously identified sybils
-# TODO: each time transactions are analyzed, check to see if they are either part of an existing community in the global, in memory graph, or part of a new community
 # TODO: status for active and inactive communities, alerts for new communities detected
-# TODO: make final graph a global variable, window graph should merge into final graph
 # TODO: if new activity comes in on accounts already identified as sybils, flag it. monitor sybils specifically as new transactions come in
-# TODO: methodology is a progressive narrowing of the aperture
 
-# TODO: add error handling?
 # TODO: does db need initialization?
