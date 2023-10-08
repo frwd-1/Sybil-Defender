@@ -25,18 +25,16 @@ async def add_transaction_to_db(session, transaction_event):
     data = transaction_event.transaction.data
 
     try:
+        # Attempt to add sender
         session.add(Interactions(address=sender))
         print("added sender to transactions table")
+
+        # Attempt to add receiver
         session.add(Interactions(address=receiver))
         print("added receiver to transactions table")
-    except IntegrityError as ie:
-        if isinstance(ie.orig, UniqueViolationError):
-            print(f"Duplicate entry for sender or receiver. Skipping.")
-        else:
-            raise  # Re-raise if it's some other integrity error
 
-    if data != "0x":
-        try:
+        # Attempt to add ContractTransaction or Transfer
+        if data != "0x":
             session.add(
                 ContractTransaction(
                     tx_hash=tx_hash,
@@ -48,15 +46,7 @@ async def add_transaction_to_db(session, transaction_event):
                 )
             )
             print("added ContractTransaction to ContractTransaction table")
-        except IntegrityError as ie:
-            if isinstance(ie.orig, UniqueViolationError):
-                print(
-                    f"Duplicate entry with tx_hash {tx_hash} for ContractTransaction. Skipping."
-                )
-            else:
-                raise  # Re-raise if it's some other integrity error
-    else:
-        try:
+        else:
             session.add(
                 Transfer(
                     tx_hash=tx_hash,
@@ -68,11 +58,11 @@ async def add_transaction_to_db(session, transaction_event):
                 )
             )
             print("added Transfer to Transfer table")
-        except IntegrityError as ie:
-            if isinstance(ie.orig, UniqueViolationError):
-                print(f"Duplicate entry with tx_hash {tx_hash} for Transfer. Skipping.")
-            else:
-                raise  # Re-raise if it's some other integrity error
+
+    except Exception as e:
+        print(
+            f"Error occurred while processing transaction: {e}. Skipping this transaction."
+        )
 
 
 async def shed_oldest_Transfers():

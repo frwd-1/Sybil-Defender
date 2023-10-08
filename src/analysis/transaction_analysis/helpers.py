@@ -31,6 +31,7 @@ async def build_contract_activity_dict(contract_transactions):
         methodId = extract_method_id(transaction.data)
         activity = (methodId, transaction.contract_address)
         contract_activity_dict[transaction.sender].add(activity)
+        print("community's contract activity dicitonary:", contract_activity_dict)
     return contract_activity_dict
 
 
@@ -46,6 +47,8 @@ async def compute_similarity(addresses, contract_activity_dict):
                 weight = len(activities1) + len(activities2)
                 total_similarity += similarity * weight
                 total_weights += weight
+    print("total similarity is", total_similarity)
+    print("total weights is", total_weights)
     return total_similarity / total_weights if total_weights > 0 else 0
 
 

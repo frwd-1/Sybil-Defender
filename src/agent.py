@@ -2,6 +2,8 @@ import networkx as nx
 import asyncio
 import debugpy
 
+from sqlalchemy.exc import IntegrityError
+
 from forta_agent import TransactionEvent
 from sqlalchemy.future import select
 from src.analysis.community_analysis.base_analyzer import (
@@ -50,9 +52,9 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
         try:
             await add_transaction_to_db(session, transaction_event)
             await session.commit()
-            print("transaction data committed to table")
+            print("Transaction data committed to table")
         except Exception as e:
-            print(f"Error committing transaction to database: {e}")
+            print(f"Unexpected error occurred: {e}")
             session.rollback()
 
     update_transaction_counter()

@@ -45,9 +45,9 @@ async def write_graph_to_database():
 
                     # Insert or update in database
                     new_cluster = SybilClusters(
-                        cluster_id=community_id, address=node, labels=label
+                        cluster_id=str(community_id), address=node, labels=label
                     )
-                    session.merge(new_cluster)
+                    await session.merge(new_cluster)
 
         await session.commit()
 
