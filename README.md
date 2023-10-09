@@ -1,4 +1,6 @@
-# Large Tether Transfer Agent
+# HYDRA
+
+Uses semi supervised machine learning (Label Propogation)
 
 ## Description
 
