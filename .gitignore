@@ -7,3 +7,4 @@ __pycache__
 alembic.ini
 .graphml
 src/dynamic/LabelRankT.py
+src/analysis/
