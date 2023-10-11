@@ -106,6 +106,8 @@ async def process_transactions():
     return findings
 
 
+# TODO: manage "cross-community edges"
+
 # TODO: 1. don't replace any existing communities with louvain, just see if you have new communities
 # TODO: 2. don't remove nodes / edges, until you are dropping old transactions, then just drop anything not part of a community
 # TODO: 3. run LPA on existing communities to detect new nodes / edges
