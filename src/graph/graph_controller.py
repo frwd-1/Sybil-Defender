@@ -17,10 +17,8 @@ def merge_new_communities(partitions, previous_communities, added_edges, G1):
         if dest_node in previous_communities:
             connected_new_communities.add(partitions[src_node])
 
-    # Update community IDs of these new communities.
     for node, community in partitions.items():
         if community in connected_new_communities:
-            # Find a connected original community
             for edge in G1.edges(node):
                 if edge[0] in previous_communities:
                     partitions[node] = previous_communities[edge[0]]
@@ -28,12 +26,22 @@ def merge_new_communities(partitions, previous_communities, added_edges, G1):
                 elif edge[1] in previous_communities:
                     partitions[node] = previous_communities[edge[1]]
                     break
+
+    max_existing_community_id = max(previous_communities.values())
+    new_community_id = max_existing_community_id + 1
+    for node, community in partitions.items():
+        if (
+            node not in previous_communities
+            and community not in connected_new_communities
+        ):
+            partitions[node] = new_community_id
+            new_community_id += 1
+
     return partitions
 
 
 def add_transactions_to_graph(transfers):
     added_edges = []
-
     for transfer in transfers:
         if transfer.sender is not None and transfer.receiver is not None:
             globals.G1.add_edge(
@@ -48,7 +56,6 @@ def add_transactions_to_graph(transfers):
             print(
                 f"Skipping edge addition for transfer with sender={transfer.sender} and receiver={transfer.receiver}"
             )
-
     return added_edges
 
 
@@ -104,13 +111,17 @@ def adjust_edge_weights_and_variances(transfers):
 
 
 def convert_decimal_to_float():
-    for _, data in globals.G1.nodes(data=True):
+    for node, data in globals.G1.nodes(data=True):
         for key, value in data.items():
+            if isinstance(value, list):
+                print(f"Node {node} has list data: {key} = {value}")
             if isinstance(value, decimal.Decimal):
                 data[key] = float(value)
 
-    for _, _, data in globals.G1.edges(data=True):
+    for u, v, data in globals.G1.edges(data=True):
         for key, value in data.items():
+            if isinstance(value, list):
+                print(f"Edge ({u}, {v}) has list data: {key} = {value}")
             if isinstance(value, decimal.Decimal):
                 data[key] = float(value)
 

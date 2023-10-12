@@ -78,7 +78,11 @@ async def shed_oldest_Transfers():
             old_txs = old_txs.scalars().all()
 
             sybil_nodes = await session.execute(select(SybilClusters.address))
-            sybil_addresses = {node.address for node in sybil_nodes.scalars().all()}
+            sybil_data = sybil_nodes.scalars().all()
+            sybil_addresses = {
+                node.address if hasattr(node, "address") else node
+                for node in sybil_data
+            }
 
             for tx in old_txs:
                 if (
@@ -107,7 +111,11 @@ async def shed_oldest_ContractTransactions():
             old_ctxs = old_ctxs.scalars().all()
 
             sybil_nodes = await session.execute(select(SybilClusters.address))
-            sybil_addresses = {node.address for node in sybil_nodes.scalars().all()}
+            sybil_data = sybil_nodes.scalars().all()
+            sybil_addresses = {
+                node.address if hasattr(node, "address") else node
+                for node in sybil_data
+            }
 
             for ctx in old_ctxs:
                 if ctx.sender not in sybil_addresses:

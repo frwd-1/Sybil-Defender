@@ -26,6 +26,14 @@ async def write_graph_to_database():
                 label = data["label"]
                 community_id = data.get("community")
 
+                # Convert interacting_contracts from list to string
+                if "interacting_contracts" in data and isinstance(
+                    data["interacting_contracts"], list
+                ):
+                    data["interacting_contracts"] = ",".join(
+                        data["interacting_contracts"]
+                    )
+
                 # Check if node already exists
                 existing_node = existing_nodes.get(node)
 
@@ -39,8 +47,10 @@ async def write_graph_to_database():
                         }
                     updated_clusters[community_id]["nodes"].add(node)
                     updated_clusters[community_id]["labels"].add(label)
+
+                    # Update contracts; ensure we split the string back into a list for processing
                     updated_clusters[community_id]["contracts"].update(
-                        data.get("interacting_contracts", [])
+                        data.get("interacting_contracts", "").split(",")
                     )
 
                     # Insert or update in database

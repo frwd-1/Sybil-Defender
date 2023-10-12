@@ -32,7 +32,7 @@ from src.database.clustering import write_graph_to_database
 is_initial_batch = True
 global_added_edges = []
 
-debugpy.listen(5678)
+# debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -78,32 +78,51 @@ previous_communities = {}
 
 
 async def process_transactions():
-    global is_initial_batch, previous_communities
+    global is_initial_batch, previous_communities, global_added_edges
     findings = []
-    debugpy.wait_for_client()
+    # debugpy.wait_for_client()
     async with get_async_session() as session:
         print("querying transactions")
         result = await session.execute(select(Transfer))
         transfers = result.scalars().all()
         print("transfers queried")
-    # Create initial graph with all transfers
-    global_added_edges = add_transactions_to_graph(transfers)
 
-    # set edge weights for graph
+    # Create initial graph with all transfers
+    added_edges = add_transactions_to_graph(transfers)
+    print("added edges:", added_edges)
+    global_added_edges.extend(added_edges)
+
+    # Set edge weights for graph
     adjust_edge_weights_and_variances(transfers)
 
-    # need to convert data from decimal to float for louvain
+    # Convert data from decimal to float for Louvain
     convert_decimal_to_float()
 
-    # TODO: just write the communities directly to the graph instead of creating a dictionary
-    # TODO: edge weights adjusted twice?
-    partitions = run_louvain_algorithm()
+    # Generate subgraph from current batch of edges
+    subgraph = globals.G1.edge_subgraph(global_added_edges)
+
+    # Apply community detection on this subgraph
+    subgraph_partitions = run_louvain_algorithm(subgraph)
 
     if not is_initial_batch:
-        partitions = merge_new_communities(
-            partitions, previous_communities, global_added_edges, globals.G1
+        # Merge subgraph communities with the main graph
+        subgraph_partitions = merge_new_communities(
+            subgraph_partitions, previous_communities, global_added_edges, subgraph
         )
-    process_partitions(partitions)
+    else:
+        # Set to False after the initial batch is processed
+        is_initial_batch = False
+
+    # Update the global graph with these partitions
+    for node, community in subgraph_partitions.items():
+        globals.G1.nodes[node]["community"] = community
+
+    # Update previous_communities
+    previous_communities.update(subgraph_partitions)
+
+    process_partitions(subgraph_partitions)
+
+    convert_decimal_to_float()
 
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
 
@@ -111,6 +130,9 @@ async def process_transactions():
     await analyze_suspicious_clusters() or []
 
     findings = await write_graph_to_database()
+
+    # Reset global_added_edges for the next batch
+    global_added_edges = []
 
     print("COMPLETE")
     return findings
