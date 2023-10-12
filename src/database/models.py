@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, Numeric, Column, String, DateTime, VARCHAR
+from sqlalchemy import Integer, Numeric, Column, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from dotenv import load_dotenv
@@ -24,6 +24,7 @@ class Transfer(Base):
     amount = Column(Numeric)
     gas_price = Column(Numeric)
     timestamp = Column(Integer)
+    processed = Column(Boolean, default=False)
 
 
 class ContractTransaction(Base):

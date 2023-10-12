@@ -8,7 +8,7 @@ from src.analysis.community_analysis.base_analyzer import (
     analyze_suspicious_clusters,
 )
 
-from src.analysis.transaction_analysis.louvain import run_louvain_algorithm
+from analysis.transaction_analysis.algorithm import run_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
     add_transaction_to_db,
@@ -32,7 +32,7 @@ from src.database.clustering import write_graph_to_database
 is_initial_batch = True
 global_added_edges = []
 
-# debugpy.listen(5678)
+debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -80,17 +80,24 @@ previous_communities = {}
 async def process_transactions():
     global is_initial_batch, previous_communities, global_added_edges
     findings = []
-    # debugpy.wait_for_client()
+    debugpy.wait_for_client()
     async with get_async_session() as session:
-        print("querying transactions")
-        result = await session.execute(select(Transfer))
+        print("pulling all transfers...")
+        result = await session.execute(
+            select(Transfer).where(Transfer.processed == False).limit(N)
+        )
         transfers = result.scalars().all()
-        print("transfers queried")
+        print("transfers pulled")
+        print("Number of transfers:", len(transfers))
 
     # Create initial graph with all transfers
     added_edges = add_transactions_to_graph(transfers)
     print("added edges:", added_edges)
     global_added_edges.extend(added_edges)
+
+    for transfer in transfers:
+        transfer.processed = True
+    await session.commit()
 
     # Set edge weights for graph
     adjust_edge_weights_and_variances(transfers)
@@ -102,7 +109,7 @@ async def process_transactions():
     subgraph = globals.G1.edge_subgraph(global_added_edges)
 
     # Apply community detection on this subgraph
-    subgraph_partitions = run_louvain_algorithm(subgraph)
+    subgraph_partitions = run_algorithm(subgraph)
 
     if not is_initial_batch:
         # Merge subgraph communities with the main graph
