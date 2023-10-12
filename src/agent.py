@@ -2,15 +2,12 @@ import networkx as nx
 import asyncio
 import debugpy
 
-from sqlalchemy.exc import IntegrityError
-
 from forta_agent import TransactionEvent
 from sqlalchemy.future import select
 from src.analysis.community_analysis.base_analyzer import (
     analyze_suspicious_clusters,
 )
 
-# from src.alerts.cluster_alerts import analyze_suspicious_clusters
 from src.analysis.transaction_analysis.louvain import run_louvain_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
@@ -24,12 +21,16 @@ from src.graph.graph_controller import (
     adjust_edge_weights_and_variances,
     convert_decimal_to_float,
     process_partitions,
+    merge_new_communities,
 )
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
 from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
+
+is_initial_batch = True
+global_added_edges = []
 
 debugpy.listen(5678)
 
@@ -73,7 +74,11 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     return []
 
 
+previous_communities = {}
+
+
 async def process_transactions():
+    global is_initial_batch, previous_communities
     findings = []
     debugpy.wait_for_client()
     async with get_async_session() as session:
@@ -82,7 +87,7 @@ async def process_transactions():
         transfers = result.scalars().all()
         print("transfers queried")
     # Create initial graph with all transfers
-    add_transactions_to_graph(transfers)
+    global_added_edges = add_transactions_to_graph(transfers)
 
     # set edge weights for graph
     adjust_edge_weights_and_variances(transfers)
@@ -94,6 +99,10 @@ async def process_transactions():
     # TODO: edge weights adjusted twice?
     partitions = run_louvain_algorithm()
 
+    if not is_initial_batch:
+        partitions = merge_new_communities(
+            partitions, previous_communities, global_added_edges, globals.G1
+        )
     process_partitions(partitions)
 
     nx.write_graphml(globals.G1, "G1_graph_output3.graphml")

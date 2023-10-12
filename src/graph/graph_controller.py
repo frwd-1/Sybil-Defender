@@ -4,7 +4,36 @@ from collections import defaultdict
 import decimal
 
 
+# TODO: refactor module for clarity
+# community_merger.py
+
+
+def merge_new_communities(partitions, previous_communities, added_edges, G1):
+    connected_new_communities = set()
+    for edge in added_edges:
+        src_node, dest_node = edge
+        if src_node in previous_communities:
+            connected_new_communities.add(partitions[dest_node])
+        if dest_node in previous_communities:
+            connected_new_communities.add(partitions[src_node])
+
+    # Update community IDs of these new communities.
+    for node, community in partitions.items():
+        if community in connected_new_communities:
+            # Find a connected original community
+            for edge in G1.edges(node):
+                if edge[0] in previous_communities:
+                    partitions[node] = previous_communities[edge[0]]
+                    break
+                elif edge[1] in previous_communities:
+                    partitions[node] = previous_communities[edge[1]]
+                    break
+    return partitions
+
+
 def add_transactions_to_graph(transfers):
+    added_edges = []
+
     for transfer in transfers:
         if transfer.sender is not None and transfer.receiver is not None:
             globals.G1.add_edge(
@@ -14,10 +43,13 @@ def add_transactions_to_graph(transfers):
                 gas_price=transfer.gas_price,
                 amount=transfer.amount,
             )
+            added_edges.append((transfer.sender, transfer.receiver))
         else:
             print(
                 f"Skipping edge addition for transfer with sender={transfer.sender} and receiver={transfer.receiver}"
             )
+
+    return added_edges
 
 
 def adjust_edge_weights_and_variances(transfers):
