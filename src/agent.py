@@ -91,6 +91,7 @@ async def process_transactions():
     convert_decimal_to_float()
 
     # TODO: just write the communities directly to the graph instead of creating a dictionary
+    # TODO: edge weights adjusted twice?
     partitions = run_louvain_algorithm()
 
     process_partitions(partitions)

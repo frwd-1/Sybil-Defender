@@ -6,5 +6,5 @@ __pycache__
 .env
 alembic.ini
 .graphml
-src/dynamic/LabelRankT.py
+src/dynamic/dynamic_louvain.py
 src/analysis/
