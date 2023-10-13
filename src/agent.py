@@ -95,46 +95,46 @@ async def process_transactions():
         print("added edges:", added_edges)
         global_added_edges.extend(added_edges)
 
+        adjust_edge_weights_and_variances(transfers)
+
+        convert_decimal_to_float()
+
+        subgraph = globals.G1.edge_subgraph(global_added_edges)
+
+        subgraph_partitions = run_algorithm(subgraph)
+
+        if not is_initial_batch:
+            subgraph_partitions = merge_new_communities(
+                subgraph_partitions, previous_communities, global_added_edges, subgraph
+            )
+        else:
+            is_initial_batch = False
+
+        for node, community in subgraph_partitions.items():
+            globals.G1.nodes[node]["community"] = community
+
+        previous_communities.update(subgraph_partitions)
+
+        process_partitions(subgraph_partitions)
+
+        convert_decimal_to_float()
+
+        nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
+
+        print("analyzing suspicious clusters")
+        await analyze_suspicious_clusters() or []
+
+        findings = await write_graph_to_database()
+
+        # Only here, after all other processes have successfully run, mark the transfers as processed and commit the changes.
         for transfer in transfers:
             transfer.processed = True
-
         await session.commit()
 
-    adjust_edge_weights_and_variances(transfers)
+        global_added_edges = []
 
-    convert_decimal_to_float()
-
-    subgraph = globals.G1.edge_subgraph(global_added_edges)
-
-    subgraph_partitions = run_algorithm(subgraph)
-
-    if not is_initial_batch:
-        subgraph_partitions = merge_new_communities(
-            subgraph_partitions, previous_communities, global_added_edges, subgraph
-        )
-    else:
-        is_initial_batch = False
-
-    for node, community in subgraph_partitions.items():
-        globals.G1.nodes[node]["community"] = community
-
-    previous_communities.update(subgraph_partitions)
-
-    process_partitions(subgraph_partitions)
-
-    convert_decimal_to_float()
-
-    nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
-
-    print("analyzing suspicious clusters")
-    await analyze_suspicious_clusters() or []
-
-    findings = await write_graph_to_database()
-
-    global_added_edges = []
-
-    print("COMPLETE")
-    return findings
+        print("COMPLETE")
+        return findings
 
 
 # TODO: manage "cross-community edges"

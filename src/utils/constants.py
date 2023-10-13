@@ -1,6 +1,6 @@
 # transaction counter threshold. ie, every N transactions process_clusters is run
-N = 10000
-WINDOW_SIZE = 50000
+N = 1000
+WINDOW_SIZE = 5000
 COMMUNITY_SIZE = 5
 # similarity threshold checks the similarity of account activities
 SIMILARITY_THRESHOLD = 0.5

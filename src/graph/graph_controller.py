@@ -9,34 +9,67 @@ import decimal
 
 
 def merge_new_communities(partitions, previous_communities, added_edges, G1):
-    connected_new_communities = set()
+    print("Starting merge of new communities...")
+
+    community_mappings = {}
+
     for edge in added_edges:
         src_node, dest_node = edge
-        if src_node in previous_communities:
-            connected_new_communities.add(partitions[dest_node])
-        if dest_node in previous_communities:
-            connected_new_communities.add(partitions[src_node])
 
+        # Check for src_node in previous_communities and dest_node in partitions
+        if src_node in previous_communities and dest_node in partitions:
+            community = partitions[dest_node]
+            if community not in community_mappings:
+                community_mappings[community] = previous_communities[src_node]
+                print(
+                    f"Mapped community {community} to {previous_communities[src_node]} based on edge {edge}."
+                )
+
+        # Check for dest_node in previous_communities and src_node in partitions
+        elif dest_node in previous_communities and src_node in partitions:
+            community = partitions[src_node]
+            if community not in community_mappings:
+                community_mappings[community] = previous_communities[dest_node]
+                print(
+                    f"Mapped community {community} to {previous_communities[dest_node]} based on edge {edge}."
+                )
+
+    # Merging communities based on the mapping
     for node, community in partitions.items():
-        if community in connected_new_communities:
-            for edge in G1.edges(node):
-                if edge[0] in previous_communities:
-                    partitions[node] = previous_communities[edge[0]]
-                    break
-                elif edge[1] in previous_communities:
-                    partitions[node] = previous_communities[edge[1]]
-                    break
+        if community in community_mappings:
+            print(
+                f"Updating node {node} from community {community} to {community_mappings[community]}."
+            )
+            partitions[node] = community_mappings[community]
 
-    max_existing_community_id = max(previous_communities.values())
+    # Identify unique new communities that aren't merged with old ones
+    new_communities = {
+        community
+        for node, community in partitions.items()
+        if node not in previous_communities
+        and community not in community_mappings.keys()
+    }
+
+    # Assign new community IDs to these communities
+    max_existing_community_id = max(previous_communities.values(), default=0)
     new_community_id = max_existing_community_id + 1
-    for node, community in partitions.items():
-        if (
-            node not in previous_communities
-            and community not in connected_new_communities
-        ):
-            partitions[node] = new_community_id
-            new_community_id += 1
+    community_id_mapping = {}
+    for community in new_communities:
+        print(
+            f"Assigning new community ID {new_community_id} to community {community}."
+        )
+        community_id_mapping[community] = new_community_id
+        new_community_id += 1
 
+    # Update the community ID of nodes based on the mapping
+    for node, community in partitions.items():
+        if community in community_id_mapping:
+            print(
+                f"Updating node {node} from community {community} to {community_id_mapping[community]}."
+            )
+            partitions[node] = community_id_mapping[community]
+
+    print("Completed merge of new communities.")
     return partitions
 
 
