@@ -22,6 +22,7 @@ from src.graph.graph_controller import (
     convert_decimal_to_float,
     process_partitions,
     merge_new_communities,
+    initialize_global_graph,
 )
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
@@ -29,14 +30,17 @@ from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
-is_initial_batch = True
-global_added_edges = []
 
 debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
     initialize_database()
+
+    if globals.is_initial_batch:
+        print("initializing graph")
+        asyncio.get_event_loop().run_until_complete(initialize_global_graph())
+
     return asyncio.get_event_loop().run_until_complete(
         handle_transaction_async(transaction_event)
     )

@@ -2,10 +2,25 @@ from src.utils import globals
 from src.utils.constants import COMMUNITY_SIZE
 from collections import defaultdict
 import decimal
+from src.database.db_controller import get_async_session
+from sqlalchemy.future import select
+from src.database.models import Transfer
+from src.utils import globals
 
 
 # TODO: refactor module for clarity
-# community_merger.py
+
+
+async def initialize_global_graph():
+    async with get_async_session() as session:
+        result = await session.execute(select(Transfer))
+        all_transfers = result.scalars().all()
+        added_edges = add_transactions_to_graph(all_transfers)
+        globals.global_added_edges.extend(added_edges)
+        adjust_edge_weights_and_variances(all_transfers)
+        convert_decimal_to_float()
+
+    globals.is_initial_batch = False
 
 
 def merge_new_communities(partitions, previous_communities, added_edges, G1):
