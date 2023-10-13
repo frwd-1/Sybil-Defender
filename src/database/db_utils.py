@@ -55,6 +55,7 @@ async def add_transaction_to_db(session, transaction_event):
                     amount=amount,
                     gas_price=gas_price,
                     timestamp=timestamp,
+                    processed=False,
                 )
             )
             print("added Transfer to Transfer table")

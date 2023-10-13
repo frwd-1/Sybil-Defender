@@ -86,7 +86,10 @@ def adjust_edge_weights_and_variances(transfers):
                     float(primary_edge[2]["gas_price"])
                     - float(adj_edge[2]["gas_price"])
                 )
-                amount_var = abs(primary_edge[2]["amount"] - adj_edge[2]["amount"])
+                amount_var = abs(
+                    float(primary_edge[2]["amount"]) - float(adj_edge[2]["amount"])
+                )
+
                 timestamp_var = abs(
                     primary_edge[2]["timestamp"] - adj_edge[2]["timestamp"]
                 )

@@ -8,7 +8,7 @@ from src.analysis.community_analysis.base_analyzer import (
     analyze_suspicious_clusters,
 )
 
-from analysis.transaction_analysis.algorithm import run_algorithm
+from src.analysis.transaction_analysis.algorithm import run_algorithm
 from src.database.db_controller import get_async_session, initialize_database
 from src.database.db_utils import (
     add_transaction_to_db,
@@ -90,41 +90,34 @@ async def process_transactions():
         print("transfers pulled")
         print("Number of transfers:", len(transfers))
 
-    # Create initial graph with all transfers
-    added_edges = add_transactions_to_graph(transfers)
-    print("added edges:", added_edges)
-    global_added_edges.extend(added_edges)
+        added_edges = add_transactions_to_graph(transfers)
+        print("added total edges:", len(added_edges))
+        print("added edges:", added_edges)
+        global_added_edges.extend(added_edges)
 
-    for transfer in transfers:
-        transfer.processed = True
-    await session.commit()
+        for transfer in transfers:
+            transfer.processed = True
 
-    # Set edge weights for graph
+        await session.commit()
+
     adjust_edge_weights_and_variances(transfers)
 
-    # Convert data from decimal to float for Louvain
     convert_decimal_to_float()
 
-    # Generate subgraph from current batch of edges
     subgraph = globals.G1.edge_subgraph(global_added_edges)
 
-    # Apply community detection on this subgraph
     subgraph_partitions = run_algorithm(subgraph)
 
     if not is_initial_batch:
-        # Merge subgraph communities with the main graph
         subgraph_partitions = merge_new_communities(
             subgraph_partitions, previous_communities, global_added_edges, subgraph
         )
     else:
-        # Set to False after the initial batch is processed
         is_initial_batch = False
 
-    # Update the global graph with these partitions
     for node, community in subgraph_partitions.items():
         globals.G1.nodes[node]["community"] = community
 
-    # Update previous_communities
     previous_communities.update(subgraph_partitions)
 
     process_partitions(subgraph_partitions)
@@ -138,7 +131,6 @@ async def process_transactions():
 
     findings = await write_graph_to_database()
 
-    # Reset global_added_edges for the next batch
     global_added_edges = []
 
     print("COMPLETE")
@@ -147,7 +139,7 @@ async def process_transactions():
 
 # TODO: manage "cross-community edges"
 
-# TODO: 1. don't replace any existing communities with louvain, just see if you have new communities
+# TODO: 1. don't replace any existing communities with l, just see if you have new communities
 # TODO: 2. don't remove nodes / edges, until you are dropping old transactions, then just drop anything not part of a community
 # TODO: 3. run LPA on existing communities to detect new nodes / edges
 
@@ -163,3 +155,4 @@ async def process_transactions():
 # TODO: if new activity comes in on accounts already identified as sybils, flag it. monitor sybils specifically as new transactions come in
 
 # TODO: does db need initialization?
+# TODO: fix transfer timestamp / other timestamps
