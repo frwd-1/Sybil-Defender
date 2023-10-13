@@ -6,3 +6,4 @@ database_initialized = False
 G1 = nx.DiGraph()
 is_initial_batch = True
 global_added_edges = []
+previous_communities = {}

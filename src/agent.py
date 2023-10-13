@@ -5,7 +5,7 @@ import debugpy
 from forta_agent import TransactionEvent
 from sqlalchemy.future import select
 from src.analysis.community_analysis.base_analyzer import (
-    analyze_suspicious_clusters,
+    analyze_communities,
 )
 
 from src.analysis.transaction_analysis.algorithm import run_algorithm
@@ -24,6 +24,7 @@ from src.graph.graph_controller import (
     merge_new_communities,
     initialize_global_graph,
 )
+from src.graph.final_graph_controller import merge_graphs, load_graph, save_graph
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
 from src.utils.constants import N
@@ -35,7 +36,7 @@ debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
-    initialize_database()
+    # initialize_database()
 
     if globals.is_initial_batch:
         print("initializing graph")
@@ -78,11 +79,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     return []
 
 
-previous_communities = {}
-
-
 async def process_transactions():
-    global is_initial_batch, previous_communities, global_added_edges
     findings = []
     debugpy.wait_for_client()
     async with get_async_session() as session:
@@ -96,28 +93,30 @@ async def process_transactions():
 
         added_edges = add_transactions_to_graph(transfers)
         print("added total edges:", len(added_edges))
-        print("added edges:", added_edges)
-        global_added_edges.extend(added_edges)
+        globals.global_added_edges.extend(added_edges)
 
         adjust_edge_weights_and_variances(transfers)
 
         convert_decimal_to_float()
 
-        subgraph = globals.G1.edge_subgraph(global_added_edges)
+        subgraph = globals.G1.edge_subgraph(globals.global_added_edges)
 
         subgraph_partitions = run_algorithm(subgraph)
-
-        if not is_initial_batch:
+        print("is initial batch?", globals.is_initial_batch)
+        if not globals.is_initial_batch:
             subgraph_partitions = merge_new_communities(
-                subgraph_partitions, previous_communities, global_added_edges, subgraph
+                subgraph_partitions,
+                globals.previous_communities,
+                globals.global_added_edges,
+                subgraph,
             )
         else:
-            is_initial_batch = False
+            globals.is_initial_batch = False
 
         for node, community in subgraph_partitions.items():
             globals.G1.nodes[node]["community"] = community
 
-        previous_communities.update(subgraph_partitions)
+        globals.previous_communities.update(subgraph_partitions)
 
         process_partitions(subgraph_partitions)
 
@@ -126,16 +125,24 @@ async def process_transactions():
         nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
 
         print("analyzing suspicious clusters")
-        await analyze_suspicious_clusters() or []
+        await analyze_communities() or []
 
         findings = await write_graph_to_database()
 
-        # Only here, after all other processes have successfully run, mark the transfers as processed and commit the changes.
+        try:
+            final_graph = load_graph("final_graph.graphml")
+        except FileNotFoundError:
+            final_graph = nx.Graph()
+
+        final_graph = merge_graphs(globals.G1, final_graph)
+
+        save_graph(final_graph, "final_graph.graphml")
+
         for transfer in transfers:
             transfer.processed = True
         await session.commit()
 
-        global_added_edges = []
+        globals.global_added_edges = []
 
         print("COMPLETE")
         return findings

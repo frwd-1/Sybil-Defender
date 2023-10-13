@@ -20,8 +20,6 @@ async def initialize_global_graph():
         adjust_edge_weights_and_variances(all_transfers)
         convert_decimal_to_float()
 
-    globals.is_initial_batch = False
-
 
 def merge_new_communities(partitions, previous_communities, added_edges, G1):
     print("Starting merge of new communities...")
