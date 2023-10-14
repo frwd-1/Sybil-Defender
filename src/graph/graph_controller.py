@@ -6,6 +6,7 @@ from src.database.db_controller import get_async_session
 from sqlalchemy.future import select
 from src.database.models import Transfer
 from src.utils import globals
+import networkx as nx
 
 
 # TODO: refactor module for clarity
@@ -21,49 +22,58 @@ async def initialize_global_graph():
         convert_decimal_to_float()
 
 
-def merge_new_communities(partitions, previous_communities, updated_subgraph):
+def merge_new_communities(updated_subgraph):
     print("Starting merge of new communities...")
 
-    community_mappings = {}
+    G2 = globals.G2
+    previous_communities = nx.get_node_attributes(G2, "community")
+    print(f"Number of communities in G2: {len(set(previous_communities.values()))}")
 
-    for node, community in partitions.items():
-        if node in previous_communities and node in updated_subgraph.nodes():
-            if community not in community_mappings:
-                community_mappings[community] = previous_communities[node]
-                print(
-                    f"Mapped new community {community} to existing community {previous_communities[node]} based on node {node}."
-                )
+    overlapping_nodes = set(G2.nodes()).intersection(updated_subgraph.nodes())
+    print(f"Overlapping nodes: {overlapping_nodes}")
 
-    for node, community in partitions.items():
-        if community in community_mappings:
-            print(
-                f"Updating node {node} from community {community} to {community_mappings[community]}."
-            )
-            partitions[node] = community_mappings[community]
+    # Step 1: Merge overlapping communities
+    merged_communities = (
+        set()
+    )  # To keep track of communities in the subgraph that get merged
+    for node in overlapping_nodes:
+        target_community = previous_communities[node]
+        subgraph_community = updated_subgraph.nodes[node]["community"]
 
-    new_communities = set(
-        data.get("community") for _, data in updated_subgraph.nodes(data=True)
-    ) - set(previous_communities.values())
+        # If the community has not been merged yet
+        if subgraph_community not in merged_communities:
+            merged_communities.add(subgraph_community)
 
+            # Update community of nodes in updated_subgraph
+            for n, d in updated_subgraph.nodes(data=True):
+                if d["community"] == subgraph_community:
+                    d["community"] = target_community
+                    print(
+                        f"Updating node {n} from community {subgraph_community} to {target_community}."
+                    )
+
+    # Step 2: Identify and assign new IDs to non-overlapping communities
     max_existing_community_id = max(previous_communities.values(), default=0)
     new_community_id = max_existing_community_id + 1
-    community_id_mapping = {}
-    for community in new_communities:
-        print(
-            f"Assigning new community ID {new_community_id} to community {community}."
-        )
-        community_id_mapping[community] = new_community_id
-        new_community_id += 1
+    print(f"Starting new community IDs from: {new_community_id}")
 
-    for node, community in partitions.items():
-        if community in community_id_mapping:
-            print(
-                f"Updating node {node} from community {community} to {community_id_mapping[community]}."
-            )
-            partitions[node] = community_id_mapping[community]
+    subgraph_communities = set(
+        data["community"] for _, data in updated_subgraph.nodes(data=True)
+    )
+    for community in subgraph_communities:
+        if (
+            community not in previous_communities.values()
+            and community not in merged_communities
+        ):
+            for n, d in updated_subgraph.nodes(data=True):
+                if d["community"] == community:
+                    d["community"] = new_community_id
+                    print(f"Assigning new community ID {new_community_id} to node {n}.")
+            new_community_id += 1
 
-    globals.G2.add_nodes_from(updated_subgraph.nodes(data=True))
-    globals.G2.add_edges_from(updated_subgraph.edges(data=True))
+    # Step 3: Add updated nodes and edges to G2
+    G2.add_nodes_from(updated_subgraph.nodes(data=True))
+    G2.add_edges_from(updated_subgraph.edges(data=True))
 
     print("Completed merge of new communities.")
 

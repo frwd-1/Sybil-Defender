@@ -111,7 +111,6 @@ async def process_transactions():
         print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
 
         subgraph_partitions = run_algorithm(subgraph)
-        globals.previous_communities.update(subgraph_partitions)
 
         updated_subgraph = process_partitions(subgraph_partitions, subgraph)
         nx.write_graphml(updated_subgraph, "src/graph/graphs/updated_subgraph.graphml")
@@ -119,8 +118,6 @@ async def process_transactions():
         print("is initial batch?", globals.is_initial_batch)
         if not globals.is_initial_batch:
             merge_new_communities(
-                subgraph_partitions,
-                globals.previous_communities,
                 updated_subgraph,
             )
         else:
