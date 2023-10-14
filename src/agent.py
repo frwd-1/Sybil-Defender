@@ -32,7 +32,7 @@ from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
 
-# debugpy.listen(5678)
+debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -67,8 +67,10 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     update_transaction_counter()
 
     print("transaction counter is", globals.transaction_counter)
+    print("current block is...", transaction_event.block_number)
     if globals.transaction_counter >= N:
-        print("processing clusters")
+        print("processing transactions")
+
         findings.extend(await process_transactions())
         await shed_oldest_Transfers()
         await shed_oldest_ContractTransactions()
@@ -82,7 +84,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 async def process_transactions():
     findings = []
-    # debugpy.wait_for_client()
+    debugpy.wait_for_client()
     async with get_async_session() as session:
         print("pulling all transfers...")
         result = await session.execute(
@@ -94,50 +96,51 @@ async def process_transactions():
 
         added_edges = add_transactions_to_graph(transfers)
         print("added total edges:", len(added_edges))
+        print(f"Number of nodes in G1: {globals.G1.number_of_nodes()}")
+        print(f"Number of edges in G1: {globals.G1.number_of_edges()}")
+
         globals.global_added_edges.extend(added_edges)
 
         adjust_edge_weights_and_variances(transfers)
 
         convert_decimal_to_float()
+        nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
+        subgraph = nx.DiGraph(globals.G1.edge_subgraph(globals.global_added_edges))
 
-        subgraph = globals.G1.edge_subgraph(globals.global_added_edges)
+        print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
+        print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
 
         subgraph_partitions = run_algorithm(subgraph)
-        print("is initial batch?", globals.is_initial_batch)
-        if not globals.is_initial_batch:
-            subgraph_partitions = merge_new_communities(
-                subgraph_partitions,
-                globals.previous_communities,
-                globals.global_added_edges,
-                subgraph,
-            )
-        else:
-            globals.is_initial_batch = False
-
-        for node, community in subgraph_partitions.items():
-            globals.G1.nodes[node]["community"] = community
-
         globals.previous_communities.update(subgraph_partitions)
 
-        process_partitions(subgraph_partitions)
+        updated_subgraph = process_partitions(subgraph_partitions, subgraph)
+        nx.write_graphml(updated_subgraph, "src/graph/graphs/updated_subgraph.graphml")
 
-        convert_decimal_to_float()
+        print("is initial batch?", globals.is_initial_batch)
+        if not globals.is_initial_batch:
+            merge_new_communities(
+                subgraph_partitions,
+                globals.previous_communities,
+                updated_subgraph,
+            )
+        else:
+            globals.G2 = updated_subgraph.copy()
+            globals.is_initial_batch = False
 
-        nx.write_graphml(globals.G1, "G1_graph_output3.graphml")
-
-        print("analyzing suspicious clusters")
+        nx.write_graphml(globals.G2, "src/graph/graphs/merged_G2_graph.graphml")
+        print("analyzing clusters for suspicious activity")
         await analyze_communities() or []
 
         findings = await write_graph_to_database()
 
         try:
-            final_graph = load_graph("final_graph.graphml")
+            final_graph = load_graph("src/graph/graphs/final_graph.graphml")
         except FileNotFoundError:
             final_graph = nx.Graph()
 
         final_graph = merge_graphs(globals.G1, final_graph)
 
-        save_graph(final_graph, "final_graph.graphml")
+        save_graph(final_graph, "src/graph/graphs/final_graph.graphml")
 
         for transfer in transfers:
             transfer.processed = True
@@ -149,6 +152,7 @@ async def process_transactions():
         return findings
 
 
+# TODO: enable async / continuous processing of new transactions
 # TODO: manage "cross-community edges"
 
 # TODO: 1. don't replace any existing communities with l, just see if you have new communities

@@ -21,33 +21,19 @@ async def initialize_global_graph():
         convert_decimal_to_float()
 
 
-def merge_new_communities(partitions, previous_communities, added_edges, G1):
+def merge_new_communities(partitions, previous_communities, updated_subgraph):
     print("Starting merge of new communities...")
 
     community_mappings = {}
 
-    for edge in added_edges:
-        src_node, dest_node = edge
-
-        # Check for src_node in previous_communities and dest_node in partitions
-        if src_node in previous_communities and dest_node in partitions:
-            community = partitions[dest_node]
+    for node, community in partitions.items():
+        if node in previous_communities and node in updated_subgraph.nodes():
             if community not in community_mappings:
-                community_mappings[community] = previous_communities[src_node]
+                community_mappings[community] = previous_communities[node]
                 print(
-                    f"Mapped community {community} to {previous_communities[src_node]} based on edge {edge}."
+                    f"Mapped new community {community} to existing community {previous_communities[node]} based on node {node}."
                 )
 
-        # Check for dest_node in previous_communities and src_node in partitions
-        elif dest_node in previous_communities and src_node in partitions:
-            community = partitions[src_node]
-            if community not in community_mappings:
-                community_mappings[community] = previous_communities[dest_node]
-                print(
-                    f"Mapped community {community} to {previous_communities[dest_node]} based on edge {edge}."
-                )
-
-    # Merging communities based on the mapping
     for node, community in partitions.items():
         if community in community_mappings:
             print(
@@ -55,15 +41,10 @@ def merge_new_communities(partitions, previous_communities, added_edges, G1):
             )
             partitions[node] = community_mappings[community]
 
-    # Identify unique new communities that aren't merged with old ones
-    new_communities = {
-        community
-        for node, community in partitions.items()
-        if node not in previous_communities
-        and community not in community_mappings.keys()
-    }
+    new_communities = set(
+        data.get("community") for _, data in updated_subgraph.nodes(data=True)
+    ) - set(previous_communities.values())
 
-    # Assign new community IDs to these communities
     max_existing_community_id = max(previous_communities.values(), default=0)
     new_community_id = max_existing_community_id + 1
     community_id_mapping = {}
@@ -74,7 +55,6 @@ def merge_new_communities(partitions, previous_communities, added_edges, G1):
         community_id_mapping[community] = new_community_id
         new_community_id += 1
 
-    # Update the community ID of nodes based on the mapping
     for node, community in partitions.items():
         if community in community_id_mapping:
             print(
@@ -82,8 +62,10 @@ def merge_new_communities(partitions, previous_communities, added_edges, G1):
             )
             partitions[node] = community_id_mapping[community]
 
+    globals.G2.add_nodes_from(updated_subgraph.nodes(data=True))
+    globals.G2.add_edges_from(updated_subgraph.edges(data=True))
+
     print("Completed merge of new communities.")
-    return partitions
 
 
 def add_transactions_to_graph(transfers):
@@ -194,42 +176,66 @@ def remove_inter_community_edges():
     print(f"Removed {len(inter_community_edges)} inter-community edges from G1.")
 
 
-def process_partitions(partitions):
+def process_partitions(partitions, subgraph):
+    print("Processing partitions...")
+
     for node, community in partitions.items():
-        globals.G1.nodes[node]["community"] = community
+        subgraph.nodes[node]["community"] = community
+
+    print("Partitions processed.")
 
     # Calculate the size of each community
     community_sizes = {}
-    for node, data in globals.G1.nodes(data=True):
+    for node, data in subgraph.nodes(data=True):
         community = data.get("community")
         if community is not None:
             community_sizes[community] = community_sizes.get(community, 0) + 1
 
+    print(f"Community sizes calculated: {community_sizes}")
+
     # Identify and remove nodes that belong to small communities or have no community
     nodes_to_remove = [
         node
-        for node, data in globals.G1.nodes(data=True)
+        for node, data in subgraph.nodes(data=True)
         if data.get("community") is None
         or community_sizes.get(data.get("community"), 0) < COMMUNITY_SIZE
     ]
-    globals.G1.remove_nodes_from(nodes_to_remove)
 
-    # This will store edges that need to be removed
+    print(f"Identified nodes to remove: {len(nodes_to_remove)}")
+    # TODO: change to subgraph
+    subgraph.remove_nodes_from(nodes_to_remove)
+    print("Nodes removed.")
+
     edges_to_remove = []
 
     # Iterate over all edges of the graph
-    for u, v in globals.G1.edges():
+    for u, v in subgraph.edges():
+        # Fetch the community attributes for nodes u and v
+        u_community = subgraph.nodes[u].get("community")
+        v_community = subgraph.nodes[v].get("community")
+
+        print(
+            f"Edge ({u}, {v}): Node {u} has community {u_community}. Node {v} has community {v_community}."
+        )
+
         # If nodes u and v belong to different communities or one of them doesn't have a community, mark the edge for removal
-        u_community = globals.G1.nodes[u].get("community")
-        v_community = globals.G1.nodes[v].get("community")
         if u_community is None or v_community is None or u_community != v_community:
+            print(
+                f"Marking edge ({u}, {v}) for removal due to differing or absent communities."
+            )
             edges_to_remove.append((u, v))
 
+    print(f"Identified edges to remove: {len(edges_to_remove)}")
     # Remove the marked edges from the graph
-    globals.G1.remove_edges_from(edges_to_remove)
+    subgraph.remove_edges_from(edges_to_remove)
+    print("Edges removed.")
 
     # Additional step to remove isolated nodes
-    isolated_nodes = [
-        node for node in globals.G1.nodes() if globals.G1.degree(node) == 0
-    ]
-    globals.G1.remove_nodes_from(isolated_nodes)
+    isolated_nodes = [node for node in subgraph.nodes() if subgraph.degree(node) == 0]
+    print(f"Identified isolated nodes to remove: {len(isolated_nodes)}")
+    subgraph.remove_nodes_from(isolated_nodes)
+    print("Isolated nodes removed.")
+
+    print("Processing completed.")
+
+    return subgraph
