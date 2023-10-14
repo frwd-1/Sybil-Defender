@@ -32,15 +32,16 @@ from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
 
-debugpy.listen(5678)
+# debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
     # initialize_database()
 
-    if globals.is_initial_batch:
+    if not globals.is_graph_initialized:
         print("initializing graph")
         asyncio.get_event_loop().run_until_complete(initialize_global_graph())
+        globals.is_graph_initialized = True
 
     return asyncio.get_event_loop().run_until_complete(
         handle_transaction_async(transaction_event)
@@ -81,7 +82,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 async def process_transactions():
     findings = []
-    debugpy.wait_for_client()
+    # debugpy.wait_for_client()
     async with get_async_session() as session:
         print("pulling all transfers...")
         result = await session.execute(
