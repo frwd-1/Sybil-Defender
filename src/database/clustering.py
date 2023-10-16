@@ -10,7 +10,7 @@ from src.alerts.cluster_alerts import generate_alert_details
 from forta_agent import Finding
 
 
-async def write_graph_to_database():
+async def write_graph_to_database(final_graph):
     findings = []
 
     async with get_async_session() as session:
@@ -21,7 +21,7 @@ async def write_graph_to_database():
         updated_clusters = {}
 
         # Iterate and filter through graph nodes with 'label' attribute
-        for node, data in globals.G1.nodes(data=True):
+        for node, data in final_graph.nodes(data=True):
             if "label" in data:
                 label = data["label"]
                 community_id = data.get("community")

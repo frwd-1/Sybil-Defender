@@ -1,9 +1,9 @@
 # transaction counter threshold. ie, every N transactions process_clusters is run
-N = 20000
+N = 600
 WINDOW_SIZE = 50000
-COMMUNITY_SIZE = 5
+COMMUNITY_SIZE = 3
 # similarity threshold checks the similarity of account activities
-SIMILARITY_THRESHOLD = 0.5
+SIMILARITY_THRESHOLD = 0.2
 # interaction ratio is the percentage of addresses in a community that need to have interacted with a smart contract in order to proceed with similarity analysis
 INTERACTION_RATIO = 0.7
 # threshold to run louvain analysis
