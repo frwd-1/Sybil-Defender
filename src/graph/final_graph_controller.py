@@ -160,5 +160,12 @@ def new_merge_graphs(G_analyzed, persistent_graph):
     persistent_graph.add_nodes_from(G_analyzed.nodes(data=True))
     persistent_graph.add_edges_from(G_analyzed.edges(data=True))
 
+    nodes_to_remove = [
+        node
+        for node, data in persistent_graph.nodes(data=True)
+        if data.get("status") != "suspicious"
+    ]
+    persistent_graph.remove_nodes_from(nodes_to_remove)
+
     print("Completed merge of new graphs.")
     return persistent_graph
