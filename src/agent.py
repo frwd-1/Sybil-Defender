@@ -1,6 +1,7 @@
 import networkx as nx
 import asyncio
 import debugpy
+import json
 
 from forta_agent import TransactionEvent
 from sqlalchemy.future import select
@@ -24,7 +25,7 @@ from src.graph.graph_controller import (
     merge_new_communities,
     initialize_global_graph,
 )
-from src.graph.final_graph_controller import merge_graphs, load_graph, save_graph
+from src.graph.final_graph_controller import new_merge_graphs, load_graph, save_graph
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
 from src.utils.constants import N
@@ -122,20 +123,35 @@ async def process_transactions():
             )
         else:
             globals.G2 = updated_subgraph.copy()
-            globals.is_initial_batch = False
+            # globals.is_initial_batch = False
 
         nx.write_graphml(globals.G2, "src/graph/graphs/merged_G2_graph.graphml")
         print("analyzing clusters for suspicious activity")
-        await analyze_communities() or []
+        analyzed_subgraph = await analyze_communities(updated_subgraph) or []
 
         findings = await write_graph_to_database()
 
-        try:
+        if not globals.is_initial_batch:
             final_graph = load_graph("src/graph/graphs/final_graph.graphml")
-        except FileNotFoundError:
+        else:
             final_graph = nx.Graph()
+            globals.is_initial_batch = False
 
-        final_graph = merge_graphs(globals.G1, final_graph)
+        final_graph = new_merge_graphs(analyzed_subgraph, final_graph)
+
+        for node, data in final_graph.nodes(data=True):
+            for key, value in list(data.items()):
+                if isinstance(value, type):
+                    data[key] = str(value)
+                elif isinstance(value, list):
+                    data[key] = json.dumps(value)
+
+        for u, v, data in final_graph.edges(data=True):
+            for key, value in list(data.items()):
+                if isinstance(value, type):
+                    data[key] = str(value)
+                elif isinstance(value, list):
+                    data[key] = json.dumps(value)
 
         save_graph(final_graph, "src/graph/graphs/final_graph.graphml")
 

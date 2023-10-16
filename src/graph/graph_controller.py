@@ -29,73 +29,106 @@ def merge_new_communities(updated_subgraph):
     previous_communities = nx.get_node_attributes(G2, "community")
     print(f"Number of communities in G2: {len(set(previous_communities.values()))}")
 
+    overlapping_nodes = set(G2.nodes()).intersection(updated_subgraph.nodes())
+
+    merged_communities = set()
     original_subgraph_communities = nx.get_node_attributes(
         updated_subgraph, "community"
     ).copy()
 
-    overlapping_nodes = set(G2.nodes()).intersection(updated_subgraph.nodes())
-    print("overlapping nodes:", overlapping_nodes)
-    community_overlaps = {}
     for node in overlapping_nodes:
-        g2_community = G2.nodes[node]["community"]
-        subgraph_community = updated_subgraph.nodes[node]["community"]
+        target_community = previous_communities.get(node)
+        if target_community is not None:
+            subgraph_community = updated_subgraph.nodes[node]["community"]
+            merged_communities.add(subgraph_community)
 
-        print(
-            f"Node {node} from updated subgraph in community {subgraph_community} overlaps with the same node in G2 in community {g2_community}."
-        )
+            for n, d in updated_subgraph.nodes(data=True):
+                if d["community"] == subgraph_community:
+                    d["community"] = target_community
+                    print(
+                        f"Updating node {n} from community {subgraph_community} to {target_community}."
+                    )
 
-    # Identify all overlaps and involved communities
-    for node in overlapping_nodes:
-        g2_community = G2.nodes[node]["community"]
-        subgraph_community = updated_subgraph.nodes[node]["community"]
-
-        if subgraph_community in community_overlaps:
-            community_overlaps[subgraph_community].add(g2_community)
-        else:
-            community_overlaps[subgraph_community] = {g2_community}
-
-    # Process each set of overlapping communities
-    for subgraph_community, g2_communities in community_overlaps.items():
-        target_community = min(
-            g2_communities
-        )  # or another logic for selecting the target community
-
-        # Merge all communities into the target community
-        for community in g2_communities:
-            if community != target_community:
-                for node, comm in previous_communities.items():
-                    if comm == community:
-                        G2.nodes[node]["community"] = target_community
-                        previous_communities[node] = target_community
-
-        # Update the community in the subgraph
-        for node, data in updated_subgraph.nodes(data=True):
-            if data["community"] == subgraph_community:
-                data["community"] = target_community
-                print(
-                    f"Updating node {node} from community {subgraph_community} to {target_community}."
-                )
-
-    # Assign new community IDs to non-overlapping communities
     max_existing_community_id = max(previous_communities.values(), default=0)
     new_community_id = max_existing_community_id + 1
     print(f"Starting new community IDs from: {new_community_id}")
 
     for community in set(original_subgraph_communities.values()):
-        if community not in community_overlaps:
-            for node, data in updated_subgraph.nodes(data=True):
-                if data["community"] == community:
-                    data["community"] = new_community_id
+        if community not in merged_communities:
+            nodes_in_community = [
+                node
+                for node, comm in original_subgraph_communities.items()
+                if comm == community
+            ]
+
+            for node in nodes_in_community:
+                if node in updated_subgraph.nodes():
+                    updated_subgraph.nodes[node]["community"] = new_community_id
                     print(
                         f"Assigning new community ID {new_community_id} to node {node}."
                     )
+
             new_community_id += 1
 
-    # Add updated nodes and edges to G2
     G2.add_nodes_from(updated_subgraph.nodes(data=True))
     G2.add_edges_from(updated_subgraph.edges(data=True))
 
     print("Completed merge of new communities.")
+
+
+# def merge_new_communities(updated_subgraph):
+#     print("Starting merge of new communities...")
+
+#     G2 = globals.G2
+#     previous_communities = nx.get_node_attributes(G2, "community")
+#     print(f"Number of communities in G2: {len(set(previous_communities.values()))}")
+
+#     original_subgraph_communities = nx.get_node_attributes(
+#         updated_subgraph, "community"
+#     ).copy()
+
+#     overlapping_nodes = set(G2.nodes()).intersection(updated_subgraph.nodes())
+#     print("Overlapping nodes:", overlapping_nodes)
+
+#     overlap_graph = nx.Graph()
+#     for node in overlapping_nodes:
+#         g2_community = G2.nodes[node]["community"]
+#         subgraph_community = updated_subgraph.nodes[node]["community"]
+#         overlap_graph.add_edge(g2_community, subgraph_community)
+
+#     max_existing_community_id = max(previous_communities.values(), default=0)
+#     new_community_id = max_existing_community_id + 1
+
+#     for community_set in nx.connected_components(overlap_graph):
+#         target_community = min(community_set)
+#         print(
+#             f"Target community for merging: {target_community} from connected communities {community_set}"
+#         )
+
+#         for node, data in G2.nodes(data=True):
+#             if data["community"] in community_set:
+#                 data["community"] = target_community
+
+#         for node, data in updated_subgraph.nodes(data=True):
+#             if data["community"] in community_set:
+#                 data["community"] = target_community
+
+#     non_overlapping_communities = set(original_subgraph_communities.values()) - set(
+#         overlap_graph.nodes
+#     )
+#     for community in non_overlapping_communities:
+#         for node, data in updated_subgraph.nodes(data=True):
+#             if data["community"] == community:
+#                 data["community"] = new_community_id
+#                 print(
+#                     f"Assigning new community ID {new_community_id} to node {node} in updated subgraph."
+#                 )
+#         new_community_id += 1
+
+#     G2.add_nodes_from(updated_subgraph.nodes(data=True))
+#     G2.add_edges_from(updated_subgraph.edges(data=True))
+
+#     print("Completed merge of new communities.")
 
 
 def add_transactions_to_graph(transfers):
