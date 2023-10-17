@@ -10,7 +10,7 @@ from src.analysis.community_analysis.base_analyzer import (
 )
 
 from src.analysis.transaction_analysis.algorithm import run_algorithm
-from src.database.db_controller import get_async_session, initialize_database
+from src.database.db_controller import get_async_session
 from src.database.db_utils import (
     add_transaction_to_db,
     shed_oldest_Transfers,
@@ -22,10 +22,11 @@ from src.graph.graph_controller import (
     adjust_edge_weights_and_variances,
     convert_decimal_to_float,
     process_partitions,
-    merge_new_communities,
     initialize_global_graph,
 )
-from src.graph.final_graph_controller import merge_final_graphs, load_graph, save_graph
+from src.dynamic.dynamic_communities import merge_new_communities
+from src.dynamic.dynamic_suspicious import merge_final_graphs
+from src.graph.final_graph_controller import load_graph, save_graph
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
 from src.utils.constants import N
@@ -106,7 +107,7 @@ async def process_transactions():
 
         convert_decimal_to_float()
         nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
-        subgraph = nx.DiGraph(globals.G1.edge_subgraph(globals.global_added_edges))
+        subgraph = nx.Graph(globals.G1.edge_subgraph(globals.global_added_edges))
 
         print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
         print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")

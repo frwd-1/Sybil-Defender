@@ -6,6 +6,6 @@ __pycache__
 .env
 alembic.ini
 .graphml
-src/dynamic/dynamic_louvain.py
+src/dynamic/
 src/analysis/
 src/graph/graphs/
