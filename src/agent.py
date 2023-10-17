@@ -63,7 +63,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
             print("Transaction data committed to table")
         except Exception as e:
             print(f"Unexpected error occurred: {e}")
-            session.rollback()
+            await session.rollback()
 
     update_transaction_counter()
 
