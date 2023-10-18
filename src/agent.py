@@ -117,13 +117,13 @@ async def process_transactions():
         updated_subgraph = process_partitions(subgraph_partitions, subgraph)
         nx.write_graphml(updated_subgraph, "src/graph/graphs/updated_subgraph.graphml")
 
-        print("is initial batch?", globals.is_initial_batch)
-        if not globals.is_initial_batch:
-            merge_new_communities(
-                updated_subgraph,
-            )
-        else:
-            globals.G2 = updated_subgraph.copy()
+        # print("is initial batch?", globals.is_initial_batch)
+        # if not globals.is_initial_batch:
+        #     merge_new_communities(
+        #         updated_subgraph,
+        #     )
+        # else:
+        #     globals.G2 = updated_subgraph.copy()
 
         nx.write_graphml(globals.G2, "src/graph/graphs/merged_G2_graph.graphml")
         print("analyzing clusters for suspicious activity")
