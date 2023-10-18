@@ -107,7 +107,7 @@ async def process_transactions():
 
         convert_decimal_to_float()
         nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
-        subgraph = nx.Graph(globals.G1.edge_subgraph(globals.global_added_edges))
+        subgraph = nx.DiGraph(globals.G1.edge_subgraph(globals.global_added_edges))
 
         print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
         print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
