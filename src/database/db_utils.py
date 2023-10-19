@@ -66,63 +66,32 @@ async def add_transaction_to_db(session, transaction_event):
         )
 
 
-async def shed_oldest_Transfers():
+async def remove_processed_transfers():
     async with get_async_session() as session:
-        total_txs = await session.execute(select(func.count(Transfer.tx_hash)))
-
-        txs_to_prune = total_txs.scalar() - WINDOW_SIZE + N
-
-        if txs_to_prune > 0:
-            old_txs = await session.execute(
-                select(Transfer).order_by(Transfer.timestamp).limit(txs_to_prune)
-            )
-            old_txs = old_txs.scalars().all()
-
-            sybil_nodes = await session.execute(select(SybilClusters.address))
-            sybil_data = sybil_nodes.scalars().all()
-            sybil_addresses = {
-                node.address if hasattr(node, "address") else node
-                for node in sybil_data
-            }
-
-            for tx in old_txs:
-                if (
-                    tx.sender not in sybil_addresses
-                    and tx.receiver not in sybil_addresses
-                ):
-                    await session.delete(tx)
-
-            await session.commit()
-
-
-async def shed_oldest_ContractTransactions():
-    async with get_async_session() as session:
-        total_ctxs = await session.execute(
-            select(func.count(ContractTransaction.tx_hash))
+        # Select all transfers where processed is True
+        processed_txs = await session.execute(
+            select(Transfer).where(Transfer.processed == True)
         )
+        processed_txs = processed_txs.scalars().all()
 
-        ctxs_to_prune = total_ctxs.scalar() - WINDOW_SIZE + N
+        for tx in processed_txs:
+            await session.delete(tx)
 
-        if ctxs_to_prune > 0:
-            old_ctxs = await session.execute(
-                select(ContractTransaction)
-                .order_by(ContractTransaction.timestamp)
-                .limit(ctxs_to_prune)
-            )
-            old_ctxs = old_ctxs.scalars().all()
+        await session.commit()
 
-            sybil_nodes = await session.execute(select(SybilClusters.address))
-            sybil_data = sybil_nodes.scalars().all()
-            sybil_addresses = {
-                node.address if hasattr(node, "address") else node
-                for node in sybil_data
-            }
 
-            for ctx in old_ctxs:
-                if ctx.sender not in sybil_addresses:
-                    await session.delete(ctx)
+async def remove_processed_contract_transactions():
+    async with get_async_session() as session:
+        # Select all contract transactions where processed is True
+        processed_ctxs = await session.execute(
+            select(ContractTransaction).where(ContractTransaction.processed == True)
+        )
+        processed_ctxs = processed_ctxs.scalars().all()
 
-            await session.commit()
+        for ctx in processed_ctxs:
+            await session.delete(ctx)
+
+        await session.commit()
 
 
 def extract_method_id(data):

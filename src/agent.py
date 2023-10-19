@@ -13,16 +13,15 @@ from src.analysis.transaction_analysis.algorithm import run_algorithm
 from src.database.db_controller import get_async_session
 from src.database.db_utils import (
     add_transaction_to_db,
-    shed_oldest_Transfers,
-    shed_oldest_ContractTransactions,
+    remove_processed_transfers,
+    remove_processed_contract_transactions,
 )
-from src.database.models import Transfer
+from src.database.models import Transfer, ContractTransaction
 from src.graph.graph_controller import (
     add_transactions_to_graph,
     adjust_edge_weights_and_variances,
     convert_decimal_to_float,
     process_partitions,
-    initialize_global_graph,
 )
 from src.dynamic.dynamic_communities import merge_new_communities
 from src.dynamic.dynamic_suspicious import merge_final_graphs
@@ -40,10 +39,10 @@ debugpy.listen(5678)
 def handle_transaction(transaction_event: TransactionEvent):
     # initialize_database()
 
-    if not globals.is_graph_initialized:
-        print("initializing graph")
-        asyncio.get_event_loop().run_until_complete(initialize_global_graph())
-        globals.is_graph_initialized = True
+    # if not globals.is_graph_initialized:
+    #     print("initializing graph")
+    #     asyncio.get_event_loop().run_until_complete(initialize_global_graph())
+    #     globals.is_graph_initialized = True
 
     return asyncio.get_event_loop().run_until_complete(
         handle_transaction_async(transaction_event)
@@ -74,8 +73,8 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
         print("processing transactions")
 
         findings.extend(await process_transactions())
-        await shed_oldest_Transfers()
-        await shed_oldest_ContractTransactions()
+        await remove_processed_transfers()
+        await remove_processed_contract_transactions()
 
         globals.transaction_counter = 0
         print("ALL COMPLETE")
@@ -89,25 +88,31 @@ async def process_transactions():
     debugpy.wait_for_client()
     async with get_async_session() as session:
         print("pulling all transfers...")
-        result = await session.execute(
+        transfer_result = await session.execute(
             select(Transfer).where(Transfer.processed == False)
         )
-        transfers = result.scalars().all()
+        transfers = transfer_result.scalars().all()
         print("transfers pulled")
         print("Number of transfers:", len(transfers))
 
-        added_edges = add_transactions_to_graph(transfers)
+        contract_transaction_result = await session.execute(
+            select(ContractTransaction).where(ContractTransaction.processed == False)
+        )
+        contract_transactions = contract_transaction_result.scalars().all()
+        print("transfers pulled")
+        print("Number of transfers:", len(transfers))
+
+        subgraph = nx.DiGraph()
+        subgraph, added_edges = add_transactions_to_graph(transfers, subgraph)
         print("added total edges:", len(added_edges))
-        print(f"Number of nodes in G1: {globals.G1.number_of_nodes()}")
-        print(f"Number of edges in G1: {globals.G1.number_of_edges()}")
 
-        globals.global_added_edges.extend(added_edges)
+        # globals.global_added_edges.extend(added_edges)
+        # Create a new directed subgraph using only the edges added in the current iteration
 
-        adjust_edge_weights_and_variances(transfers)
+        subgraph = adjust_edge_weights_and_variances(transfers, subgraph)
 
-        convert_decimal_to_float()
-        nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
-        subgraph = nx.DiGraph(globals.G1.edge_subgraph(globals.global_added_edges))
+        subgraph = convert_decimal_to_float(subgraph)
+        # nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
 
         print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
         print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
@@ -127,7 +132,9 @@ async def process_transactions():
 
         nx.write_graphml(globals.G2, "src/graph/graphs/merged_G2_graph.graphml")
         print("analyzing clusters for suspicious activity")
-        analyzed_subgraph = await analyze_communities(updated_subgraph) or []
+        analyzed_subgraph = (
+            await analyze_communities(updated_subgraph, contract_transactions) or []
+        )
 
         if not globals.is_initial_batch:
             final_graph = load_graph("src/graph/graphs/final_graph.graphml")
@@ -158,6 +165,8 @@ async def process_transactions():
 
         for transfer in transfers:
             transfer.processed = True
+        for transaction in contract_transactions:
+            transaction.processed = True
         await session.commit()
 
         globals.global_added_edges = []

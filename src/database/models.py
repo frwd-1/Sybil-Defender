@@ -10,10 +10,10 @@ load_dotenv()
 Base = declarative_base()
 
 
-class Interactions(Base):
-    __tablename__ = "interactions"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    address = Column(String, unique=False)
+# class Interactions(Base):
+#     __tablename__ = "interactions"
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     address = Column(String, unique=False)
 
 
 class Transfer(Base):
@@ -35,6 +35,7 @@ class ContractTransaction(Base):
     amount = Column(Numeric)
     timestamp = Column(Integer)
     data = Column(String)
+    processed = Column(Boolean, default=False)
 
 
 class SybilClusters(Base):

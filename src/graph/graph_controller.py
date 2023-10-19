@@ -12,21 +12,21 @@ import networkx as nx
 # TODO: refactor module for clarity
 
 
-async def initialize_global_graph():
-    async with get_async_session() as session:
-        result = await session.execute(select(Transfer))
-        all_transfers = result.scalars().all()
-        added_edges = add_transactions_to_graph(all_transfers)
-        globals.global_added_edges.extend(added_edges)
-        adjust_edge_weights_and_variances(all_transfers)
-        convert_decimal_to_float()
+# async def initialize_global_graph():
+#     async with get_async_session() as session:
+#         result = await session.execute(select(Transfer))
+#         all_transfers = result.scalars().all()
+#         added_edges = add_transactions_to_graph(all_transfers)
+#         globals.global_added_edges.extend(added_edges)
+#         adjust_edge_weights_and_variances(all_transfers)
+#         convert_decimal_to_float()
 
 
-def add_transactions_to_graph(transfers):
+def add_transactions_to_graph(transfers, subgraph):
     added_edges = []
     for transfer in transfers:
         if transfer.sender is not None and transfer.receiver is not None:
-            globals.G1.add_edge(
+            subgraph.add_edge(
                 transfer.sender,
                 transfer.receiver,
                 timestamp=transfer.timestamp,
@@ -38,10 +38,10 @@ def add_transactions_to_graph(transfers):
             print(
                 f"Skipping edge addition for transfer with sender={transfer.sender} and receiver={transfer.receiver}"
             )
-    return added_edges
+    return subgraph, added_edges
 
 
-def adjust_edge_weights_and_variances(transfers):
+def adjust_edge_weights_and_variances(transfers, subgraph):
     # TODO: CHeck loGIC??
     # TODO: Update edge weights based on variance
     # TODO: place edge weight logic in heuristic module
@@ -51,8 +51,8 @@ def adjust_edge_weights_and_variances(transfers):
         edge_weights[edge] += 1
 
     processed_edges = set()
-    for node in globals.G1.nodes():
-        for primary_edge in globals.G1.edges(node, data=True):
+    for node in subgraph.nodes():
+        for primary_edge in subgraph.edges(node, data=True):
             if (node, primary_edge[1]) in processed_edges or (
                 primary_edge[1],
                 node,
@@ -62,7 +62,7 @@ def adjust_edge_weights_and_variances(transfers):
             target = primary_edge[1]
             variances = []
 
-            for adj_edge in globals.G1.edges(target, data=True):
+            for adj_edge in subgraph.edges(target, data=True):
                 # TODO: is float ok here?
                 gas_price_var = abs(
                     float(primary_edge[2]["gas_price"])
@@ -89,45 +89,47 @@ def adjust_edge_weights_and_variances(transfers):
             adjusted_weight = (1 / (mean_variance + 1)) * initial_weight
 
             # Update the edge in the graph
-            globals.G1.add_edge(node, target, weight=adjusted_weight)
+            subgraph.add_edge(node, target, weight=adjusted_weight)
             processed_edges.add((node, target))
+    return subgraph
 
     print("edges added to graph")
 
 
-def convert_decimal_to_float():
-    for node, data in globals.G1.nodes(data=True):
+def convert_decimal_to_float(subgraph):
+    for node, data in subgraph.nodes(data=True):
         for key, value in data.items():
             if isinstance(value, list):
                 print(f"Node {node} has list data: {key} = {value}")
             if isinstance(value, decimal.Decimal):
                 data[key] = float(value)
 
-    for u, v, data in globals.G1.edges(data=True):
+    for u, v, data in subgraph.edges(data=True):
         for key, value in data.items():
             if isinstance(value, list):
                 print(f"Edge ({u}, {v}) has list data: {key} = {value}")
             if isinstance(value, decimal.Decimal):
                 data[key] = float(value)
+    return subgraph
 
 
-async def remove_communities_and_nodes(communities_to_remove):
-    nodes_to_remove = [
-        node
-        for node, data in globals.G1.nodes(data=True)
-        if data.get("community") in communities_to_remove
-    ]
-    globals.G1.remove_nodes_from(nodes_to_remove)
+# async def remove_communities_and_nodes(communities_to_remove):
+#     nodes_to_remove = [
+#         node
+#         for node, data in subgraph.nodes(data=True)
+#         if data.get("community") in communities_to_remove
+#     ]
+#     subgraph.remove_nodes_from(nodes_to_remove)
 
 
-def remove_inter_community_edges():
-    inter_community_edges = [
-        (u, v)
-        for u, v in globals.G1.edges()
-        if globals.G1.nodes[u]["community"] != globals.G1.nodes[v]["community"]
-    ]
-    globals.G1.remove_edges_from(inter_community_edges)
-    print(f"Removed {len(inter_community_edges)} inter-community edges from G1.")
+# def remove_inter_community_edges():
+#     inter_community_edges = [
+#         (u, v)
+#         for u, v in subgraph.edges()
+#         if subgraph.nodes[u]["community"] != subgraph.nodes[v]["community"]
+#     ]
+#     subgraph.remove_edges_from(inter_community_edges)
+#     print(f"Removed {len(inter_community_edges)} inter-community edges from G1.")
 
 
 def process_partitions(partitions, subgraph):
