@@ -1,18 +1,13 @@
-from src.utils.constants import N, WINDOW_SIZE
 from src.database.models import Transfer, ContractTransaction
 from sqlalchemy.future import select
-from sqlalchemy import func
+
 from src.database.db_controller import get_async_session
 
 from src.database.models import (
-    Interactions,
     Transfer,
     ContractTransaction,
     SybilClusters,
 )
-
-from sqlalchemy.exc import IntegrityError
-from asyncpg.exceptions import UniqueViolationError
 
 
 async def add_transaction_to_db(session, transaction_event):
@@ -25,14 +20,6 @@ async def add_transaction_to_db(session, transaction_event):
     data = transaction_event.transaction.data
 
     try:
-        # Attempt to add sender
-        session.add(Interactions(address=sender))
-        print("added sender to transactions table")
-
-        # Attempt to add receiver
-        session.add(Interactions(address=receiver))
-        print("added receiver to transactions table")
-
         # Attempt to add ContractTransaction or Transfer
         if data != "0x":
             session.add(
