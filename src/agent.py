@@ -90,7 +90,7 @@ async def process_transactions():
     async with get_async_session() as session:
         print("pulling all transfers...")
         result = await session.execute(
-            select(Transfer).where(Transfer.processed == False).limit(N)
+            select(Transfer).where(Transfer.processed == False)
         )
         transfers = result.scalars().all()
         print("transfers pulled")
