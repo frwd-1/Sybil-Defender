@@ -4,10 +4,10 @@ from forta_agent import Finding, FindingSeverity, FindingType, EntityType
 
 def generate_alert_details(community_id, nodes, labels, contracts):
     alert_details = {
-        "name": "Sybil Airdrop Farmer Detected",
-        "description": f"Cluster {community_id} shows signs of sybil airdrop farming",
+        "name": "Sybil asset farmer detected",
+        "description": f"Cluster {community_id} shows signs of sybil asset farming",
         "alert_id": keccak.new(
-            data=f"sybil_airdrop_farmer_{community_id}".encode(),
+            data=f"sybil_asset_farmer_{community_id}".encode(),
             digest_bits=256,
         ).hexdigest(),
         "severity": FindingSeverity.Medium,
