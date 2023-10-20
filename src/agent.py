@@ -136,7 +136,7 @@ async def process_transactions():
         )
 
         try:
-            final_graph = load_graph("src/graph/graphs/final_graph.graphml")
+            final_graph = load_graph("src/graph/graphs/final_graph2.graphml")
 
         except Exception as e:
             final_graph = nx.Graph()
@@ -157,7 +157,7 @@ async def process_transactions():
                 elif isinstance(value, list):
                     data[key] = json.dumps(value)
 
-        save_graph(final_graph, "src/graph/graphs/final_graph.graphml")
+        save_graph(final_graph, "src/graph/graphs/final_graph2.graphml")
 
         findings = await write_graph_to_database(final_graph)
 
