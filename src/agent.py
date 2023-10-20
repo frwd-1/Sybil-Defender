@@ -33,7 +33,7 @@ from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
 
-debugpy.listen(5678)
+# debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -85,7 +85,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 async def process_transactions():
     findings = []
-    debugpy.wait_for_client()
+    # debugpy.wait_for_client()
     async with get_async_session() as session:
         print("pulling all transfers...")
         transfer_result = await session.execute(
@@ -130,18 +130,16 @@ async def process_transactions():
         # else:
         #     globals.G2 = updated_subgraph.copy()
 
-        nx.write_graphml(globals.G2, "src/graph/graphs/merged_G2_graph.graphml")
         print("analyzing clusters for suspicious activity")
         analyzed_subgraph = (
             await analyze_communities(updated_subgraph, contract_transactions) or []
         )
 
-        if not globals.is_initial_batch:
+        try:
             final_graph = load_graph("src/graph/graphs/final_graph.graphml")
 
-        else:
+        except Exception as e:
             final_graph = nx.Graph()
-            globals.is_initial_batch = False
 
         final_graph = merge_final_graphs(analyzed_subgraph, final_graph)
 
