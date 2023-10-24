@@ -35,12 +35,7 @@ async def write_graph_to_database(final_graph):
                 community_id = data.get("community")
                 print(f"Found label: {label}, community_id: {community_id}")
 
-                if "interacting_contracts" in data and isinstance(
-                    data["interacting_contracts"], list
-                ):
-                    data["interacting_contracts"] = ",".join(
-                        data["interacting_contracts"]
-                    )
+                # Removed the code that modifies "interacting_contracts"
 
                 existing_node = existing_nodes.get(node)
 
@@ -51,7 +46,10 @@ async def write_graph_to_database(final_graph):
                         updated_clusters[community_id] = {
                             "nodes": set(),
                             "labels": set(),
-                            "contracts": set(),
+                            # We will keep contracts as lists in the updated clusters.
+                            "contracts": data.get(
+                                "interacting_contracts", []
+                            ),  # Directly using the list
                         }
                         # If the community_id doesn't exist in the database, it's a new community.
                         if (
@@ -61,9 +59,7 @@ async def write_graph_to_database(final_graph):
 
                     updated_clusters[community_id]["nodes"].add(node)
                     updated_clusters[community_id]["labels"].add(label)
-                    updated_clusters[community_id]["contracts"].update(
-                        data.get("interacting_contracts", "").split(",")
-                    )
+                    # No need to update contracts here since we are not writing them to the database.
 
                     new_cluster = SybilClusters(
                         cluster_id=str(community_id), address=node, labels=label
@@ -80,11 +76,12 @@ async def write_graph_to_database(final_graph):
             else:
                 action = "updated"
 
+            # We are directly using the list of contracts for generating alert details.
             alert_details = generate_alert_details(
                 community_id,
                 data["nodes"],
                 data["labels"],
-                data["contracts"],
+                data["contracts"],  # this is already a list
                 action=action,
             )
             findings.append(Finding(alert_details))

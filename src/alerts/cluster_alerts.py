@@ -4,48 +4,53 @@ from forta_agent import Finding, FindingSeverity, FindingType, EntityType
 import json
 
 
-def extract_addresses(entity):
-    # Remove leading/trailing whitespaces and the characters "[", "]"
-    cleaned_string = entity.strip().strip("[").strip("]").replace('"', "")
+# def extract_addresses(entity):
+#     # If the input is a string that looks like a list, we parse it.
+#     if isinstance(entity, str) and entity.startswith("[") and entity.endswith("]"):
+#         try:
+#             # Safely parse the string as JSON, converting it to an actual list.
+#             addresses = json.loads(entity)
+#         except json.JSONDecodeError:
+#             addresses = []
+#     else:
+#         addresses = [entity]
 
-    # Split the addresses based on comma separation
-    addresses = cleaned_string.split(",")
+#     # Ensure each address is properly formatted (e.g., starts with "0x")
+#     return [
+#         format_address(address.strip())
+#         for address in addresses
+#         if isinstance(address, str)
+#     ]
 
-    # Ensure each address is properly formatted (e.g., starts with "0x")
-    return [format_address(address.strip()) for address in addresses]
+
+# def format_address(address):
+#     """Ensure the Ethereum address starts with '0x' and is lower case."""
+#     if not address.startswith("0x"):
+#         return "0x" + address.lower()
+#     return address.lower()
 
 
-def format_address(address):
-    """Ensure the Ethereum address starts with '0x'."""
-    if not address.startswith("0x"):
-        return "0x" + address
-    return address
+from Crypto.Hash import keccak  # Ensure to have the import statement for keccak
 
 
 def generate_alert_details(community_id, nodes, labels, contracts, action):
     # Preparing metadata that includes details about the cluster and contracts.
-    if contracts and isinstance(contracts, str):
-        # Assuming 'contracts' is the string containing the list representation
-        contracts = extract_addresses(contracts)
-
     metadata = {
         "cluster_id": community_id,
-        "interacted_contracts": list(
-            contracts
-        ),  # Contracts are now only listed in the metadata.
+        "interacted_contracts": contracts,  # Directly using the list of contracts.
     }
 
     # Constructing labels for nodes, each enriched with metadata.
     labels_with_metadata = [
         {
-            "entity_type": EntityType.Address.value,
+            "entity_type": EntityType.Address,
             "entity": node,
             "confidence": 90,
             "label": label,
             "metadata": metadata,  # Attaching metadata to each node's label.
         }
         for node in nodes
-        for label in labels
+        for label in labels  # Assuming each 'node' corresponds to every 'label' here.
     ]
 
     # Depending on the action, we set different alert names and descriptions.
@@ -65,8 +70,8 @@ def generate_alert_details(community_id, nodes, labels, contracts, action):
         "alert_id": keccak.new(
             data=f"sybil_asset_farmer_{community_id}".encode(), digest_bits=256
         ).hexdigest(),
-        "severity": FindingSeverity.High,
-        "type": FindingType.Suspicious,
+        "severity": FindingSeverity.High,  # Assuming FindingSeverity is an enum, use the value.
+        "type": FindingType.Suspicious,  # Assuming FindingType is an enum, use the value.
         "addresses": list(nodes),
         "labels": labels_with_metadata,  # Using the constructed labels with metadata.
     }
