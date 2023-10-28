@@ -1,38 +1,60 @@
+// {
+//   "version": "0.2.0",
+//   "configurations": [
+//       {
+//           "name": "npm start",
+//           "type": "node",
+//           "request": "launch",
+//           "program": "${workspaceFolder}/node_modules/npm/bin/npm-cli.js",
+//           "cwd": "${workspaceFolder}",
+//           "args": ["run", "start"]
+//       },
+//       {
+//           "name": "Python: Whole Application",
+//           "type": "python",
+//           "request": "launch",
+//           "program": "${workspaceFolder}",
+//           "console": "integratedTerminal",
+//           "justMyCode": true
+//       },
+//       {
+//           "name": "Python: Attach",
+//           "type": "python",
+//           "request": "attach",
+//           "connect": {
+//               "host": "localhost",
+//               "port": 5678
+//           },
+//       }
+      
+//   ],
+//   "compounds": [
+//       {
+//           "name": "npm start + Python Whole Application",
+//           "configurations": ["npm start", "Python: Whole Application"]
+//       }
+//   ]
+// }
+
 {
     "version": "0.2.0",
     "configurations": [
-        {
-            "name": "npm start",
-            "type": "node",
-            "request": "launch",
-            "program": "${workspaceFolder}/node_modules/npm/bin/npm-cli.js",
-            "cwd": "${workspaceFolder}",
-            "args": ["run", "start"]
-        },
-        {
-            "name": "Python: Whole Application",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },
-        {
-            "name": "Python: Attach",
-            "type": "python",
-            "request": "attach",
-            "connect": {
-                "host": "localhost",
-                "port": 5678
-            },
-        }
-        
-    ],
-    "compounds": [
-        {
-            "name": "npm start + Python Whole Application",
-            "configurations": ["npm start", "Python: Whole Application"]
-        }
+      {
+        "name": "Launch via NPM",
+        "type": "node",
+        "request": "launch",
+        "cwd": "${workspaceFolder}",
+        "runtimeExecutable": "npm",
+        "runtimeArgs": [
+          "run",
+          "start"
+        ],
+        "stopOnEntry": true,
+        "console": "integratedTerminal",
+        "skipFiles": [
+          "<node_internals>/**"
+        ]
+      }
     ]
-}
+  }
 

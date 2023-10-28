@@ -32,9 +32,8 @@ from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
-
-debugpy.listen(5678)
-debugpy.wait_for_client()
+# debugpy.listen(5678)
+# debugpy.wait_for_client()
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -137,7 +136,7 @@ async def process_transactions():
         )
 
         try:
-            final_graph = load_graph("src/graph/graphs_two/final_graph4.graphml")
+            final_graph = load_graph("src/graph/graphs_two/final_graph7.graphml")
 
         except Exception as e:
             final_graph = nx.Graph()
@@ -158,7 +157,7 @@ async def process_transactions():
                 elif isinstance(value, list):
                     data[key] = json.dumps(value)
 
-        save_graph(final_graph, "src/graph/graphs_two/final_graph4.graphml")
+        save_graph(final_graph, "src/graph/graphs_two/final_graph7.graphml")
 
         findings = await write_graph_to_database(final_graph)
 
@@ -168,7 +167,7 @@ async def process_transactions():
             transaction.processed = True
         await session.commit()
 
-        globals.global_added_edges = []
+        # globals.global_added_edges = []
 
         print("COMPLETE")
         return findings
