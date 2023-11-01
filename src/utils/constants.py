@@ -1,6 +1,6 @@
 # transaction counter threshold. ie, every N transactions process_clusters is run
 # TODO: may need to adjust for L2 chains?
-N = 20000
+N = 100000
 
 WINDOW_SIZE = 50000
 COMMUNITY_SIZE = 5
@@ -9,6 +9,6 @@ SIMILARITY_THRESHOLD = 0.5
 # interaction ratio is the percentage of addresses in a community that need to have interacted with a smart contract in order to proceed with similarity analysis
 INTERACTION_RATIO = 0.5
 # threshold to run louvain analysis
-LOUVAIN_THRESHOLD = 100
+LOUVAIN_THRESHOLD = 10000
 # number of neighboring nodes required for inclusion in graph
 NEIGHBOR_THRESHOLD = 3
