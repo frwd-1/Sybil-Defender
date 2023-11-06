@@ -32,14 +32,13 @@ from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
-# debugpy.listen(5678)
-# debugpy.wait_for_client()
+debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
     print("running handle transaction")
     loop = asyncio.get_event_loop()
-
+    debugpy.wait_for_client()
     if not loop.is_running():
         loop.run_until_complete(initialize_database())
     else:
