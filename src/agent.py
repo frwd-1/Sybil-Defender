@@ -8,7 +8,7 @@ from sqlalchemy.future import select
 from src.analysis.community_analysis.base_analyzer import (
     analyze_communities,
 )
-
+from src.database.db_controller import initialize_database
 from src.analysis.transaction_analysis.algorithm import run_algorithm
 from src.database.db_controller import get_async_session
 from src.database.db_utils import (
@@ -37,8 +37,6 @@ from src.database.clustering import write_graph_to_database
 
 
 def handle_transaction(transaction_event: TransactionEvent):
-    # initialize_database()
-
     # if not globals.is_graph_initialized:
     #     print("initializing graph")
     #     asyncio.get_event_loop().run_until_complete(initialize_global_graph())
@@ -51,7 +49,7 @@ def handle_transaction(transaction_event: TransactionEvent):
 
 async def handle_transaction_async(transaction_event: TransactionEvent):
     findings = []
-
+    await initialize_database()
     print("applying initial heuristics")
     if not await apply_initial_heuristics(transaction_event):
         return []
