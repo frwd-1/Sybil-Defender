@@ -33,7 +33,7 @@ async def get_async_session():
 async def initialize_database():
     if not globals.database_initialized:
         print("creating tables")
-        asyncio.get_event_loop().run_until_complete(create_tables())
+        await create_tables()
         globals.database_initialized = True
 
 

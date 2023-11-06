@@ -37,14 +37,15 @@ from src.database.clustering import write_graph_to_database
 
 
 def handle_transaction(transaction_event: TransactionEvent):
-    # if not globals.is_graph_initialized:
-    #     print("initializing graph")
-    #     asyncio.get_event_loop().run_until_complete(initialize_global_graph())
-    #     globals.is_graph_initialized = True
     print("running handle transaction")
-    return asyncio.get_event_loop().run_until_complete(
-        handle_transaction_async(transaction_event)
-    )
+    loop = asyncio.get_event_loop()
+
+    if not loop.is_running():
+        loop.run_until_complete(initialize_database())
+    else:
+        loop.create_task(initialize_database())
+
+    return loop.run_until_complete(handle_transaction_async(transaction_event))
 
 
 async def handle_transaction_async(transaction_event: TransactionEvent):
@@ -134,7 +135,7 @@ async def process_transactions():
         )
 
         try:
-            final_graph = load_graph("src/graph/graphs_two/final_graph17.graphml")
+            final_graph = load_graph("src/graph/graphs_two/final_graph18.graphml")
 
         except Exception as e:
             final_graph = nx.Graph()
@@ -155,7 +156,7 @@ async def process_transactions():
                 elif isinstance(value, list):
                     data[key] = json.dumps(value)
 
-        save_graph(final_graph, "src/graph/graphs_two/final_graph17.graphml")
+        save_graph(final_graph, "src/graph/graphs_two/final_graph18.graphml")
 
         findings = await write_graph_to_database(final_graph)
 
