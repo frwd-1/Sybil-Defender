@@ -12,7 +12,7 @@ from src.database.db_controller import initialize_database
 from src.analysis.transaction_analysis.algorithm import run_algorithm
 from src.database.db_controller import get_async_session
 from src.database.db_utils import (
-    add_transaction_to_db,
+    add_transactions_batch_to_db,
     remove_processed_transfers,
     remove_processed_contract_transactions,
 )
@@ -31,6 +31,9 @@ from src.utils import globals
 from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
+
+BATCH_SIZE = 10000
+transaction_batch = []
 
 # debugpy.listen(5678)
 # debugpy.wait_for_client()
@@ -55,14 +58,20 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     if not await apply_initial_heuristics(transaction_event):
         return []
 
-    async with get_async_session() as session:
-        try:
-            await add_transaction_to_db(session, transaction_event)
-            await session.commit()
-            print("Transaction data committed to table")
-        except Exception as e:
-            print(f"Unexpected error occurred: {e}")
-            await session.rollback()
+    transaction_batch.append(transaction_event)
+    print("batch size is:", len(transaction_batch))
+    if len(transaction_batch) >= BATCH_SIZE:
+        async with get_async_session() as session:
+            try:
+                await add_transactions_batch_to_db(session, transaction_batch)
+                await session.commit()
+                print(f"{BATCH_SIZE} transactions committed to the database")
+            except Exception as e:
+                await session.rollback()
+                print(f"An error occurred: {e}")
+
+        # Clear the batch
+        transaction_batch.clear()
 
     update_transaction_counter()
 
