@@ -1,36 +1,44 @@
-# Builder stage for Python dependencies
-FROM python:3.9-alpine as python-builder
-RUN apk update && apk add --virtual build-deps gcc python3-dev musl-dev postgresql-dev
-RUN apk add libpq
-RUN python3 -m pip install --upgrade pip
+# Build stage: compile Python dependencies
+FROM python:3.8.10 as builder
+RUN python -m pip install --upgrade pip
 COPY requirements.txt ./
-# Install Python dependencies globally to avoid .local copy
-RUN pip install -r requirements.txt
+# Install other packages to user's local directory
+RUN python -m pip install --user -r requirements.txt
 
-# Builder stage for Node dependencies
-FROM node:12-alpine as node-builder
-WORKDIR /node_app
-COPY package*.json ./
-# Install production Node dependencies only
-RUN npm ci --only=production
+# Final stage: use ubuntu:focal
+FROM ubuntu:focal
 
-# Final stage: Set up the production environment
-FROM python:3.9-alpine
-# Install PostgreSQL client (if required by your bot)
-RUN apk add --no-cache libpq
-# Copy Python dependencies
-COPY --from=python-builder /usr/local/lib/python3.9/site-packages /usr/local/lib/python3.9/site-packages
-# Copy Node.js dependencies and application
-COPY --from=node-builder /node_app/node_modules /app/node_modules
-COPY --from=node-builder /node_app/package*.json /app/
-COPY ./src /app/src
-COPY LICENSE.md /app/
+# Install system dependencies for your app (e.g., curl, gnupg, etc.)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set up environment variables
-ENV PATH=/usr/local/bin:$PATH
+# Install Node.js (if your app requires it)
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    && apt-get install -y nodejs
+
+# Copy Python dependencies installed in user's local directory from the builder
+COPY --from=builder /root/.local /root/.local
+
+# Ensure the local Python dependencies are in PATH
+ENV PATH=/root/.local/bin:$PATH
 ENV NODE_ENV=production
-# Uncomment the following line to enable agent logging
+
+# Enable agent logging if necessary
 LABEL "network.forta.settings.agent-logs.enable"="true"
 
+# Set the working directory
 WORKDIR /app
+
+# Copy the application's source code into the container
+COPY ./src ./src
+
+# Copy Node.js package manifest files
+COPY package*.json ./
+
+# Install Node.js dependencies for the application
+RUN npm ci --production
+
+# Command to run the application
 CMD [ "npm", "run", "start:prod" ]
