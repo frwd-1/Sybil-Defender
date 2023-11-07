@@ -30,7 +30,7 @@ COPY LICENSE.md /app/
 ENV PATH=/usr/local/bin:$PATH
 ENV NODE_ENV=production
 # Uncomment the following line to enable agent logging
-# LABEL "network.forta.settings.agent-logs.enable"="true"
+LABEL "network.forta.settings.agent-logs.enable"="true"
 
 WORKDIR /app
 CMD [ "npm", "run", "start:prod" ]
