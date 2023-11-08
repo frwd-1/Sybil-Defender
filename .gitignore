@@ -9,3 +9,4 @@ alembic.ini
 src/dynamic/
 src/analysis/
 src/graph/graphs_two
+Dockerfile
