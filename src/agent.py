@@ -32,10 +32,11 @@ from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
-BATCH_SIZE = 100
+BATCH_SIZE = 10000
 transaction_batch = []
 
-debugpy.listen(5678)
+# debugpy.listen(5678)
+# debugpy.wait_for_client()
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -93,7 +94,6 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 async def process_transactions(transaction_event: TransactionEvent):
     findings = []
     network_name = transaction_event.network.name
-    debugpy.wait_for_client()
 
     async with get_async_session() as session:
         print("pulling all transfers...")
