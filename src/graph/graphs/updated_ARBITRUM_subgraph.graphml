@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d4" for="edge" attr.name="weight" attr.type="double"/>
+<key id="d3" for="edge" attr.name="amount" attr.type="double"/>
+<key id="d2" for="edge" attr.name="gas_price" attr.type="double"/>
+<key id="d1" for="edge" attr.name="timestamp" attr.type="long"/>
+<key id="d0" for="node" attr.name="community" attr.type="long"/>
+<graph edgedefault="directed"><node id="0x0938c63109801ee4243a487ab84dffa2bba4589e">
+  <data key="d0">1</data>
+</node>
+<node id="0x508ed939c65fdfd5f33c664c2e747ca30733f2a5">
+  <data key="d0">1</data>
+</node>
+<node id="0xa623e9ffa9f6609c8c08b35f0e398df6ff85d87a">
+  <data key="d0">1</data>
+</node>
+<node id="0x749e019f70b7460bc2f6ad6fec222da7f68d0e92">
+  <data key="d0">1</data>
+</node>
+<node id="0x6798a4be28e12b6346466f60f7e94c9becbf8fe2">
+  <data key="d0">1</data>
+</node>
+<node id="0x6de83c6002d86255d28de5b048e5d31717217f1f">
+  <data key="d0">1</data>
+</node>
+<node id="0xf9c8f72a84d1ec06b67f95617188e6fbd549ebfc">
+  <data key="d0">1</data>
+</node>
+<node id="0xdc9c518c90ee00a4cd58bc2fb116f760f604a577">
+  <data key="d0">1</data>
+</node>
+<node id="0xbc2768537883b8d5799010c5012c0429cbed8dcc">
+  <data key="d0">1</data>
+</node>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x508ed939c65fdfd5f33c664c2e747ca30733f2a5">
+  <data key="d1">1699501686</data>
+  <data key="d2">100000001.0</data>
+  <data key="d3">1e+16</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x6798a4be28e12b6346466f60f7e94c9becbf8fe2">
+  <data key="d1">1699501687</data>
+  <data key="d2">100000001.0</data>
+  <data key="d3">1.445e+16</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x6de83c6002d86255d28de5b048e5d31717217f1f">
+  <data key="d1">1699501900</data>
+  <data key="d2">100000001.0</data>
+  <data key="d3">2.5e+16</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xf9c8f72a84d1ec06b67f95617188e6fbd549ebfc">
+  <data key="d1">1699501901</data>
+  <data key="d2">100000001.0</data>
+  <data key="d3">1.323e+16</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xdc9c518c90ee00a4cd58bc2fb116f760f604a577">
+  <data key="d1">1699501901</data>
+  <data key="d2">100000001.0</data>
+  <data key="d3">2.0558e+16</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xbc2768537883b8d5799010c5012c0429cbed8dcc">
+  <data key="d1">1699501902</data>
+  <data key="d2">100000001.0</data>
+  <data key="d3">1e+16</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0xa623e9ffa9f6609c8c08b35f0e398df6ff85d87a" target="0x749e019f70b7460bc2f6ad6fec222da7f68d0e92">
+  <data key="d1">1699501915</data>
+  <data key="d2">100000000.0</data>
+  <data key="d3">1.02e+18</data>
+  <data key="d4">5.005601766434015e-18</data>
+</edge>
+<edge source="0x749e019f70b7460bc2f6ad6fec222da7f68d0e92" target="0x0938c63109801ee4243a487ab84dffa2bba4589e">
+  <data key="d1">1699501893</data>
+  <data key="d2">200000000.0</data>
+  <data key="d3">8.2022382e+17</data>
+  <data key="d4">1.2427236148907814e-18</data>
+</edge>
+</graph></graphml>

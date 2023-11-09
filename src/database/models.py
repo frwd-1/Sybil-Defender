@@ -24,6 +24,7 @@ class Transfer(Base):
     amount = Column(Numeric)
     gas_price = Column(Numeric)
     timestamp = Column(Integer)
+    chainId = Column(String)
     processed = Column(Boolean, default=False)
 
 
@@ -35,6 +36,7 @@ class ContractTransaction(Base):
     amount = Column(Numeric)
     timestamp = Column(Integer)
     data = Column(String)
+    chainId = Column(String)
     processed = Column(Boolean, default=False)
 
 
@@ -43,6 +45,7 @@ class SybilClusters(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     cluster_id = Column(String, nullable=False)
     address = Column(String, nullable=False)
+    chainId = Column(String)
     labels = Column(String)
     creation_timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     last_update_timestamp = Column(DateTime, onupdate=datetime.datetime.utcnow)

@@ -1,41 +1,67 @@
 # Build stage: compile Python dependencies
-FROM python:3.9-alpine as builder
-RUN apk update
-RUN apk add alpine-sdk
-RUN python3 -m pip install --upgrade pip
+FROM ubuntu:focal as builder
+
+RUN apt-get update -y && apt-get upgrade -y
+
+# Install software-properties-common to add new repository
+RUN apt-get install -y software-properties-common
+
+# Add the deadsnakes PPA, which contains newer versions of Python
+RUN add-apt-repository ppa:deadsnakes/ppa
+
+# Install Python 3.10 and Python dev packages
+RUN apt-get install -y python3.10 python3.10-dev python3.10-venv python3.10-distutils
+
+# Install build dependencies for C extensions
+RUN apt-get install -y build-essential libffi-dev libssl-dev
+
+# Use ensurepip to install pip for Python 3.10
+RUN python3.10 -m ensurepip
+
+# Update pip using python3.10 explicitly
+RUN python3.10 -m pip install --upgrade pip
+
 COPY requirements.txt ./
-RUN python3 -m pip install --user -r requirements.txt
 
-# Final stage: copy over Python dependencies and install production Node dependencies
-FROM node:12-alpine
-# this python version should match the build stage python version
-# Install dependencies for building Python
-RUN apk add --no-cache git bash gcc musl-dev openssl-dev libffi-dev make patch
+# Install your requirements using python3.10 explicitly
+RUN python3.10 -m pip install --user -r requirements.txt --no-cache-dir
 
+# Final stage: set up environment with Node.js and copy over Python dependencies
+FROM ubuntu:focal
 
-# Install pyenv and required dependencies in one layer
-RUN apk add --no-cache git bash gcc musl-dev openssl-dev libffi-dev make patch && \
-    git clone https://github.com/pyenv/pyenv.git ~/.pyenv && \
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc && \
-    echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc && \
-    echo 'eval "$(pyenv init --path)"' >> ~/.bashrc && \
-    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
+# Install required packages
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install -y curl gnupg software-properties-common
 
-ENV PYENV_ROOT /root/.pyenv
-ENV PATH /root/.pyenv/shims:/root/.pyenv/bin:$PATH
+# Add the deadsnakes PPA in the final stage too
+RUN add-apt-repository ppa:deadsnakes/ppa
 
-# Install the specific Python version
-RUN pyenv install 3.9.0 && pyenv global 3.9.0
+# Install Python 3.10
+RUN apt-get install -y python3.10
+
+# Update alternatives to use python3.10 as the default python3
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+
+# Install Node.js
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get -y install nodejs
 
 COPY --from=builder /root/.local /root/.local
 
-ENV PATH=/root/.local:$PATH
+# Set the PATH to include python and local pip binaries
+ENV PATH=/root/.local/bin:$PATH
 ENV NODE_ENV=production
+
 # Uncomment the following line to enable agent logging
 LABEL "network.forta.settings.agent-logs.enable"="true"
+
 WORKDIR /app
+COPY .env ./
 COPY ./src ./src
 COPY package*.json ./
 COPY LICENSE.md ./
+
+# Install Node dependencies
 RUN npm ci --production
-CMD [ "npm", "run", "start:prod" ]
+
+CMD ["npm", "run", "start:prod"]

@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d4" for="edge" attr.name="weight" attr.type="double"/>
+<key id="d3" for="edge" attr.name="amount" attr.type="double"/>
+<key id="d2" for="edge" attr.name="gas_price" attr.type="double"/>
+<key id="d1" for="edge" attr.name="timestamp" attr.type="long"/>
+<key id="d0" for="node" attr.name="community" attr.type="long"/>
+<graph edgedefault="directed"><node id="0x90b4e9de5dbf34c5256b0d1b191dc54c91161c7d">
+  <data key="d0">1</data>
+</node>
+<node id="0x28c6c06298d514db089934071355e5743bf21d60">
+  <data key="d0">1</data>
+</node>
+<node id="0xec2fbcea0dafca3d6948d2036c2e46846d04e41c">
+  <data key="d0">1</data>
+</node>
+<node id="0x5af048676c0c6d75388caab96ddbcf2feced015d">
+  <data key="d0">1</data>
+</node>
+<node id="0x34813d2f5ec800f2d9efbb05f812c62a36bef1d4">
+  <data key="d0">1</data>
+</node>
+<node id="0x54e04c197496040e6dbfda6595ed16fd18bafa44">
+  <data key="d0">1</data>
+</node>
+<edge source="0x90b4e9de5dbf34c5256b0d1b191dc54c91161c7d" target="0x28c6c06298d514db089934071355e5743bf21d60">
+  <data key="d1">1699500875</data>
+  <data key="d2">35680958231.0</data>
+  <data key="d3">1.1512124053498779e+17</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0xec2fbcea0dafca3d6948d2036c2e46846d04e41c" target="0x28c6c06298d514db089934071355e5743bf21d60">
+  <data key="d1">1699500875</data>
+  <data key="d2">35680958231.0</data>
+  <data key="d3">1.1461833352956685e+17</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x5af048676c0c6d75388caab96ddbcf2feced015d" target="0x28c6c06298d514db089934071355e5743bf21d60">
+  <data key="d1">1699500875</data>
+  <data key="d2">35680958231.0</data>
+  <data key="d3">1.08490599548571e+17</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x34813d2f5ec800f2d9efbb05f812c62a36bef1d4" target="0x28c6c06298d514db089934071355e5743bf21d60">
+  <data key="d1">1699500875</data>
+  <data key="d2">35680958231.0</data>
+  <data key="d3">1.03969614302085e+17</data>
+  <data key="d4">1.0</data>
+</edge>
+<edge source="0x54e04c197496040e6dbfda6595ed16fd18bafa44" target="0x28c6c06298d514db089934071355e5743bf21d60">
+  <data key="d1">1699500875</data>
+  <data key="d2">35680958231.0</data>
+  <data key="d3">1.0375514164912838e+17</data>
+  <data key="d4">1.0</data>
+</edge>
+</graph></graphml>

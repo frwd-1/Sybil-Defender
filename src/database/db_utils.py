@@ -18,6 +18,7 @@ async def add_transaction_to_db(session, transaction_event):
     gas_price = transaction_event.gas_price
     timestamp = transaction_event.timestamp
     data = transaction_event.transaction.data
+    chainId = transaction_event.network
 
     try:
         # Attempt to add ContractTransaction or Transfer
@@ -30,6 +31,7 @@ async def add_transaction_to_db(session, transaction_event):
                     amount=amount,
                     timestamp=timestamp,
                     data=data,
+                    chainId=chainId,
                 )
             )
             print("added ContractTransaction to ContractTransaction table")
@@ -43,6 +45,7 @@ async def add_transaction_to_db(session, transaction_event):
                     gas_price=gas_price,
                     timestamp=timestamp,
                     processed=False,
+                    chainId=chainId,
                 )
             )
             print("added Transfer to Transfer table")
@@ -62,6 +65,7 @@ async def add_transactions_batch_to_db(session, transaction_events):
         gas_price = transaction_event.gas_price
         timestamp = transaction_event.timestamp
         data = transaction_event.transaction.data
+        chainId = str(transaction_event.network.name)
 
         try:
             # Attempt to add ContractTransaction or Transfer
@@ -74,6 +78,7 @@ async def add_transactions_batch_to_db(session, transaction_events):
                         amount=amount,
                         timestamp=timestamp,
                         data=data,
+                        chainId=chainId,
                     )
                 )
                 print(f"Added ContractTransaction {tx_hash} to the database")
@@ -86,6 +91,7 @@ async def add_transactions_batch_to_db(session, transaction_events):
                         amount=amount,
                         gas_price=gas_price,
                         timestamp=timestamp,
+                        chainId=chainId,
                         processed=False,
                     )
                 )

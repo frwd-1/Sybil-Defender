@@ -32,11 +32,10 @@ from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
-BATCH_SIZE = 10000
+BATCH_SIZE = 100
 transaction_batch = []
 
-# debugpy.listen(5678)
-# debugpy.wait_for_client()
+debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -80,7 +79,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     if globals.transaction_counter >= N:
         print("processing transactions")
 
-        findings.extend(await process_transactions())
+        findings.extend(await process_transactions(transaction_event))
         await remove_processed_transfers()
         await remove_processed_contract_transactions()
 
@@ -91,20 +90,27 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     return []
 
 
-async def process_transactions():
+async def process_transactions(transaction_event: TransactionEvent):
     findings = []
+    network_name = transaction_event.network.name
+    debugpy.wait_for_client()
 
     async with get_async_session() as session:
         print("pulling all transfers...")
         transfer_result = await session.execute(
-            select(Transfer).where(Transfer.processed == False)
+            select(Transfer).where(
+                (Transfer.processed == False) & (Transfer.chainId == network_name)
+            )
         )
         transfers = transfer_result.scalars().all()
         print("transfers pulled")
         print("Number of transfers:", len(transfers))
 
         contract_transaction_result = await session.execute(
-            select(ContractTransaction).where(ContractTransaction.processed == False)
+            select(ContractTransaction).where(
+                (ContractTransaction.processed == False)
+                & (ContractTransaction.chainId == network_name)
+            )
         )
         contract_transactions = contract_transaction_result.scalars().all()
         print("transfers pulled")
@@ -128,7 +134,10 @@ async def process_transactions():
         subgraph_partitions = run_algorithm(subgraph)
 
         updated_subgraph = process_partitions(subgraph_partitions, subgraph)
-        nx.write_graphml(updated_subgraph, "src/graph/graphs/updated_subgraph.graphml")
+        nx.write_graphml(
+            updated_subgraph,
+            f"src/graph/graphs/updated_{network_name}_subgraph.graphml",
+        )
 
         # print("is initial batch?", globals.is_initial_batch)
         # if not globals.is_initial_batch:
@@ -144,7 +153,9 @@ async def process_transactions():
         )
 
         try:
-            final_graph = load_graph("src/graph/graphs_two/final_graph18.graphml")
+            final_graph = load_graph(
+                f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+            )
 
         except Exception as e:
             final_graph = nx.Graph()
@@ -165,7 +176,9 @@ async def process_transactions():
                 elif isinstance(value, list):
                     data[key] = json.dumps(value)
 
-        save_graph(final_graph, "src/graph/graphs_two/final_graph18.graphml")
+        save_graph(
+            final_graph, f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+        )
 
         findings = await write_graph_to_database(final_graph)
 
