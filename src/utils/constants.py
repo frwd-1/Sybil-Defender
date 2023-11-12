@@ -1,6 +1,6 @@
 # transaction counter threshold. ie, every N transactions process_clusters is run
 # TODO: may need to adjust for L2 chains?
-N = 100000
+N = 3000
 
 WINDOW_SIZE = 50000
 COMMUNITY_SIZE = 5

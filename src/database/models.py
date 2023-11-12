@@ -50,10 +50,11 @@ class SybilClusters(Base):
     creation_timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     last_update_timestamp = Column(DateTime, onupdate=datetime.datetime.utcnow)
 
-    def __init__(self, cluster_id, address, labels):
+    def __init__(self, cluster_id, address, labels, chainId):
         self.cluster_id = cluster_id
         self.address = address
         self.labels = labels
+        self.chainId = chainId
 
     def __repr__(self):
         return (

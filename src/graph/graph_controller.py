@@ -26,12 +26,18 @@ def add_transactions_to_graph(transfers, subgraph):
     added_edges = []
     for transfer in transfers:
         if transfer.sender is not None and transfer.receiver is not None:
+            # Add sender and receiver nodes with chainId attribute
+            subgraph.add_node(transfer.sender, chainId=transfer.chainId)
+            subgraph.add_node(transfer.receiver, chainId=transfer.chainId)
+
+            # Add edge with attributes
             subgraph.add_edge(
                 transfer.sender,
                 transfer.receiver,
                 timestamp=transfer.timestamp,
                 gas_price=transfer.gas_price,
                 amount=transfer.amount,
+                chainId=transfer.chainId,  # Optional if you want it on the edge as well
             )
             added_edges.append((transfer.sender, transfer.receiver))
         else:

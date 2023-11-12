@@ -33,7 +33,10 @@ async def write_graph_to_database(final_graph):
             if "label" in data:
                 label = data["label"]
                 community_id = data.get("community")
-                print(f"Found label: {label}, community_id: {community_id}")
+                chainId = data.get("chainId")
+                print(
+                    f"Found label: {label}, community_id: {community_id}, chainId: {chainId}"
+                )
 
                 # Removed the code that modifies "interacting_contracts"
 
@@ -46,10 +49,8 @@ async def write_graph_to_database(final_graph):
                         updated_clusters[community_id] = {
                             "nodes": set(),
                             "labels": set(),
-                            # We will keep contracts as lists in the updated clusters.
-                            "contracts": data.get(
-                                "interacting_contracts", []
-                            ),  # Directly using the list
+                            "contracts": data.get("interacting_contracts", []),
+                            "chainId": chainId,
                         }
                         # If the community_id doesn't exist in the database, it's a new community.
                         if (
@@ -62,7 +63,10 @@ async def write_graph_to_database(final_graph):
                     # No need to update contracts here since we are not writing them to the database.
 
                     new_cluster = SybilClusters(
-                        cluster_id=str(community_id), address=node, labels=label
+                        cluster_id=str(community_id),
+                        address=node,
+                        labels=label,
+                        chainId=chainId,
                     )
                     await session.merge(new_cluster)
                     print(f"Node {node} merged into session.")

@@ -32,11 +32,11 @@ from src.utils.constants import N
 from src.utils.utils import update_transaction_counter
 from src.database.clustering import write_graph_to_database
 
-BATCH_SIZE = 10000
+BATCH_SIZE = 500
 transaction_batch = []
 
-# debugpy.listen(5678)
-# debugpy.wait_for_client()
+debugpy.listen(5678)
+debugpy.wait_for_client()
 
 
 def handle_transaction(transaction_event: TransactionEvent):
