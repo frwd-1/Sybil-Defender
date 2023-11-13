@@ -28,15 +28,13 @@ from src.dynamic.dynamic_suspicious import merge_final_graphs
 from src.graph.final_graph_controller import load_graph, save_graph
 from src.heuristics.initial_heuristics import apply_initial_heuristics
 from src.utils import globals
-from src.utils.constants import N
+from src.utils.constants import N, BATCH_SIZE
 from src.utils.utils import update_transaction_counter
-from src.database.clustering import write_graph_to_database
+from src.database.clustering import generate_alerts
 
-BATCH_SIZE = 500
 transaction_batch = []
 
 debugpy.listen(5678)
-debugpy.wait_for_client()
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -92,8 +90,10 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 
 async def process_transactions(transaction_event: TransactionEvent):
+    debugpy.wait_for_client()
     findings = []
     network_name = transaction_event.network.name
+    print("network name is:", network_name)
 
     async with get_async_session() as session:
         print("pulling all transfers...")
@@ -153,14 +153,13 @@ async def process_transactions(transaction_event: TransactionEvent):
         )
 
         try:
-            final_graph = load_graph(
-                f"src/graph/graphs_two/final_{network_name}_graph.graphml"
-            )
+            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph17.graphml")
+            # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
 
         except Exception as e:
-            final_graph = nx.Graph()
+            persisted_graph = nx.Graph()
 
-        final_graph = merge_final_graphs(analyzed_subgraph, final_graph)
+        final_graph = merge_final_graphs(analyzed_subgraph, persisted_graph)
 
         for node, data in final_graph.nodes(data=True):
             for key, value in list(data.items()):
@@ -176,11 +175,12 @@ async def process_transactions(transaction_event: TransactionEvent):
                 elif isinstance(value, list):
                     data[key] = json.dumps(value)
 
-        save_graph(
-            final_graph, f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+        findings = await generate_alerts(
+            analyzed_subgraph, persisted_graph, network_name
         )
 
-        findings = await write_graph_to_database(final_graph)
+        save_graph(final_graph, f"src/graph/graphs_two/final_graph17.graphml")
+        # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
 
         for transfer in transfers:
             transfer.processed = True

@@ -1,82 +1,1501 @@
 <?xml version='1.0' encoding='utf-8'?>
-<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d4" for="edge" attr.name="weight" attr.type="double"/>
-<key id="d3" for="edge" attr.name="amount" attr.type="double"/>
-<key id="d2" for="edge" attr.name="gas_price" attr.type="double"/>
-<key id="d1" for="edge" attr.name="timestamp" attr.type="long"/>
-<key id="d0" for="node" attr.name="community" attr.type="long"/>
-<graph edgedefault="directed"><node id="0x0938c63109801ee4243a487ab84dffa2bba4589e">
-  <data key="d0">1</data>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d6" for="edge" attr.name="weight" attr.type="double"/>
+<key id="d5" for="edge" attr.name="chainId" attr.type="string"/>
+<key id="d4" for="edge" attr.name="amount" attr.type="double"/>
+<key id="d3" for="edge" attr.name="gas_price" attr.type="double"/>
+<key id="d2" for="edge" attr.name="timestamp" attr.type="long"/>
+<key id="d1" for="node" attr.name="community" attr.type="long"/>
+<key id="d0" for="node" attr.name="chainId" attr.type="string"/>
+<graph edgedefault="directed"><node id="0x4693efc4028d7a6d6311933ff4b9502df21a53a0">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
 </node>
-<node id="0x508ed939c65fdfd5f33c664c2e747ca30733f2a5">
-  <data key="d0">1</data>
+<node id="0x5042ce1d795628ab0abdc8e575ad5704f3107cf6">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
 </node>
-<node id="0xa623e9ffa9f6609c8c08b35f0e398df6ff85d87a">
-  <data key="d0">1</data>
+<node id="0xb38e8c17e38363af6ebdcb3dae12e0243582891d">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
 </node>
-<node id="0x749e019f70b7460bc2f6ad6fec222da7f68d0e92">
-  <data key="d0">1</data>
+<node id="0x6018ae55c4f56915ddf204955c78064371db6c58">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
 </node>
-<node id="0x6798a4be28e12b6346466f60f7e94c9becbf8fe2">
-  <data key="d0">1</data>
+<node id="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
 </node>
-<node id="0x6de83c6002d86255d28de5b048e5d31717217f1f">
-  <data key="d0">1</data>
+<node id="0x1f4f010a59332e060a0959dfdf8225cbf5ce0a09">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
 </node>
-<node id="0xf9c8f72a84d1ec06b67f95617188e6fbd549ebfc">
-  <data key="d0">1</data>
+<node id="0xaaa1c7feae1b899f7dab6dd9134b56901897fded">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
 </node>
-<node id="0xdc9c518c90ee00a4cd58bc2fb116f760f604a577">
-  <data key="d0">1</data>
+<node id="0x35e258e97f2632409ae679a1fd976da0ca179e75">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
 </node>
-<node id="0xbc2768537883b8d5799010c5012c0429cbed8dcc">
-  <data key="d0">1</data>
+<node id="0x07d3f4d867c6920c0550b155982126a20a107c75">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
 </node>
-<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x508ed939c65fdfd5f33c664c2e747ca30733f2a5">
-  <data key="d1">1699501686</data>
-  <data key="d2">100000001.0</data>
-  <data key="d3">1e+16</data>
-  <data key="d4">1.0</data>
+<node id="0x720fd9e9bc2abd191b1f8d11d0ac5ee380774b20">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x9b64203878f24eb0cdf55c8c6fa7d08ba0cf77e5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">4</data>
+</node>
+<node id="0x81318ec599e97d16cc676bd283f2c57aed9e41c8">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">4</data>
+</node>
+<node id="0x9f3cb2eb63c34bd1006f686a85d3eb41ee723330">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0xf89d7b9c864f589bbf53a82105107622b35eaa40">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x895a8a1ab905d8a5ad874262fa8e1a9dff8a21ba">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x0373115ed6aa7eb2dc7e301bc007b3dd4fd323e1">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x86da6b8ddb1ad90bf4bf153f24b392083e823aba">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0x81ac51d88cb2832f6be62ddb6121e758308e7730">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x1714400ff23db4af24f9fd64e7039e6597f18c2b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x3ff338f321a774221992b89c6fd7ace47246a60f">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0xf776585baa1c974fc3f4441b94cb5b3375ae3ade">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x1f92d80c9960a2fcf73c22fc63251932228ea21a">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x6a01af210dce01f44b5067fc688641384a8bce5b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">4</data>
+</node>
+<node id="0x5f67477a55878603bbe12d9a3ffe6896dfa001b5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
+</node>
+<node id="0xd109a4299fac6d77f77128e2495013f3fb9ea230">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x3c5264a939991abb9e74fa3fd2bb6a731c56706c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x0938c63109801ee4243a487ab84dffa2bba4589e">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xbb7ea599a9ad3fa290b017034d217980aa78b429">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x0562c7e04d67b91e4415e77303728c192ad6d4cc">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x2a3d9dbba2e9b8c016a698b04a209501505ce5b2">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xb304fd022a55422af7fba16022315d380f1c290d">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
+</node>
+<node id="0xe87643586a2927ee1f88424c45d2f82e29d45a11">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xe5065e27e7b4be47ac9788da93bae4853c8f56f4">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x4d930cfc34c0c7d5786ce6e22f05448899501ddd">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc2f8cd9ebc8efdf2dc38e8517944a4dbb3923e45">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xb3789c995619624870c741f49450c921d244ca7a">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x60a8443a36733de1ed2eed67b35d677b61cac29a">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x9f4a37baded22812f1e1f4debc3713b3fe80e80e">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
+</node>
+<node id="0x3f1dd979e1c6b07e7a9d60a5baa31c355ce48fb6">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x60a2496e24d6498ca59258626160833e38598e7e">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
+</node>
+<node id="0x7a4dd0c1f43dc15c13feeda348a99646e08a9209">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xe450e888f94dc2eeaf2123671f98af43e2d44bf7">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x3f8bb8c8552ec7d901284588fcefe092e8ac561e">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x2cea4f976b79189b2c0a769622454c229daa8f04">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x526479afe288b7b17d77e421d82ff807d70f1264">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0x8c85f4b81e6e43a81d4ff42e7bdfc8e4d34cb369">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">2</data>
+</node>
+<node id="0x2d3fd39ccaadfcc9ecf38f7712a69ac39381682b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xfdc75731792b6efcc8c02429f61b9eef536a6f2e">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xf9ce19a0cae5f03a360f588fd96de1ed93617cc7">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x5bd63140877393395aed8cb822b4a154f8e6c4d7">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0x5c4ae72ee194392a3e394933805bdfa24e189e79">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x69226fcc1c1daea83f197a0eeb570217142ce395">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">4</data>
+</node>
+<node id="0x86b7e3f61279993cf1ab16a534a7828c13692852">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">4</data>
+</node>
+<node id="0x5bdf85216ec1e38d6458c870992a69e38e03f7ef">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xb6e8e94a9072c9fc6b7c52ee6588b221b3c9a8e0">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x6dfeb72a1ff2d40b4a8d0c28bf110f8d2fd6641c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x6f788a39be4a65039c37615942845d2d4c7615e1">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x4ca5d9382096096e40f243f1e7dde151d6ea9497">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x2e51bb518708e849ee38f8c5b758b1d860d8f49f">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xf58af63ca3211fb11aba426fd89000736e5000fc">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x3f783f2a81d0397d9a792e4154781dfcfd8a27b5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x8459499cc634d0aaa6f330a91d7ab524f9683254">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xd6300b3505dbcfca83eeb5318a174757cd56717d">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0xbf670c114257608441a96b42814fcb70706c5870">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x06c7df6c5ce38822c87e736f3c097897645da225">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xe8ca270ad24fc2f086b369c8928b26e6b9a3bc98">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x2e855a0ce8b0f08b7f647ee4931a12b5968eebe4">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x5acccad1932174a7df449905316679f4d6dc6748">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0xae2738d65d258a287d741db8d2a78e1b3161d6d9">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x431900f97b8650337d3b4c01773136b4a00516fe">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0xaa19f85c0a662c9e662b16b61b7f955b19f5cf48">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0xe29fded163f39c5f2b6a861ac38ce6497b72c79c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0xf28391d34cf29c7350fa4602a8499ee1baacd6d9">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x54a430e2392b47c0686c4e3ed6ef36a48bbb3acd">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x5aa7bbbc646b057d801ec7a6edbb428a474c375b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0xb80cc8bdf00899cfb2fd0c93c06505a71ee8d509">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x61485313bc864349ac991d41f3859f8cce8d3924">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x6d809d5399ddf9bb2261bb2d8ec242c162f38923">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0x52423496ddf3f66a212e8363f6444b4e1cd1568d">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x844987bfd8dbc8c97b55c99d50f66034c0030d1e">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0xceed918c6898b9fcacb9c9acd60eefa4bfc33d2f">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x1ea066d5a5ffef31d4421740edd0f515bb005dc3">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x7cb8169481a942ca31f63fef873d9c8cdf5f9bd5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x7ff9d2aee5cad3b82ade34253c65c34a066dae36">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x015c44071846272a5ab22f6372fbf1ba1f4f2fe6">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0xc460cd4581a5038837ee621d1741023eca3716ee">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0xf4a4f2d5266c3afc2b1b895a449c45e632226d02">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0xa3ac455cbbeccdcbd3925ac9225b727a266206d5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x573d30d40003cbd5dee0ac3f6b4411637eb5a4d6">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0xc8590212d61889290e0720afab4bc447a8688929">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc463758764d30c509c6cb386d0cc1c6eb7d6ced5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x727e13dcc70c01494bc9937fe579f58b94e2ac64">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x6095b4dfa61bf5d25dad36a78c39ea68c173f62f">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x676ee532c53ba4b68c1b7570ebeb22559f95b094">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x3420b558764e3912e96e7d4035acd671540c0720">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc39a96714b7dcda0b743e522c94a822a6fe7a0d9">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x65ea307c08a834bb023fcde83662ea977df8812c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">7</data>
+</node>
+<node id="0x337e2bd6937c64c330fd49a0e72c912d1fa41e22">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0xae219d6e06b390b405dd55bad56c58f1c284525f">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc6c1e852ecce4ce5a0c93f0e68063202da81202b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0xc73e072d6b3240ff96d10926bd45b3680ddc2caf">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x9767f4ac39ce74ef311feaa7be38c2b9951e0243">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0x7d16c3a5e1a5751ef332e21d71fc489d7a8049e8">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x1d7940d62dd794dfbd853c6d0d2e8d4eba12610f">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0xcc732ae6db6546c297fd779cd9049f013278a26c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">6</data>
+</node>
+<node id="0xdb5ad26565a65f137ca41124e776997b9b065eba">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xffc200427befe00f7eb22328bdfed1edc998b93d">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">1</data>
+</node>
+<node id="0x5fcaba0450dc11e90d7e91b24a9e4c3ed5ab235c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xaed3a056f4d0e999e895bb1840521908787fb612">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x23111c175167a60201858743c4078b27477cd515">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc3da11f92d05a67d2b159e7bae29def7bb3f0803">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x8498843f6d9046f7b59482978e152d61869203bc">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x5719c6ac50cec4bbb656aaf2958d2eb73e650c46">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x0aa5da715bd3970cbcc1c0e7589d35f9b574b5ed">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x47df9bdb261c09c8e3e8a0cb3879ddff9f1ecc82">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x15057066b6ea8f9f8ab16fc7c6545e6defc4b5d5">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x496d8bec64aa16eaed097d36130c8b6f618a1d66">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x6154866c9dbd068accb212a5070b60d631d2c3f2">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x1673c7e04d67b91e4415e77303728c192ad6e5dd">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x9dc4ef908f020c236c3b039f3f0c49fef2ebdd52">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x49f6ea2135b3d945a370b323e4e833224ea598e4">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc04509d84acb043e341a2844d16b3061f6b578ef">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc1c152ecd40a2dd4c3593a98dce246fd85fbbb6a">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x849712da894b3316cc5134b75497d47fb494bcab">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x55b5f00149de3328f4e8dc2f04e326df8559ceeb">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">4</data>
+</node>
+<node id="0x29305aa9ac401c74c801f7a684bdaad2750c325b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xdebfcbc1e595e19f4e3af6184cfaea34abb8b54b">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x15c27ed229c6c345748603ea5dd53f6eb18b7eb7">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x740eecb676b36c72263a6e6527a1d6d684721fb9">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xc5fe38e411a7e64968695aa7ac0acfd94bf9cbd3">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x2eb64be6b37fc2fa577d693b010e9f31230692b6">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x0843427bdf882d5fcff3a3398ec451a93ed2905c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x995370586ce350f7e21299dd5f144fde3c2e610c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x34570bace8e4825d08aa0c1eb11c6abef9e0456c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x17d8df6c5ce38822c87e736f3c097897645db336">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0xff2af222726b64af7969f8ca651e3fd37361845a">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">5</data>
+</node>
+<node id="0x3f28c866afd287b7601d85c07938ae16f90155dd">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<node id="0x913aafd6fafdaf744d07364864ca3c8bfa62ab1c">
+  <data key="d0">ARBITRUM</data>
+  <data key="d1">3</data>
+</node>
+<edge source="0x4693efc4028d7a6d6311933ff4b9502df21a53a0" target="0x5042ce1d795628ab0abdc8e575ad5704f3107cf6">
+  <data key="d2">1669498214</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.194160171891467e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">6.439917990836802e-16</data>
 </edge>
-<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x6798a4be28e12b6346466f60f7e94c9becbf8fe2">
-  <data key="d1">1699501687</data>
-  <data key="d2">100000001.0</data>
-  <data key="d3">1.445e+16</data>
-  <data key="d4">1.0</data>
+<edge source="0x5042ce1d795628ab0abdc8e575ad5704f3107cf6" target="0x35e258e97f2632409ae679a1fd976da0ca179e75">
+  <data key="d2">1669498326</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.1957129866965975e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">6.529865577977588e-16</data>
 </edge>
-<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x6de83c6002d86255d28de5b048e5d31717217f1f">
-  <data key="d1">1699501900</data>
-  <data key="d2">100000001.0</data>
-  <data key="d3">2.5e+16</data>
-  <data key="d4">1.0</data>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x6018ae55c4f56915ddf204955c78064371db6c58">
+  <data key="d2">1669498239</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">4838050000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
 </edge>
-<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xf9c8f72a84d1ec06b67f95617188e6fbd549ebfc">
-  <data key="d1">1699501901</data>
-  <data key="d2">100000001.0</data>
-  <data key="d3">1.323e+16</data>
-  <data key="d4">1.0</data>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x1f4f010a59332e060a0959dfdf8225cbf5ce0a09">
+  <data key="d2">1669498311</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.15e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
 </edge>
-<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xdc9c518c90ee00a4cd58bc2fb116f760f604a577">
-  <data key="d1">1699501901</data>
-  <data key="d2">100000001.0</data>
-  <data key="d3">2.0558e+16</data>
-  <data key="d4">1.0</data>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xaaa1c7feae1b899f7dab6dd9134b56901897fded">
+  <data key="d2">1669498312</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">5e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
 </edge>
-<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xbc2768537883b8d5799010c5012c0429cbed8dcc">
-  <data key="d1">1699501902</data>
-  <data key="d2">100000001.0</data>
-  <data key="d3">1e+16</data>
-  <data key="d4">1.0</data>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x720fd9e9bc2abd191b1f8d11d0ac5ee380774b20">
+  <data key="d2">1669498385</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
 </edge>
-<edge source="0xa623e9ffa9f6609c8c08b35f0e398df6ff85d87a" target="0x749e019f70b7460bc2f6ad6fec222da7f68d0e92">
-  <data key="d1">1699501915</data>
-  <data key="d2">100000000.0</data>
-  <data key="d3">1.02e+18</data>
-  <data key="d4">5.005601766434015e-18</data>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x0373115ed6aa7eb2dc7e301bc007b3dd4fd323e1">
+  <data key="d2">1669498505</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">8191800000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
 </edge>
-<edge source="0x749e019f70b7460bc2f6ad6fec222da7f68d0e92" target="0x0938c63109801ee4243a487ab84dffa2bba4589e">
-  <data key="d1">1699501893</data>
-  <data key="d2">200000000.0</data>
-  <data key="d3">8.2022382e+17</data>
-  <data key="d4">1.2427236148907814e-18</data>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x3c5264a939991abb9e74fa3fd2bb6a731c56706c">
+  <data key="d2">1669498595</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xe87643586a2927ee1f88424c45d2f82e29d45a11">
+  <data key="d2">1669498640</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xe5065e27e7b4be47ac9788da93bae4853c8f56f4">
+  <data key="d2">1669499463</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">5394600000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">2.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x4d930cfc34c0c7d5786ce6e22f05448899501ddd">
+  <data key="d2">1669498672</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1000000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xc2f8cd9ebc8efdf2dc38e8517944a4dbb3923e45">
+  <data key="d2">1669498672</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.5e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x60a8443a36733de1ed2eed67b35d677b61cac29a">
+  <data key="d2">1669498713</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2500000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x3f1dd979e1c6b07e7a9d60a5baa31c355ce48fb6">
+  <data key="d2">1669498774</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x2cea4f976b79189b2c0a769622454c229daa8f04">
+  <data key="d2">1669498823</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3500000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x2d3fd39ccaadfcc9ecf38f7712a69ac39381682b">
+  <data key="d2">1669498911</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xfdc75731792b6efcc8c02429f61b9eef536a6f2e">
+  <data key="d2">1669498953</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x5c4ae72ee194392a3e394933805bdfa24e189e79">
+  <data key="d2">1669499029</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">4.5e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.194888178914643e-17</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x6dfeb72a1ff2d40b4a8d0c28bf110f8d2fd6641c">
+  <data key="d2">1669499073</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x6f788a39be4a65039c37615942845d2d4c7615e1">
+  <data key="d2">1669499074</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x4ca5d9382096096e40f243f1e7dde151d6ea9497">
+  <data key="d2">1669499090</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.7243851e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x2e51bb518708e849ee38f8c5b758b1d860d8f49f">
+  <data key="d2">1669499106</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">6.5e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xf58af63ca3211fb11aba426fd89000736e5000fc">
+  <data key="d2">1669499107</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xceed918c6898b9fcacb9c9acd60eefa4bfc33d2f">
+  <data key="d2">1669499240</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1500000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xc8590212d61889290e0720afab4bc447a8688929">
+  <data key="d2">1669499269</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.002308e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x3420b558764e3912e96e7d4035acd671540c0720">
+  <data key="d2">1669499299</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2602610000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xae219d6e06b390b405dd55bad56c58f1c284525f">
+  <data key="d2">1669499329</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x7d16c3a5e1a5751ef332e21d71fc489d7a8049e8">
+  <data key="d2">1669499389</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">4.13e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xdb5ad26565a65f137ca41124e776997b9b065eba">
+  <data key="d2">1669499424</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3342170000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.4285714285562858e-14</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x5fcaba0450dc11e90d7e91b24a9e4c3ed5ab235c">
+  <data key="d2">1669499480</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">4.13173e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xaed3a056f4d0e999e895bb1840521908787fb612">
+  <data key="d2">1669499480</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.239759e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x23111c175167a60201858743c4078b27477cd515">
+  <data key="d2">1669499496</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xc3da11f92d05a67d2b159e7bae29def7bb3f0803">
+  <data key="d2">1669499512</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">7.64235e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x8498843f6d9046f7b59482978e152d61869203bc">
+  <data key="d2">1669499513</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.474752e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x5719c6ac50cec4bbb656aaf2958d2eb73e650c46">
+  <data key="d2">1669499514</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">800000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x0aa5da715bd3970cbcc1c0e7589d35f9b574b5ed">
+  <data key="d2">1669499515</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.5e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.2690355330091634e-15</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x15057066b6ea8f9f8ab16fc7c6545e6defc4b5d5">
+  <data key="d2">1669499599</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.42857e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x496d8bec64aa16eaed097d36130c8b6f618a1d66">
+  <data key="d2">1669499703</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">8256700000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x9dc4ef908f020c236c3b039f3f0c49fef2ebdd52">
+  <data key="d2">1669499763</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.038e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xc04509d84acb043e341a2844d16b3061f6b578ef">
+  <data key="d2">1669499781</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.2e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xc1c152ecd40a2dd4c3593a98dce246fd85fbbb6a">
+  <data key="d2">1669499797</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">5.535226e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x849712da894b3316cc5134b75497d47fb494bcab">
+  <data key="d2">1669499814</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.39e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x29305aa9ac401c74c801f7a684bdaad2750c325b">
+  <data key="d2">1669499900</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.114e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xdebfcbc1e595e19f4e3af6184cfaea34abb8b54b">
+  <data key="d2">1669499943</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.11e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0xc5fe38e411a7e64968695aa7ac0acfd94bf9cbd3">
+  <data key="d2">1669500003</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">800000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb38e8c17e38363af6ebdcb3dae12e0243582891d" target="0x913aafd6fafdaf744d07364864ca3c8bfa62ab1c">
+  <data key="d2">1669500155</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.4e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0x9f3cb2eb63c34bd1006f686a85d3eb41ee723330">
+  <data key="d2">1669498581</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">7957000000000004.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.9323633503594546e-16</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0x3ff338f321a774221992b89c6fd7ace47246a60f">
+  <data key="d2">1669499061</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">5.72014e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.898635477568355e-16</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0x526479afe288b7b17d77e421d82ff807d70f1264">
+  <data key="d2">1669499186</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">9990000000000122.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.0487804877191125e-15</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0x6d809d5399ddf9bb2261bb2d8ec242c162f38923">
+  <data key="d2">1669499229</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.266835e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.9387359441607015e-16</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0x5bd63140877393395aed8cb822b4a154f8e6c4d7">
+  <data key="d2">1669499374</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.1544000000000004e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.6941263391327645e-16</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0x86da6b8ddb1ad90bf4bf153f24b392083e823aba">
+  <data key="d2">1669499421</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">6.459700000000001e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.9225962740087296e-17</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0xc6c1e852ecce4ce5a0c93f0e68063202da81202b">
+  <data key="d2">1669499556</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">4990000000000027.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">9.900990098920028e-16</data>
+</edge>
+<edge source="0x80c67432656d59144ceff962e8faf8926599bcf8" target="0xffc200427befe00f7eb22328bdfed1edc998b93d">
+  <data key="d2">1669499845</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">9.543900000000002e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.7414423130253306e-17</data>
+</edge>
+<edge source="0x35e258e97f2632409ae679a1fd976da0ca179e75" target="0x07d3f4d867c6920c0550b155982126a20a107c75">
+  <data key="d2">1669498379</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.1972444117895926e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">6.445280602034802e-16</data>
+</edge>
+<edge source="0x07d3f4d867c6920c0550b155982126a20a107c75" target="0x5f67477a55878603bbe12d9a3ffe6896dfa001b5">
+  <data key="d2">1669498570</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.1987959346196214e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">6.756860765996394e-16</data>
+</edge>
+<edge source="0x9b64203878f24eb0cdf55c8c6fa7d08ba0cf77e5" target="0x81318ec599e97d16cc676bd283f2c57aed9e41c8">
+  <data key="d2">1669498427</data>
+  <data key="d3">2000000000.0</data>
+  <data key="d4">1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x9b64203878f24eb0cdf55c8c6fa7d08ba0cf77e5" target="0x6a01af210dce01f44b5067fc688641384a8bce5b">
+  <data key="d2">1669498561</data>
+  <data key="d3">2000000000.0</data>
+  <data key="d4">1.2999e+19</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x9b64203878f24eb0cdf55c8c6fa7d08ba0cf77e5" target="0x55b5f00149de3328f4e8dc2f04e326df8559ceeb">
+  <data key="d2">1669499866</data>
+  <data key="d3">2000000000.0</data>
+  <data key="d4">1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x9f3cb2eb63c34bd1006f686a85d3eb41ee723330" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669498463</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.0500000000009016e+16</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0xf89d7b9c864f589bbf53a82105107622b35eaa40" target="0x895a8a1ab905d8a5ad874262fa8e1a9dff8a21ba">
+  <data key="d2">1669498492</data>
+  <data key="d3">1000000000.0</data>
+  <data key="d4">1000000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xf89d7b9c864f589bbf53a82105107622b35eaa40" target="0x2a3d9dbba2e9b8c016a698b04a209501505ce5b2">
+  <data key="d2">1669498612</data>
+  <data key="d3">1000000000.0</data>
+  <data key="d4">1000000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xf89d7b9c864f589bbf53a82105107622b35eaa40" target="0xe450e888f94dc2eeaf2123671f98af43e2d44bf7">
+  <data key="d2">1669498803</data>
+  <data key="d3">1000000000.0</data>
+  <data key="d4">1e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xf89d7b9c864f589bbf53a82105107622b35eaa40" target="0xf28391d34cf29c7350fa4602a8499ee1baacd6d9">
+  <data key="d2">1669499204</data>
+  <data key="d3">1000000000.0</data>
+  <data key="d4">1.3379e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">8.006404547182242e-17</data>
+</edge>
+<edge source="0xf89d7b9c864f589bbf53a82105107622b35eaa40" target="0x995370586ce350f7e21299dd5f144fde3c2e610c">
+  <data key="d2">1669500121</data>
+  <data key="d3">1000000000.0</data>
+  <data key="d4">9700000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xf89d7b9c864f589bbf53a82105107622b35eaa40" target="0x3f28c866afd287b7601d85c07938ae16f90155dd">
+  <data key="d2">1669500151</data>
+  <data key="d3">1000000000.0</data>
+  <data key="d4">1.22219e+19</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x86da6b8ddb1ad90bf4bf153f24b392083e823aba" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669500074</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.2584000000009016e+16</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0x81ac51d88cb2832f6be62ddb6121e758308e7730" target="0x1714400ff23db4af24f9fd64e7039e6597f18c2b">
+  <data key="d2">1669498536</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.39892087e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x3ff338f321a774221992b89c6fd7ace47246a60f" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669498552</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">5.74579000000009e+17</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0xf776585baa1c974fc3f4441b94cb5b3375ae3ade" target="0x1f92d80c9960a2fcf73c22fc63251932228ea21a">
+  <data key="d2">1669498555</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.5862927112030884e+19</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.330290570354087e-19</data>
+</edge>
+<edge source="0x1f92d80c9960a2fcf73c22fc63251932228ea21a" target="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3">
+  <data key="d2">1669499085</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.006430938e+19</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">5.1146161491474213e-20</data>
+</edge>
+<edge source="0x1f92d80c9960a2fcf73c22fc63251932228ea21a" target="0xff2af222726b64af7969f8ca651e3fd37361845a">
+  <data key="d2">1669500130</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">5.03e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5f67477a55878603bbe12d9a3ffe6896dfa001b5" target="0xb304fd022a55422af7fba16022315d380f1c290d">
+  <data key="d2">1669498624</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.200275911837788e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">6.534585911410772e-16</data>
+</edge>
+<edge source="0xd109a4299fac6d77f77128e2495013f3fb9ea230" target="0x1f92d80c9960a2fcf73c22fc63251932228ea21a">
+  <data key="d2">1669498585</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">4.0054021312695977e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.1707199349598513e-19</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xbb7ea599a9ad3fa290b017034d217980aa78b429">
+  <data key="d2">1669498602</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">5.1025602e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">4.242627554294976e-16</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xb3789c995619624870c741f49450c921d244ca7a">
+  <data key="d2">1669498713</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">5.529e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0xb80cc8bdf00899cfb2fd0c93c06505a71ee8d509">
+  <data key="d2">1669499224</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">3e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x727e13dcc70c01494bc9937fe579f58b94e2ac64">
+  <data key="d2">1669499285</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">7.92e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x47df9bdb261c09c8e3e8a0cb3879ddff9f1ecc82">
+  <data key="d2">1669499575</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">9.99e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x6154866c9dbd068accb212a5070b60d631d2c3f2">
+  <data key="d2">1669499726</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">5.0420557e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">4.6607446313424e-16</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x49f6ea2135b3d945a370b323e4e833224ea598e4">
+  <data key="d2">1669499766</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">3.7e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x15c27ed229c6c345748603ea5dd53f6eb18b7eb7">
+  <data key="d2">1669499948</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">3.491445e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x2eb64be6b37fc2fa577d693b010e9f31230692b6">
+  <data key="d2">1669500059</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">1000000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0938c63109801ee4243a487ab84dffa2bba4589e" target="0x0843427bdf882d5fcff3a3398ec451a93ed2905c">
+  <data key="d2">1669500059</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">1.0524e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xb304fd022a55422af7fba16022315d380f1c290d" target="0x9f4a37baded22812f1e1f4debc3713b3fe80e80e">
+  <data key="d2">1669498734</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.20180623068822e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">6.529463136669019e-16</data>
+</edge>
+<edge source="0x9f4a37baded22812f1e1f4debc3713b3fe80e80e" target="0x60a2496e24d6498ca59258626160833e38598e7e">
+  <data key="d2">1669498799</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.203337750170096e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">5.81308836184233e-16</data>
+</edge>
+<edge source="0x60a2496e24d6498ca59258626160833e38598e7e" target="0x8c85f4b81e6e43a81d4ff42e7bdfc8e4d34cb369">
+  <data key="d2">1669498906</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3.2050580061472184e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x7a4dd0c1f43dc15c13feeda348a99646e08a9209" target="0xb38e8c17e38363af6ebdcb3dae12e0243582891d">
+  <data key="d2">1669498802</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">7.9999976e+19</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.2510091043525863e-20</data>
+</edge>
+<edge source="0x3f8bb8c8552ec7d901284588fcefe092e8ac561e" target="0x1f92d80c9960a2fcf73c22fc63251932228ea21a">
+  <data key="d2">1669498807</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.5400274471457943e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">9.085022621585456e-20</data>
+</edge>
+<edge source="0x526479afe288b7b17d77e421d82ff807d70f1264" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669498842</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.0318000000009004e+16</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0xf9ce19a0cae5f03a360f588fd96de1ed93617cc7" target="0x1f92d80c9960a2fcf73c22fc63251932228ea21a">
+  <data key="d2">1669499007</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.6759739216755323e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0130500326859478e-19</data>
+</edge>
+<edge source="0x5bd63140877393395aed8cb822b4a154f8e6c4d7" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669499132</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">8837000000009016.0</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0x69226fcc1c1daea83f197a0eeb570217142ce395" target="0x86b7e3f61279993cf1ab16a534a7828c13692852">
+  <data key="d2">1669499035</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.8e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.3333312222234504e-16</data>
+</edge>
+<edge source="0x86b7e3f61279993cf1ab16a534a7828c13692852" target="0x9b64203878f24eb0cdf55c8c6fa7d08ba0cf77e5">
+  <data key="d2">1669499132</data>
+  <data key="d3">2000000000.0</data>
+  <data key="d4">2.5e+16</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">2.3069824669332513e-19</data>
+</edge>
+<edge source="0x5bdf85216ec1e38d6458c870992a69e38e03f7ef" target="0xb6e8e94a9072c9fc6b7c52ee6588b221b3c9a8e0">
+  <data key="d2">1669499041</data>
+  <data key="d3">200000000.0</data>
+  <data key="d4">1.378e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">3.048780478510595e-17</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0x1f92d80c9960a2fcf73c22fc63251932228ea21a">
+  <data key="d2">1669499152</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2e+18</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0x431900f97b8650337d3b4c01773136b4a00516fe">
+  <data key="d2">1669499198</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0x5aa7bbbc646b057d801ec7a6edbb428a474c375b">
+  <data key="d2">1669499223</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0x844987bfd8dbc8c97b55c99d50f66034c0030d1e">
+  <data key="d2">1669499234</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0x7cb8169481a942ca31f63fef873d9c8cdf5f9bd5">
+  <data key="d2">1669499245</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0x015c44071846272a5ab22f6372fbf1ba1f4f2fe6">
+  <data key="d2">1669499254</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0xf4a4f2d5266c3afc2b1b895a449c45e632226d02">
+  <data key="d2">1669499263</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x0fbc56c2bb6440153fba119481c0a4894ea26ec3" target="0xc463758764d30c509c6cb386d0cc1c6eb7d6ced5">
+  <data key="d2">1669499276</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x3f783f2a81d0397d9a792e4154781dfcfd8a27b5" target="0x8459499cc634d0aaa6f330a91d7ab524f9683254">
+  <data key="d2">1669499127</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.16e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">4.999997525001171e-17</data>
+</edge>
+<edge source="0x8459499cc634d0aaa6f330a91d7ab524f9683254" target="0x0938c63109801ee4243a487ab84dffa2bba4589e">
+  <data key="d2">1669499342</data>
+  <data key="d3">10000000000.0</data>
+  <data key="d4">1.14e+18</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0482070462498589e-18</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0xbf670c114257608441a96b42814fcb70706c5870">
+  <data key="d2">1669499151</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">185600000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0xe8ca270ad24fc2f086b369c8928b26e6b9a3bc98">
+  <data key="d2">1669499167</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">185700000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x2e855a0ce8b0f08b7f647ee4931a12b5968eebe4">
+  <data key="d2">1669499187</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0xe29fded163f39c5f2b6a861ac38ce6497b72c79c">
+  <data key="d2">1669499203</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x61485313bc864349ac991d41f3859f8cce8d3924">
+  <data key="d2">1669499227</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186800000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x7ff9d2aee5cad3b82ade34253c65c34a066dae36">
+  <data key="d2">1669499245</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186500000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0xa3ac455cbbeccdcbd3925ac9225b727a266206d5">
+  <data key="d2">1669499267</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">185500000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x676ee532c53ba4b68c1b7570ebeb22559f95b094">
+  <data key="d2">1669499298</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186600000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x337e2bd6937c64c330fd49a0e72c912d1fa41e22">
+  <data key="d2">1669499327</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186400000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0xc73e072d6b3240ff96d10926bd45b3680ddc2caf">
+  <data key="d2">1669499357</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">185400000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x9767f4ac39ce74ef311feaa7be38c2b9951e0243">
+  <data key="d2">1669499378</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186200000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0x1d7940d62dd794dfbd853c6d0d2e8d4eba12610f">
+  <data key="d2">1669499399</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">185400000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xd6300b3505dbcfca83eeb5318a174757cd56717d" target="0xcc732ae6db6546c297fd779cd9049f013278a26c">
+  <data key="d2">1669499423</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">186100000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0xae2738d65d258a287d741db8d2a78e1b3161d6d9">
+  <data key="d2">1669499188</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0xaa19f85c0a662c9e662b16b61b7f955b19f5cf48">
+  <data key="d2">1669499199</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0x54a430e2392b47c0686c4e3ed6ef36a48bbb3acd">
+  <data key="d2">1669499214</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0x52423496ddf3f66a212e8363f6444b4e1cd1568d">
+  <data key="d2">1669499229</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0x1ea066d5a5ffef31d4421740edd0f515bb005dc3">
+  <data key="d2">1669499244</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0xc460cd4581a5038837ee621d1741023eca3716ee">
+  <data key="d2">1669499257</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0x573d30d40003cbd5dee0ac3f6b4411637eb5a4d6">
+  <data key="d2">1669499269</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0x6095b4dfa61bf5d25dad36a78c39ea68c173f62f">
+  <data key="d2">1669499286</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0xc39a96714b7dcda0b743e522c94a822a6fe7a0d9">
+  <data key="d2">1669499305</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x5acccad1932174a7df449905316679f4d6dc6748" target="0x65ea307c08a834bb023fcde83662ea977df8812c">
+  <data key="d2">1669499314</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">70000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x6d809d5399ddf9bb2261bb2d8ec242c162f38923" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669500121</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.271993000000009e+18</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0xc6c1e852ecce4ce5a0c93f0e68063202da81202b" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669499378</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">6000000000009016.0</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0xdb5ad26565a65f137ca41124e776997b9b065eba" target="0x1714400ff23db4af24f9fd64e7039e6597f18c2b">
+  <data key="d2">1669500165</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">3272170000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0xffc200427befe00f7eb22328bdfed1edc998b93d" target="0x80c67432656d59144ceff962e8faf8926599bcf8">
+  <data key="d2">1669499441</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">1.0050000000000902e+17</data>
+  <data key="d5">ARBITRUM</data>
+</edge>
+<edge source="0x1673c7e04d67b91e4415e77303728c192ad6e5dd" target="0x0562c7e04d67b91e4415e77303728c192ad6d4cc">
+  <data key="d2">1669499739</data>
+  <data key="d3">0.0</data>
+  <data key="d4">2700000000000000.0</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x740eecb676b36c72263a6e6527a1d6d684721fb9" target="0x34570bace8e4825d08aa0c1eb11c6abef9e0456c">
+  <data key="d2">1669500129</data>
+  <data key="d3">100000000.0</data>
+  <data key="d4">2.0517456406e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
+</edge>
+<edge source="0x17d8df6c5ce38822c87e736f3c097897645db336" target="0x06c7df6c5ce38822c87e736f3c097897645da225">
+  <data key="d2">1669500129</data>
+  <data key="d3">0.0</data>
+  <data key="d4">9.5080228993e+17</data>
+  <data key="d5">ARBITRUM</data>
+  <data key="d6">1.0</data>
 </edge>
 </graph></graphml>

@@ -33,10 +33,11 @@ import json
 from Crypto.Hash import keccak  # Ensure to have the import statement for keccak
 
 
-def generate_alert_details(community_id, nodes, labels, contracts, action):
+def generate_alert_details(community_id, nodes, labels, contracts, chainId, action):
     # Preparing metadata that includes details about the cluster and contracts.
     metadata = {
         "cluster_id": community_id,
+        "chainId": chainId,
         "interacted_contracts": contracts,  # Directly using the list of contracts.
     }
 
@@ -55,10 +56,10 @@ def generate_alert_details(community_id, nodes, labels, contracts, action):
 
     # Depending on the action, we set different alert names and descriptions.
     if action == "created":
-        alert_name = "New sybil asset farmer detected"
-        alert_description = f"Cluster {community_id} shows signs of sybil asset farming"
+        alert_name = "New sybil attack cluster identified"
+        alert_description = f"Cluster {community_id} shows signs of sybil attack"
     else:  # For "updated" or any other action
-        alert_name = "Existing sybil cluster updated"
+        alert_name = "Existing sybil attack cluster updated"
         alert_description = (
             f"Cluster {community_id} has been updated with new activities"
         )
@@ -68,9 +69,9 @@ def generate_alert_details(community_id, nodes, labels, contracts, action):
         "name": alert_name,
         "description": alert_description,
         "alert_id": keccak.new(
-            data=f"sybil_asset_farmer_{community_id}".encode(), digest_bits=256
+            data=f"sybil_attacker_{community_id}".encode(), digest_bits=256
         ).hexdigest(),
-        "severity": FindingSeverity.High,  # Assuming FindingSeverity is an enum, use the value.
+        "severity": FindingSeverity.Medium,  # Assuming FindingSeverity is an enum, use the value.
         "type": FindingType.Suspicious,  # Assuming FindingType is an enum, use the value.
         "addresses": list(nodes),
         "labels": labels_with_metadata,  # Using the constructed labels with metadata.
