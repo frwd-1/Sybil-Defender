@@ -88,7 +88,9 @@ from forta_agent import Finding
 
 
 # Assuming you have a way to access or pass the previous state of 'final_graph'
-async def generate_alerts(analyzed_subgraph, previous_final_graph, network_name):
+async def generate_alerts(
+    analyzed_subgraph, previous_final_graph, network_name, previous_community_ids
+):
     print("Function 'generate_alerts' started.")
     findings = []
 
@@ -106,18 +108,30 @@ async def generate_alerts(analyzed_subgraph, previous_final_graph, network_name)
             # Check if this community ID has already been processed
             if community_id not in updated_clusters:
                 # Assume the community is updated by default
-                action = "updated"
+                action = "created"
 
                 # Check if previous_final_graph is provided and not None
                 if previous_final_graph:
-                    # Check if this community exists in the previous graph
-                    community_exists_in_previous = any(
-                        community_id == node_data.get("community")
-                        for _, node_data in previous_final_graph.nodes(data=True)
+                    print(
+                        f"Checking if community {community_id} exists in the previous graph."
                     )
 
-                    # If the community_id does not exist in the previous graph, it's a new community
-                    if not community_exists_in_previous:
+                    # Create a set of all unique community IDs from the previous graph
+                    previous_community_ids = previous_community_ids
+                    print(
+                        f"Unique community IDs in the previous graph: {previous_community_ids}"
+                    )
+
+                    # Check if the community_id from the current node exists in the previous community IDs set
+                    if community_id in previous_community_ids:
+                        print(
+                            f"Community ID {community_id} found in the previous graph. Marking as 'updated'."
+                        )
+                        action = "updated"
+                    else:
+                        print(
+                            f"Community ID {community_id} not found in the previous graph. Marking as 'created'."
+                        )
                         new_communities.add(community_id)
                         action = "created"
 

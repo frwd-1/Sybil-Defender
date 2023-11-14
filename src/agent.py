@@ -153,13 +153,15 @@ async def process_transactions(transaction_event: TransactionEvent):
         )
 
         try:
-            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph17.graphml")
+            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph20.graphml")
             # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
 
         except Exception as e:
             persisted_graph = nx.Graph()
 
-        final_graph = merge_final_graphs(analyzed_subgraph, persisted_graph)
+        final_graph, previous_community_ids = merge_final_graphs(
+            analyzed_subgraph, persisted_graph
+        )
 
         for node, data in final_graph.nodes(data=True):
             for key, value in list(data.items()):
@@ -176,10 +178,10 @@ async def process_transactions(transaction_event: TransactionEvent):
                     data[key] = json.dumps(value)
 
         findings = await generate_alerts(
-            analyzed_subgraph, persisted_graph, network_name
+            analyzed_subgraph, persisted_graph, network_name, previous_community_ids
         )
 
-        save_graph(final_graph, f"src/graph/graphs_two/final_graph17.graphml")
+        save_graph(final_graph, f"src/graph/graphs_two/final_graph20.graphml")
         # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
 
         for transfer in transfers:
