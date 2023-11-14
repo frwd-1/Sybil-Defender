@@ -1,5 +1,6 @@
 from Crypto.Hash import keccak
 from forta_agent import Finding, FindingSeverity, FindingType, EntityType
+from src.utils import globals
 
 import json
 
@@ -34,11 +35,23 @@ from Crypto.Hash import keccak  # Ensure to have the import statement for keccak
 
 
 def generate_alert_details(community_id, nodes, labels, contracts, chainId, action):
-    # Preparing metadata that includes details about the cluster and contracts.
+    contract_anomaly_score = (
+        (globals.sybil_contract_transactions / globals.all_contract_transactions * 100)
+        if globals.all_contract_transactions
+        else 0
+    )
+    transfer_anomaly_score = (
+        (globals.sybil_transfers / globals.all_transfers * 100)
+        if globals.all_transfers
+        else 0
+    )
+
     metadata = {
         "cluster_id": community_id,
         "chainId": chainId,
-        "interacted_contracts": contracts,  # Directly using the list of contracts.
+        "contract transaction anomaly score": contract_anomaly_score,
+        "transfer anomaly score": transfer_anomaly_score,
+        "interacted contracts": contracts,  # Directly using the list of contracts.
     }
 
     # Constructing labels for nodes, each enriched with metadata.

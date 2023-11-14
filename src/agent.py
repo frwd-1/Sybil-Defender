@@ -104,7 +104,8 @@ async def process_transactions(transaction_event: TransactionEvent):
         )
         transfers = transfer_result.scalars().all()
         print("transfers pulled")
-        print("Number of transfers:", len(transfers))
+        globals.all_transfers += len(transfers)
+        print("Number of transfers:", globals.all_transfers)
 
         contract_transaction_result = await session.execute(
             select(ContractTransaction).where(
@@ -113,8 +114,9 @@ async def process_transactions(transaction_event: TransactionEvent):
             )
         )
         contract_transactions = contract_transaction_result.scalars().all()
-        print("transfers pulled")
-        print("Number of transfers:", len(transfers))
+        print("contract transactions pulled")
+        globals.all_contract_transactions += len(contract_transactions)
+        print("Number of contract transactions:", globals.all_contract_transactions)
 
         subgraph = nx.DiGraph()
         subgraph, added_edges = add_transactions_to_graph(transfers, subgraph)
@@ -153,7 +155,7 @@ async def process_transactions(transaction_event: TransactionEvent):
         )
 
         try:
-            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph20.graphml")
+            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph17.graphml")
             # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
 
         except Exception as e:
@@ -181,7 +183,7 @@ async def process_transactions(transaction_event: TransactionEvent):
             analyzed_subgraph, persisted_graph, network_name, previous_community_ids
         )
 
-        save_graph(final_graph, f"src/graph/graphs_two/final_graph20.graphml")
+        save_graph(final_graph, f"src/graph/graphs_two/final_graph17.graphml")
         # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
 
         for transfer in transfers:
