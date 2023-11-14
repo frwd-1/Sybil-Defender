@@ -155,8 +155,11 @@ async def process_transactions(transaction_event: TransactionEvent):
         )
 
         try:
-            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph17.graphml")
-            # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+            persisted_graph = load_graph(
+                f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+            )
+            #
+            # f"src/graph/graphs_two/final_graph17.graphml"
 
         except Exception as e:
             persisted_graph = nx.Graph()
@@ -183,8 +186,11 @@ async def process_transactions(transaction_event: TransactionEvent):
             analyzed_subgraph, persisted_graph, network_name, previous_community_ids
         )
 
-        save_graph(final_graph, f"src/graph/graphs_two/final_graph17.graphml")
-        # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+        save_graph(
+            final_graph, f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+        )
+        #
+        # f"src/graph/graphs_two/final_graph17.graphml"
 
         for transfer in transfers:
             transfer.processed = True
