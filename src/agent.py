@@ -34,7 +34,7 @@ from src.database.clustering import generate_alerts
 
 transaction_batch = []
 
-debugpy.listen(5678)
+# debugpy.listen(5678)
 
 
 def handle_transaction(transaction_event: TransactionEvent):
@@ -90,7 +90,7 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
 
 
 async def process_transactions(transaction_event: TransactionEvent):
-    debugpy.wait_for_client()
+    # debugpy.wait_for_client()
     findings = []
     network_name = transaction_event.network.name
     print("network name is:", network_name)
@@ -155,9 +155,7 @@ async def process_transactions(transaction_event: TransactionEvent):
         )
 
         try:
-            persisted_graph = load_graph(
-                f"src/graph/graphs_two/final_{network_name}_graph.graphml"
-            )
+            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph17.graphml")
             #
             # f"src/graph/graphs_two/final_graph17.graphml"
 
@@ -186,9 +184,7 @@ async def process_transactions(transaction_event: TransactionEvent):
             analyzed_subgraph, persisted_graph, network_name, previous_community_ids
         )
 
-        save_graph(
-            final_graph, f"src/graph/graphs_two/final_{network_name}_graph.graphml"
-        )
+        save_graph(final_graph, f"src/graph/graphs_two/final_graph17.graphml")
         #
         # f"src/graph/graphs_two/final_graph17.graphml"
 
