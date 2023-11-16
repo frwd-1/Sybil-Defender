@@ -118,86 +118,88 @@ async def process_transactions(transaction_event: TransactionEvent):
         globals.all_contract_transactions += len(contract_transactions)
         print("Number of contract transactions:", globals.all_contract_transactions)
 
-        subgraph = nx.DiGraph()
-        subgraph, added_edges = add_transactions_to_graph(transfers, subgraph)
-        print("added total edges:", len(added_edges))
-
-        # globals.global_added_edges.extend(added_edges)
-        # Create a new directed subgraph using only the edges added in the current iteration
-
-        subgraph = adjust_edge_weights_and_variances(transfers, subgraph)
-
-        subgraph = convert_decimal_to_float(subgraph)
-        # nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
-
-        print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
-        print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
-
-        subgraph_partitions = run_algorithm(subgraph)
-
-        updated_subgraph = process_partitions(subgraph_partitions, subgraph)
-        nx.write_graphml(
-            updated_subgraph,
-            f"src/graph/graphs/updated_{network_name}_subgraph.graphml",
-        )
-
-        # print("is initial batch?", globals.is_initial_batch)
-        # if not globals.is_initial_batch:
-        #     merge_new_communities(
-        #         updated_subgraph,
-        #     )
-        # else:
-        #     globals.G2 = updated_subgraph.copy()
-
-        print("analyzing clusters for suspicious activity")
-        analyzed_subgraph = (
-            await analyze_communities(updated_subgraph, contract_transactions) or []
-        )
-
-        try:
-            persisted_graph = load_graph(f"src/graph/graphs_two/final_graph17.graphml")
-            #
-            # f"src/graph/graphs_two/final_graph17.graphml"
-
-        except Exception as e:
-            persisted_graph = nx.Graph()
-
-        final_graph, previous_community_ids = merge_final_graphs(
-            analyzed_subgraph, persisted_graph
-        )
-
-        for node, data in final_graph.nodes(data=True):
-            for key, value in list(data.items()):
-                if isinstance(value, type):
-                    data[key] = str(value)
-                elif isinstance(value, list):
-                    data[key] = json.dumps(value)
-
-        for u, v, data in final_graph.edges(data=True):
-            for key, value in list(data.items()):
-                if isinstance(value, type):
-                    data[key] = str(value)
-                elif isinstance(value, list):
-                    data[key] = json.dumps(value)
-
-        findings = await generate_alerts(
-            analyzed_subgraph, persisted_graph, network_name, previous_community_ids
-        )
-
-        save_graph(final_graph, f"src/graph/graphs_two/final_graph17.graphml")
-        #
-        # f"src/graph/graphs_two/final_graph17.graphml"
-
         for transfer in transfers:
             transfer.processed = True
         for transaction in contract_transactions:
             transaction.processed = True
         await session.commit()
 
-        # globals.global_added_edges = []
+    subgraph = nx.DiGraph()
+    subgraph, added_edges = add_transactions_to_graph(transfers, subgraph)
+    print("added total edges:", len(added_edges))
 
-        print("COMPLETE")
-        return findings
+    # globals.global_added_edges.extend(added_edges)
+    # Create a new directed subgraph using only the edges added in the current iteration
+
+    subgraph = adjust_edge_weights_and_variances(transfers, subgraph)
+
+    subgraph = convert_decimal_to_float(subgraph)
+    # nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
+
+    print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
+    print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
+
+    subgraph_partitions = run_algorithm(subgraph)
+
+    updated_subgraph = process_partitions(subgraph_partitions, subgraph)
+    nx.write_graphml(
+        updated_subgraph,
+        f"src/graph/graphs/updated_{network_name}_subgraph.graphml",
+    )
+
+    # print("is initial batch?", globals.is_initial_batch)
+    # if not globals.is_initial_batch:
+    #     merge_new_communities(
+    #         updated_subgraph,
+    #     )
+    # else:
+    #     globals.G2 = updated_subgraph.copy()
+
+    print("analyzing clusters for suspicious activity")
+    analyzed_subgraph = (
+        await analyze_communities(updated_subgraph, contract_transactions) or []
+    )
+
+    try:
+        persisted_graph = load_graph(
+            f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+        )
+        #
+        # f"src/graph/graphs_two/final_graph17.graphml"
+
+    except Exception as e:
+        persisted_graph = nx.Graph()
+
+    final_graph, previous_community_ids = merge_final_graphs(
+        analyzed_subgraph, persisted_graph
+    )
+
+    for node, data in final_graph.nodes(data=True):
+        for key, value in list(data.items()):
+            if isinstance(value, type):
+                data[key] = str(value)
+            elif isinstance(value, list):
+                data[key] = json.dumps(value)
+
+    for u, v, data in final_graph.edges(data=True):
+        for key, value in list(data.items()):
+            if isinstance(value, type):
+                data[key] = str(value)
+            elif isinstance(value, list):
+                data[key] = json.dumps(value)
+
+    findings = await generate_alerts(
+        analyzed_subgraph, persisted_graph, network_name, previous_community_ids
+    )
+
+    save_graph(final_graph, f"src/graph/graphs_two/final_{network_name}_graph.graphml")
+    #
+    # f"src/graph/graphs_two/final_graph17.graphml"
+
+    # globals.global_added_edges = []
+
+    print("COMPLETE")
+    return findings
 
 
 # TODO: enable async / continuous processing of new transactions
