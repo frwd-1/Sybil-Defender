@@ -26,15 +26,3 @@ A performance comparison was conducted between Sybil Defender and Arbitrum's Syb
 ![Sybil Defender Cluster](image-path-or-link)
 
 Sybil Defender demonstrated a higher capability in identifying and visualizing complex clusters compared to Arbitrum's detection method.
-
-## Contributing
-
-Contributors are encouraged to submit pull requests to improve the bot. Please adhere to the code style and guidelines provided.
-
-## License
-
-Sybil Defender is made available under the MIT License.
-
----
-
-Please note that the images are for demonstration purposes. Replace `image-path-or-link` with the actual paths or URLs to the images in your repository.
