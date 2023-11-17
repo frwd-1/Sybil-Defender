@@ -1,4 +1,4 @@
-# Sybil Defender Bot for Forta Network
+# Sybil Defender
 
 ## Overview
 
@@ -11,7 +11,7 @@ Sybil Defender is a Forta bot developed to identify Sybil attacks on the applica
 - **Graph Building:** Constructs directed subgraphs from transactions to analyze wallet clusters.
 - **Community Detection:** Employs algorithms to identify potential Sybil communities.
 - **Anomaly Alerting:** Alerts on unusual transaction patterns and interactions.
-- **State Persistence:** Keeps track of historical data for ongoing analysis.
+- **State Persistence:** Keeps track of historical data for dynamic clustering and real-time analysis.
 
 ## Performance Comparison
 
