@@ -19,7 +19,7 @@ A performance comparison was conducted between Sybil Defender and Arbitrum's Syb
 
 - **Arbitrum Detection:** Detected a cluster with 56 addresses for node `0xc7bb9b943fd2a04f651cc513c17eb5671b90912d`.
 
-![Arbitrum Cluster](image-path-or-link)
+![Arbitrum Cluster](./images/Cluster1544.png)
 
 - **Sybil Defender Detection:** Detected a more complex cluster with 96 addresses for the same node.
 
