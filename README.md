@@ -17,12 +17,19 @@ Sybil Defender is a Forta bot developed to identify Sybil attacks on the applica
 
 A performance comparison was conducted between Sybil Defender and Arbitrum's Sybil detection mechanisms.
 
-- **Arbitrum Detection:** Detected a cluster with 56 addresses for node `0xc7bb9b943fd2a04f651cc513c17eb5671b90912d`.
-
-![Arbitrum Cluster](./images/Cluster1544.png)
-
-- **Sybil Defender Detection:** Detected a more complex cluster with 96 addresses for the same node.
-
-![Sybil Defender Cluster](image-path-or-link)
+<table>
+  <tr>
+    <td>
+      <b>Arbitrum Detection:</b> Detected a cluster with 56 addresses for node <code>0xc7bb9b943fd2a04f651cc513c17eb5671b90912d</code>.
+      <br>
+      <img src="./images/Cluster1544.png" alt="Arbitrum Cluster">
+    </td>
+    <td>
+      <b>Sybil Defender Detection:</b> Detected a more complex cluster with 96 addresses for the same node.
+      <br>
+      <img src="./images/SybilDefender_Cluster82.png" alt="Sybil Defender Cluster">
+    </td>
+  </tr>
+</table>
 
 Sybil Defender demonstrated a higher capability in identifying and visualizing complex clusters compared to Arbitrum's detection method.
