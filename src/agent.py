@@ -40,35 +40,38 @@ transaction_batch = []
 def handle_transaction(transaction_event: TransactionEvent):
     print("running handle transaction")
     loop = asyncio.get_event_loop()
+    network_name = transaction_event.network.name
 
     if not loop.is_running():
-        loop.run_until_complete(initialize_database())
+        loop.run_until_complete(initialize_database(network_name))
     else:
-        loop.create_task(initialize_database())
+        loop.create_task(initialize_database(network_name))
 
-    return loop.run_until_complete(handle_transaction_async(transaction_event))
+    return loop.run_until_complete(
+        handle_transaction_async(transaction_event, network_name)
+    )
 
 
-async def handle_transaction_async(transaction_event: TransactionEvent):
+async def handle_transaction_async(
+    transaction_event: TransactionEvent, network_name: str
+):
     findings = []
-    await initialize_database()
+    # await initialize_database(network_name)
     print("applying initial heuristics")
+    # Assume apply_initial_heuristics is defined elsewhere
     if not await apply_initial_heuristics(transaction_event):
         return []
 
     transaction_batch.append(transaction_event)
     print("batch size is:", len(transaction_batch))
     if len(transaction_batch) >= BATCH_SIZE:
-        async with get_async_session() as session:
+        async with get_async_session(network_name) as session:
             try:
                 await add_transactions_batch_to_db(session, transaction_batch)
-                await session.commit()
                 print(f"{BATCH_SIZE} transactions committed to the database")
             except Exception as e:
-                await session.rollback()
                 print(f"An error occurred: {e}")
 
-        # Clear the batch
         transaction_batch.clear()
 
     update_transaction_counter()
@@ -77,10 +80,10 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     print("current block is...", transaction_event.block_number)
     if globals.transaction_counter >= N:
         print("processing transactions")
+        findings.extend(await process_transactions(network_name))
 
-        findings.extend(await process_transactions(transaction_event))
-        await remove_processed_transfers()
-        await remove_processed_contract_transactions()
+        await remove_processed_transfers(network_name)
+        await remove_processed_contract_transactions(network_name)
 
         globals.transaction_counter = 0
         print("ALL COMPLETE")
@@ -89,14 +92,13 @@ async def handle_transaction_async(transaction_event: TransactionEvent):
     return []
 
 
-async def process_transactions(transaction_event: TransactionEvent):
-    # debugpy.wait_for_client()
+async def process_transactions(network_name: str):
     findings = []
-    network_name = transaction_event.network.name
     print("network name is:", network_name)
 
-    async with get_async_session() as session:
+    async with get_async_session(network_name) as session:
         print("pulling all transfers...")
+        # Assume the Transfer model and select function are defined elsewhere
         transfer_result = await session.execute(
             select(Transfer).where(
                 (Transfer.processed == False) & (Transfer.chainId == network_name)
