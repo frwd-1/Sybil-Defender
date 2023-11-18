@@ -31,7 +31,7 @@ A performance comparison was conducted between Sybil Defender and Arbitrum's Syb
     <td>
       <b>Feature B:</b> Description for feature B...
       <br>
-      <img src="path-to-image-for-feature-B.png" alt="Feature B">
+      <img src="./images/Cluster319.png" alt="Feature B">
     </td>
   </tr>
 </table>
