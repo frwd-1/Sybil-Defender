@@ -162,8 +162,8 @@ async def process_transactions(transaction_event: TransactionEvent):
 
     try:
         persisted_graph = load_graph(
-            # f"src/graph/graphs_two/final_{network_name}_graph.graphml"
-            f"src/graph/graphs_two/final_graph17.graphml"
+            f"src/graph/graphs_two/final_{network_name}_graph.graphml"
+            # f"src/graph/graphs_two/final_graph17.graphml"
         )
 
     except Exception as e:
@@ -193,8 +193,8 @@ async def process_transactions(transaction_event: TransactionEvent):
 
     save_graph(
         final_graph,
-        f"src/graph/graphs_two/final_graph17.graphml"
-        # f"src/graph/graphs_two/final_{network_name}_graph.graphml",
+        # f"src/graph/graphs_two/final_graph17.graphml"
+        f"src/graph/graphs_two/final_{network_name}_graph.graphml",
     )
 
     # globals.global_added_edges = []
