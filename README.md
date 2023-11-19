@@ -36,7 +36,7 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
   </tr>
   <tr>
     <td colspan="2" style="text-align:center;">
-      Sample address: 0xc7bb9b943fd2a04f651cc513c17eb5671b90912d
+      Common address: 0xc7bb9b943fd2a04f651cc513c17eb5671b90912d
     </td>
   </tr>
 </table>
@@ -58,7 +58,7 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
   </tr>
   <tr>
     <td colspan="2" style="text-align:center;">
-      Sample address: 0x1ddbf60792aac896aed180eaa6810fccd7839ada
+      Common address: 0x1ddbf60792aac896aed180eaa6810fccd7839ada
     </td>
   </tr>
 </table>
