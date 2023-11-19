@@ -48,7 +48,7 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
     <td>
       <b>Sybil Defender:</b> Identified Sybil cluster with 99 eligible nodes
       <br>
-      <img src="./images/Cluster82.png" alt="Sybil Defender Cluster" width="300" height="200">
+      <img src="./images/SybilDefender_Cluster82.png" alt="Sybil Defender Cluster" width="300" height="200">
     </td>
     <td>
       <b>Arbitrum Detection:</b> Identified Sybil cluster with 110 eligible nodes
