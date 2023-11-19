@@ -46,14 +46,19 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
 <table>
   <tr>
     <td>
-      <b>Feature C:</b> Description for feature C...
+      <b>Sybil Defender:</b> Identified Sybil cluster with 99 eligible nodes
       <br>
-      <img src="path-to-image-for-feature-C.png" alt="Feature C">
+      <img src="./images/Cluster82.png" alt="Sybil Defender Cluster" width="300" height="200">
     </td>
     <td>
-      <b>Feature D:</b> Description for feature D...
+      <b>Arbitrum Detection:</b> Identified Sybil cluster with 110 eligible nodes
       <br>
-      <img src="path-to-image-for-feature-D.png" alt="Feature D">
+      <img src="./images/Cluster319.png" alt="Arbitrum Cluster" width="300" height="200">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:center;">
+      Sample address: 0x1ddbf60792aac896aed180eaa6810fccd7839ada
     </td>
   </tr>
 </table>
