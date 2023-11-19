@@ -2,7 +2,7 @@
 
 ## Overview
 
-Sybil Defender is a Forta bot developed to identify Sybil attacks on the application layer of EVM-compatible blockchains. This includes Ethereum, Arbitrum, Optimism, Polygon, Binance Smart Chain, Avalanche, and Fantom. It monitors transactions to detect patterns that may indicate Sybil behavior, such as Airdrop Farming, Governance Attacks, and Wash Trading/Market Manipulation.
+The Sybil Defender identifies and labels Sybil Attack clusters operating on the application layer of EVM-compatible blockchains. This includes Ethereum, Arbitrum, Optimism, Polygon, Binance Smart Chain, Avalanche, and Fantom. It monitors transactions to detect patterns that may indicate Sybil behavior, such as Airdrop Farming, Governance Attacks, and Wash Trading/Market Manipulation.
 
 ## Features
 
@@ -13,9 +13,7 @@ Sybil Defender is a Forta bot developed to identify Sybil attacks on the applica
 - **Sybil Detection:** Filters communities for known Sybil Attack patterns to generate accurate alerts.
 - **State Persistence:** Keeps track of historical data for dynamic clustering and real-time analysis.
 
-## Performance Insights
-
-## Performance Insights
+## Performance
 
 During a performance evaluation, Sybil Defender analyzed a sample of approximately 8 hours of activity on the Arbitrum network prior to the airdrop snapshot in March 2023. The analysis identified 211 Sybil Clusters consisting of 7731 nodes in total.
 
