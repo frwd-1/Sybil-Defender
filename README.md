@@ -19,7 +19,7 @@ Sybil Defender has demonstrated remarkable effectiveness in identifying and anal
 
 Furthermore, the same sampling session successfully identified all 4 clusters that were previously highlighted by Arbitrum's own Sybil detection strategy. This not only validates the accuracy of Sybil Defender's detection algorithms but also emphasizes its ability to match and exceed existing Sybil detection standards.
 
-## Comparison Example 1
+## Sample 1
 
 <table>
   <tr>
@@ -41,7 +41,7 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
   </tr>
 </table>
 
-## Comparison Example 2
+## Sample 2
 
 <table>
   <tr>
@@ -63,38 +63,48 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
   </tr>
 </table>
 
-## Comparison Example 3
+## Sample 3
 
 <table>
   <tr>
     <td>
-      <b>Feature E:</b> Description for feature E...
+      <b>Sybil Defender:</b> Identified Sybil cluster with 507 eligible nodes
       <br>
-      <img src="path-to-image-for-feature-E.png" alt="Feature E">
+      <img src="./images/Cluster3.png" alt="Sybil Defender Cluster" width="300" height="200">
     </td>
     <td>
-      <b>Feature F:</b> Description for feature F...
+      <b>Arbitrum Detection:</b> Identified Sybil cluster with 121 eligible nodes
       <br>
-      <img src="path-to-image-for-feature-F.png" alt="Feature F">
+      <img src="./images/Cluster2554.png" alt="Arbitrum Cluster" width="300" height="200">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:center;">
+      Common address: 0x3fb4c01b5ceecf307010f84c9a858aeaeab0b9fa
     </td>
   </tr>
 </table>
 
-## Your Existing Comparison
+## Sample 4
 
 <table>
   <tr>
     <td>
-      <b>Arbitrum Detection:</b> Detected a cluster with 56 addresses for node <code>0xc7bb9b943fd2a04f651cc513c17eb5671b90912d</code>.
+      <b>Sybil Defender:</b> Identified Sybil cluster with 51 eligible nodes
       <br>
-      <img src="./images/Cluster1544.png" alt="Arbitrum Cluster">
+      <img src="./images/Cluster85.png" alt="Sybil Defender Cluster" width="300" height="200">
     </td>
     <td>
-      <b>Sybil Defender Detection:</b> Detected a more complex cluster with 96 addresses for the same node.
+      <b>Arbitrum Detection:</b> Identified Sybil cluster with 65 eligible nodes
       <br>
-      <img src="image-path-or-link" alt="Sybil Defender Cluster">
+      <img src="./images/Cluster3316.png" alt="Arbitrum Cluster" width="300" height="200">
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" style="text-align:center;">
+      Common address: 0x15bc18bb8c378c94c04795d72621957497130400
     </td>
   </tr>
 </table>
 
-Sybil Defender demonstrated a higher capability in identifying and visualizing complex clusters compared to Arbitrum's detection method.
+The full sample graph can be viewed [here](src/tests/ArbitrumSampling.graphml).
