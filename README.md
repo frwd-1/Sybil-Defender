@@ -107,4 +107,4 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
   </tr>
 </table>
 
-The full sample graph can be viewed [here](src/tests/ArbitrumSampling.graphml).
+The full sample graph file is [here](src/tests/ArbitrumSampling.graphml).
