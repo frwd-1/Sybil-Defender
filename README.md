@@ -6,32 +6,32 @@ Sybil Defender is a Forta bot developed to identify Sybil attacks on the applica
 
 ## Features
 
-- **Transaction Monitoring:** Monitors on-chain transactions for potential Sybil activities.
+- **Real Time Monitoring:** Monitors on-chain transactions in real time.
+- **Dynamic Clustering:** Dynamically updates existing clusters based on incoming activity.
 - **Heuristic Analysis:** Applies heuristics to initially assess transactions for Sybil attack patterns.
-- **Graph Building:** Constructs directed subgraphs from transactions to analyze wallet clusters.
-- **Community Detection:** Employs algorithms to identify potential Sybil communities.
-- **Anomaly Alerting:** Alerts on unusual transaction patterns and interactions.
+- **Community Detection:** Employs sophisticated algorithms to identify communities.
+- **Sybil Detection:** Filters communities for known Sybil Attack patterns to generate accurate alerts.
 - **State Persistence:** Keeps track of historical data for dynamic clustering and real-time analysis.
 
-## Performance Comparison
+## Performance Insights
 
-A performance comparison was conducted between Sybil Defender and Arbitrum's Sybil detection mechanisms.
+Sybil Defender has demonstrated remarkable effectiveness in identifying and analyzing Sybil attack patterns. In a targeted performance evaluation, the application analyzed approximately 8 hours of Arbitrum network activity. This intensive analysis led to the discovery of 211 Sybil Clusters, encompassing a total of 7731 nodes. This finding is significant as it showcases the depth and breadth of Sybil Defender's monitoring capabilities.
 
-# Your README Title
+Furthermore, the same sampling session successfully identified all 4 clusters that were previously highlighted by Arbitrum's own Sybil detection strategy. This not only validates the accuracy of Sybil Defender's detection algorithms but also emphasizes its ability to match and exceed existing Sybil detection standards.
 
 ## Comparison Example 1
 
 <table>
   <tr>
     <td>
-      <b>Feature A:</b> Description for feature A...
+      <b>Sybil Defender:</b> Identified Sybil cluster with 95 eligible nodes
       <br>
       <img src="./images/SybilDefender_Cluster117.png" alt="Feature A">
     </td>
     <td>
       <b>Feature B:</b> Description for feature B...
       <br>
-      <img src="./images/Cluster319.png" alt="Feature B">
+      <img src="./images/Cluster1544.png" alt="Feature B">
     </td>
   </tr>
 </table>

@@ -1,7 +1,7 @@
 # transaction counter threshold. ie, every N transactions process_clusters is run
 # TODO: may need to adjust for L2 chains?
-N = 1000
-BATCH_SIZE = 500
+N = 10000
+BATCH_SIZE = 10000
 
 COMMUNITY_SIZE = 5
 # similarity threshold checks the similarity of account activities
