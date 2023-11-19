@@ -26,7 +26,7 @@ Furthermore, the same sampling session successfully identified all 4 clusters th
     <td>
       <b>Sybil Defender:</b> Identified Sybil cluster with 95 eligible nodes
       <br>
-      <img src="">
+      <img src="./images/SybilDefender_Cluster117.png">
     </td>
     <td>
       <b>Arbitrum Detection:</b> Identified Sybil cluster with 56 eligible nodes. Sample address: 0xc7bb9b943fd2a04f651cc513c17eb5671b90912d
