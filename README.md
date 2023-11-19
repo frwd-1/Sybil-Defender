@@ -15,9 +15,11 @@ Sybil Defender is a Forta bot developed to identify Sybil attacks on the applica
 
 ## Performance Insights
 
-Sybil Defender has demonstrated remarkable effectiveness in identifying and analyzing Sybil attack patterns. In a targeted performance evaluation, the application analyzed approximately 8 hours of Arbitrum network activity. This intensive analysis led to the discovery of 211 Sybil Clusters, encompassing a total of 7731 nodes. This finding is significant as it showcases the depth and breadth of Sybil Defender's monitoring capabilities.
+## Performance Insights
 
-Furthermore, the same sampling session successfully identified all 4 clusters that were previously highlighted by Arbitrum's own Sybil detection strategy. This not only validates the accuracy of Sybil Defender's detection algorithms but also emphasizes its ability to match and exceed existing Sybil detection standards.
+During a performance evaluation, Sybil Defender analyzed a sample of approximately 8 hours of activity on the Arbitrum network prior to the airdrop snapshot in March 2023. The analysis identified 211 Sybil Clusters consisting of 7731 nodes in total.
+
+In addition, this evaluation confirmed the identification of all 4 clusters previously detected by Arbitrum's Sybil detection mechanisms.
 
 ## Sample 1
 
