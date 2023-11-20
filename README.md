@@ -17,7 +17,7 @@ The Sybil Defender identifies and labels Sybil Attack clusters operating on the 
 
 During a performance evaluation, Sybil Defender analyzed a sample of approximately 8 hours of activity on the Arbitrum network prior to the airdrop snapshot in March 2023. The analysis identified 211 Sybil Clusters consisting of 7731 nodes in total.
 
-In addition, this evaluation confirmed the identification of all 4 clusters previously detected by Arbitrum's Sybil detection mechanisms.
+In addition, this evaluation confirmed the identification of all 4 clusters highlighted by Arbitrum's Sybil detection mechanisms.
 
 ## Sample 1
 
