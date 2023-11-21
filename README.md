@@ -19,7 +19,7 @@ During a performance evaluation, Sybil Defender analyzed a sample of approximate
 
 In addition, this evaluation confirmed the identification of all 4 clusters highlighted by [Arbitrum's](https://github.com/ArbitrumFoundation/sybil-detection) Sybil detection mechanisms.
 
-The full sample graph file is [here](src/tests/ArbitrumSampling.graphml).
+The full sample graph file can be found [here](src/tests/ArbitrumSampling.graphml).
 
 ## Sample 1
 
