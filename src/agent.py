@@ -35,6 +35,7 @@ from src.database.clustering import generate_alerts
 transaction_batch = []
 
 # debugpy.listen(5678)
+# armor
 
 
 def handle_transaction(transaction_event: TransactionEvent):
