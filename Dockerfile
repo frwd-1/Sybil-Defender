@@ -56,8 +56,7 @@ ENV NODE_ENV=production
 LABEL "network.forta.settings.agent-logs.enable"="true"
 
 WORKDIR /app
-COPY .env ./
-COPY ./src ./src
+COPY ./dist ./src
 COPY package*.json ./
 COPY LICENSE.md ./
 
