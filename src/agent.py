@@ -1,14 +1,13 @@
 import asyncio
 import debugpy
 
-
 from forta_agent import TransactionEvent
 
-from src.hydra.database.db_controller import initialize_database
+from src.hydra.database_controllers.db_controller import initialize_database
 
-from src.hydra.database.db_controller import get_async_session
-from src.hydra.database.db_utils import (
-    add_transactions_batch_to_db,
+from src.hydra.database_controllers.db_controller import get_async_session
+from src.hydra.database_controllers.db_utils import (
+    add_transactions_b_to_db,
     remove_processed_transfers,
     remove_processed_contract_transactions,
 )
@@ -16,11 +15,11 @@ from src.hydra.database.db_utils import (
 from src.hydra.process.process import process_transactions
 from src.hydra.heuristics.initial_heuristics import apply_initial_heuristics
 from src.hydra.utils import globals
-from src.hydra.utils.constants import N, BATCH_SIZE
+from src.constants import N, B_SIZE
 from src.hydra.utils.utils import update_transaction_counter
 
 
-transaction_batch = []
+transaction_b = []
 
 # debugpy.listen(5678)
 # armor
@@ -51,17 +50,17 @@ async def handle_transaction_async(
     if not await apply_initial_heuristics(transaction_event):
         return []
 
-    transaction_batch.append(transaction_event)
-    print("batch size is:", len(transaction_batch))
-    if len(transaction_batch) >= BATCH_SIZE:
+    transaction_b.append(transaction_event)
+    print("batch size is:", len(transaction_b))
+    if len(transaction_b) >= B_SIZE:
         async with get_async_session(network_name) as session:
             try:
-                await add_transactions_batch_to_db(session, transaction_batch)
-                print(f"{BATCH_SIZE} transactions committed to the database")
+                await add_transactions_b_to_db(session, transaction_b)
+                print(f"{B_SIZE} transactions committed to the database")
             except Exception as e:
                 print(f"An error occurred: {e}")
 
-        transaction_batch.clear()
+        transaction_b.clear()
 
     update_transaction_counter()
 
