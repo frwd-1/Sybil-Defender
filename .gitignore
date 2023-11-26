@@ -6,7 +6,6 @@ __pycache__
 .env
 alembic.ini
 .graphml
-src/dynamic/
-src/analysis/
-src/graph/graphs_two
+src/hydra
+src/hydra_clean
 Dockerfile

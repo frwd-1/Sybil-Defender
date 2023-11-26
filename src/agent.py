@@ -1,36 +1,24 @@
-import networkx as nx
 import asyncio
 import debugpy
-import json
+
 
 from forta_agent import TransactionEvent
-from sqlalchemy.future import select
-from src.analysis.community_analysis.base_analyzer import (
-    analyze_communities,
-)
-from src.database.db_controller import initialize_database
-from src.analysis.transaction_analysis.algorithm import run_algorithm
-from src.database.db_controller import get_async_session
-from src.database.db_utils import (
+
+from src.hydra.database.db_controller import initialize_database
+
+from src.hydra.database.db_controller import get_async_session
+from src.hydra.database.db_utils import (
     add_transactions_batch_to_db,
     remove_processed_transfers,
     remove_processed_contract_transactions,
 )
-from src.database.models import Transfer, ContractTransaction
-from src.graph.graph_controller import (
-    add_transactions_to_graph,
-    adjust_edge_weights_and_variances,
-    convert_decimal_to_float,
-    process_partitions,
-)
-from src.dynamic.dynamic_communities import merge_new_communities
-from src.dynamic.dynamic_suspicious import merge_final_graphs
-from src.graph.final_graph_controller import load_graph, save_graph
-from src.heuristics.initial_heuristics import apply_initial_heuristics
-from src.utils import globals
-from src.utils.constants import N, BATCH_SIZE
-from src.utils.utils import update_transaction_counter
-from src.database.clustering import generate_alerts
+
+from src.hydra.process.process import process_transactions
+from src.hydra.heuristics.initial_heuristics import apply_initial_heuristics
+from src.hydra.utils import globals
+from src.hydra.utils.constants import N, BATCH_SIZE
+from src.hydra.utils.utils import update_transaction_counter
+
 
 transaction_batch = []
 
@@ -91,138 +79,3 @@ async def handle_transaction_async(
         return findings
 
     return []
-
-
-async def process_transactions(network_name: str):
-    findings = []
-    print("network name is:", network_name)
-
-    async with get_async_session(network_name) as session:
-        print("pulling all transfers...")
-        # Assume the Transfer model and select function are defined elsewhere
-        transfer_result = await session.execute(
-            select(Transfer).where(
-                (Transfer.processed == False) & (Transfer.chainId == network_name)
-            )
-        )
-        transfers = transfer_result.scalars().all()
-        print("transfers pulled")
-        globals.all_transfers += len(transfers)
-        print("Number of transfers:", globals.all_transfers)
-
-        contract_transaction_result = await session.execute(
-            select(ContractTransaction).where(
-                (ContractTransaction.processed == False)
-                & (ContractTransaction.chainId == network_name)
-            )
-        )
-        contract_transactions = contract_transaction_result.scalars().all()
-        print("contract transactions pulled")
-        globals.all_contract_transactions += len(contract_transactions)
-        print("Number of contract transactions:", globals.all_contract_transactions)
-
-        for transfer in transfers:
-            transfer.processed = True
-        for transaction in contract_transactions:
-            transaction.processed = True
-        await session.commit()
-
-    subgraph = nx.DiGraph()
-    subgraph, added_edges = add_transactions_to_graph(transfers, subgraph)
-    print("added total edges:", len(added_edges))
-
-    # globals.global_added_edges.extend(added_edges)
-    # Create a new directed subgraph using only the edges added in the current iteration
-
-    subgraph = adjust_edge_weights_and_variances(transfers, subgraph)
-
-    subgraph = convert_decimal_to_float(subgraph)
-    # nx.write_graphml(globals.G1, "src/graph/graphs/initial_global_graph.graphml")
-
-    print(f"Number of nodes in subgraph: {subgraph.number_of_nodes()}")
-    print(f"Number of edges in subgraph: {subgraph.number_of_edges()}")
-
-    subgraph_partitions = run_algorithm(subgraph)
-
-    updated_subgraph = process_partitions(subgraph_partitions, subgraph)
-    nx.write_graphml(
-        updated_subgraph,
-        f"src/graph/graphs/updated_{network_name}_subgraph.graphml",
-    )
-
-    # print("is initial batch?", globals.is_initial_batch)
-    # if not globals.is_initial_batch:
-    #     merge_new_communities(
-    #         updated_subgraph,
-    #     )
-    # else:
-    #     globals.G2 = updated_subgraph.copy()
-
-    print("analyzing clusters for suspicious activity")
-    analyzed_subgraph = (
-        await analyze_communities(updated_subgraph, contract_transactions) or []
-    )
-
-    try:
-        persisted_graph = load_graph(
-            f"src/graph/graphs_two/final_{network_name}_graph.graphml"
-            # f"src/graph/graphs_two/final_graph17.graphml"
-        )
-
-    except Exception as e:
-        persisted_graph = nx.Graph()
-
-    final_graph, previous_community_ids = merge_final_graphs(
-        analyzed_subgraph, persisted_graph
-    )
-
-    for node, data in final_graph.nodes(data=True):
-        for key, value in list(data.items()):
-            if isinstance(value, type):
-                data[key] = str(value)
-            elif isinstance(value, list):
-                data[key] = json.dumps(value)
-
-    for u, v, data in final_graph.edges(data=True):
-        for key, value in list(data.items()):
-            if isinstance(value, type):
-                data[key] = str(value)
-            elif isinstance(value, list):
-                data[key] = json.dumps(value)
-
-    findings = await generate_alerts(
-        analyzed_subgraph, persisted_graph, network_name, previous_community_ids
-    )
-
-    save_graph(
-        final_graph,
-        # f"src/graph/graphs_two/final_graph17.graphml"
-        f"src/graph/graphs_two/final_{network_name}_graph.graphml",
-    )
-
-    # globals.global_added_edges = []
-
-    print("COMPLETE")
-    return findings
-
-
-# TODO: enable async / continuous processing of new transactions
-# TODO: manage "cross-community edges"
-
-# TODO: 1. don't replace any existing communities with l, just see if you have new communities
-# TODO: 2. don't remove nodes / edges, until you are dropping old transactions, then just drop anything not part of a community
-# TODO: 3. run LPA on existing communities to detect new nodes / edges
-
-# TODO: label community centroids?
-# TODO: have database retain the transactions and contract txs only for nodes in Sybil Clusters
-# TODO: upgrade to Neo4j?
-
-# TODO: double check advanced heuristics
-# print("running advanced heuristics")
-# await sybil_heuristics(globals.G1)
-
-# TODO: status for active and inactive communities, alerts for new communities detected
-# TODO: if new activity comes in on accounts already identified as sybils, flag it. monitor sybils specifically as new transactions come in
-
-# TODO: does db need initialization?
-# TODO: fix transfer timestamp / other timestamps
