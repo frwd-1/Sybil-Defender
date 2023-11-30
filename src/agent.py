@@ -44,7 +44,7 @@ async def handle_transaction_async(
     transaction_event: TransactionEvent, network_name: str
 ):
     findings = []
-    # await initialize_database(network_name)
+
     print("applying initial heuristics")
     # Assume apply_initial_heuristics is defined elsewhere
     if not await apply_initial_heuristics(transaction_event):
