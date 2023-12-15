@@ -32,7 +32,11 @@
     "test": "python3 -m pytest"
   },
   "dependencies": {
-    "forta-agent": "^0.1.43"
+    "@apollo/client": "^3.8.8",
+    "cross-fetch": "^4.0.0",
+    "dotenv": "^16.3.1",
+    "forta-agent": "^0.1.43",
+    "graphql": "^16.8.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.8"
