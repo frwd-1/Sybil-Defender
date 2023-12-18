@@ -78,6 +78,3 @@ async def handle_transaction_async(
         return findings
 
     return []
-
-
-# testing
