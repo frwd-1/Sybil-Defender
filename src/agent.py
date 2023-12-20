@@ -23,6 +23,7 @@ transaction_b = []
 
 # debugpy.listen(5678)
 # armor
+# check
 
 
 def handle_transaction(transaction_event: TransactionEvent):
