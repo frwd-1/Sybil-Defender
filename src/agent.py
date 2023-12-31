@@ -21,10 +21,8 @@ from src.hydra.utils.utils import update_transaction_counter
 
 transaction_b = []
 
-debugpy.listen(5678)
-debugpy.wait_for_client()
-# armor
-# check
+# debugpy.listen(5678)
+# debugpy.wait_for_client()
 
 
 def handle_transaction(transaction_event: TransactionEvent):
