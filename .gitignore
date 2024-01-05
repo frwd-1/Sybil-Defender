@@ -10,5 +10,6 @@ src/hydra
 src/hydra_clean
 src/g
 src/db
+src/contracts
 Dockerfile
 apollo
